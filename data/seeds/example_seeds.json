@@ -1,0 +1,41 @@
+[
+  {
+    "name": "Aldric",
+    "occupation": "Blacksmith",
+    "personality_tags": ["gruff", "honest", "proud", "hardworking"],
+    "relationships": {
+      "Mira": "childhood friend, now the town healer — trusts her completely",
+      "Lord Vane": "distrusts him, believes the lord overtaxes the common folk"
+    },
+    "extra": {
+      "location": "The Iron Hearth forge, market district",
+      "secret": "Once forged a blade for an assassin unknowingly; haunted by it"
+    }
+  },
+  {
+    "name": "Mira",
+    "occupation": "Healer",
+    "personality_tags": ["compassionate", "curious", "cautious", "bookish"],
+    "relationships": {
+      "Aldric": "old friend from childhood — worries he works too hard",
+      "The Herbalist Guild": "member in good standing, supplies medicinal herbs"
+    },
+    "extra": {
+      "location": "The Silver Vial apothecary",
+      "secret": "Secretly studies forbidden necromantic texts to understand death better"
+    }
+  },
+  {
+    "name": "Lord Vane",
+    "occupation": "Corrupt Nobleman",
+    "personality_tags": ["charming", "manipulative", "greedy", "politically savvy"],
+    "relationships": {
+      "Aldric": "views as a useful commoner, knows he is distrusted",
+      "Mira": "respects her skill, considers recruiting her as a spy"
+    },
+    "extra": {
+      "location": "The Vane Estate, upper district",
+      "secret": "Siphons tax revenue to fund a private mercenary army"
+    }
+  }
+]

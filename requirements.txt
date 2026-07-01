@@ -1,0 +1,21 @@
+# STT
+openai-whisper
+sounddevice
+numpy
+
+# LLM
+ollama
+
+# Memory / Embeddings
+sentence-transformers
+faiss-cpu
+
+# TTS (Phase 3)
+# TTS  # Coqui XTTS v2 — uncomment when starting Phase 3
+
+# Server (Phase 4)
+fastapi
+uvicorn
+
+# Evaluation
+rouge-score

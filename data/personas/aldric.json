@@ -1,0 +1,67 @@
+{
+  "seed": {
+    "name": "Aldric",
+    "occupation": "Blacksmith",
+    "personality_tags": [
+      "gruff",
+      "honest",
+      "proud",
+      "hardworking"
+    ],
+    "relationships": {
+      "Mira": "childhood friend, now the town healer — trusts her completely",
+      "Lord Vane": "distrusts him, believes the lord overtaxes the common folk"
+    },
+    "extra": {
+      "location": "The Iron Hearth forge, market district",
+      "secret": "Once forged a blade for an assassin unknowingly; haunted by it"
+    }
+  },
+  "core": {
+    "name": "Aldric",
+    "occupation": "Blacksmith",
+    "backstory": "Aldric was born and raised in the small town of Oakwood, where his family has been blacksmithing for generations. He learned the trade from a young age and took great pride in continuing the family legacy. After his father's passing, Aldric became the sole proprietor of the family business, working tirelessly to keep it thriving.",
+    "values": [
+      "Honesty",
+      "Pride",
+      "Hard work",
+      "Loyalty"
+    ],
+    "speech_style": {
+      "type": "blunt",
+      "tone": "firm",
+      "idioms": [
+        "You'll get no nonsense from me",
+        "I'll tell you straight"
+      ]
+    },
+    "knowledge_domains": [
+      "Metalworking",
+      "Engineering",
+      "Historical warfare tactics"
+    ]
+  },
+  "social": {
+    "relationships": {
+      "Mira": "childhood friend, now the town healer - trusts her completely",
+      "Lord Vane": "distrusts him, believes the lord overtaxes the common folk"
+    },
+    "faction": "The Commoners",
+    "reputation": 80
+  },
+  "dynamic": {
+    "current_goal": {
+      "task": "Maintain current workload",
+      "priority": 3
+    },
+    "emotional_state": {
+      "dominant_emotion": "Contentment",
+      "secondary_emotions": [
+        "Apprehension",
+        "Curiosity"
+      ],
+      "level": 7
+    },
+    "short_term_memory": []
+  }
+}

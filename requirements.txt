@@ -19,9 +19,11 @@ torch==2.8.0
 torchaudio==2.8.0
 pyttsx3==2.99
 
-# Server (Phase 4) — not installed yet; pin when Phase 4 starts
-fastapi
-uvicorn
+# Server (Phase 4)
+fastapi==0.139.0
+uvicorn==0.49.0
+httpx==0.28.1            # FastAPI TestClient
+python-multipart==0.0.32 # /transcribe file upload
 
 # Evaluation — not installed yet; pin when evaluation starts
 rouge-score

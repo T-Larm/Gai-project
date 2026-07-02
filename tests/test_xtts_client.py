@@ -28,6 +28,33 @@ def test_speak_raises_when_speaker_wav_missing(tmp_path):
     assert "nope.wav" in str(exc_info.value)
 
 
+def test_synthesize_returns_waveform_and_sample_rate_without_playing(tmp_path, monkeypatch):
+    speaker_wav = tmp_path / "aldric.wav"
+    speaker_wav.write_bytes(b"fake wav data")
+
+    fake_model = _FakeTTSModel()
+    monkeypatch.setattr(xtts_module, "_get_tts_model", lambda: fake_model)
+
+    def _fail_play(*args, **kwargs):
+        raise AssertionError("synthesize() must not play audio")
+
+    monkeypatch.setattr(xtts_module.sd, "play", _fail_play)
+
+    client = XTTSClient(language="en")
+    waveform, sample_rate = client.synthesize("Good day.", str(speaker_wav))
+
+    assert waveform == [0.0, 0.1, 0.2]
+    assert sample_rate == 24000
+    assert fake_model.calls == [("Good day.", str(speaker_wav), "en")]
+
+
+def test_synthesize_raises_when_speaker_wav_missing(tmp_path):
+    client = XTTSClient()
+
+    with pytest.raises(FileNotFoundError):
+        client.synthesize("hello", str(tmp_path / "missing.wav"))
+
+
 def test_speak_synthesizes_and_plays_audio(tmp_path, monkeypatch):
     speaker_wav = tmp_path / "aldric.wav"
     speaker_wav.write_bytes(b"fake wav data")

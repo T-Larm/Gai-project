@@ -28,7 +28,8 @@ class XTTSClient:
     def __init__(self, language: str = TTS_LANGUAGE):
         self.language = language
 
-    def speak(self, text: str, speaker_wav: str) -> None:
+    def synthesize(self, text: str, speaker_wav: str):
+        """Synthesize `text` in the reference voice; return (waveform, sample_rate)."""
         if not os.path.exists(speaker_wav):
             raise FileNotFoundError(
                 f"No reference voice found at '{speaker_wav}'. "
@@ -37,6 +38,9 @@ class XTTSClient:
 
         model = _get_tts_model()
         waveform = model.tts(text=text, speaker_wav=speaker_wav, language=self.language)
-        sample_rate = model.synthesizer.output_sample_rate
+        return waveform, model.synthesizer.output_sample_rate
+
+    def speak(self, text: str, speaker_wav: str) -> None:
+        waveform, sample_rate = self.synthesize(text, speaker_wav)
         sd.play(waveform, samplerate=sample_rate)
         sd.wait()

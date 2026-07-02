@@ -86,12 +86,32 @@ Proposal 两处需在报告中修正的硬伤：
 1. **TIFA**：是 text-to-image 指标，不能直接用于对话。表述为"受 TIFA 启发的 QA-based 评估，用 LLM 代替 VQA 判断回答是否符合 persona seed"。
 2. **Lip-sync 指标未定义**：要么明确 SyncNet 的 LSE-D/LSE-C，要么明确 descope（OVRLipSync 规则驱动，不做生成式评估）。
 
+## 2026-07-02：Phase 4a — FastAPI 后端桥接完成
+
+Unity 侧只差一个 C# client 脚本。服务器与 CLI 完全共用 DialogueHandler，NPC 状态每轮落盘。
+
+```
+uvicorn backend.server:app --host 127.0.0.1 --port 8000
+```
+
+| 接口 | 用途 |
+|------|------|
+| `GET /health` | 连通性检查 |
+| `GET /npc/{name}` | persona 摘要 + 当前 goal/emotion + 记忆条数 |
+| `POST /chat` `{npc, text, speak?}` | 回复文本；`speak=true` 时附 base64 WAV（XTTS 合成，懒加载） |
+| `POST /transcribe`（WAV 上传） | Whisper 转文本（自动重采样到 16kHz） |
+
+端到端实测：真实 Ollama 走 `/chat`（Aldric 用了 seed 里的口头禅）；真实 Whisper 走 `/transcribe`（正确转写了 pyttsx3 占位语音）。测试 46 个全绿（新增 audio_utils×3、synthesize×2、server×7，全部用 stub 隔离重模型）。
+
+Unity slides 结论（08/09/11 已读）：角色生成（SDXL→Hunyuan3D→Blender→Unity）和场景集成课程有完整教学 + demo 素材包（Portale 上的 `HybridPCGGenEnvSample.unitypackage`）；**没教的只有对话桥接（本次已完成后端侧）和 lip-sync**。注意：Hunyuan3D 生成的网格没有 viseme blendshapes，OVRLipSync 用不了——方案 A 振幅驱动下颌，方案 B 用带 blendshapes 的现成 avatar（如 Ready Player Me），slide 09 最后一页把这个列为 open problem 可直接引用。
+
 ## 下一步
 
 1. **评估脚手架**（优先，RQ2/RQ3 最划算）：`--no-memory` / `--flat-persona` 开关、50–100 条评估对话集（quest / small talk / adversarial 各约 1/3）、LLM-as-judge 打分脚本
-2. Phase 4：FastAPI server + Unity 集成 + OVRLipSync
-3. 占位语音替换为 VCTK 真实语音片段
-4. 报告撰写（Experiments 章节按 RQ1–4 组织）
+2. Phase 4b：Unity 场景（用课程素材包）+ C# client 脚本 + lip-sync（方案 A 保底）
+3. 用 slide 09 的 pipeline 生成 Aldric 的 3D 形象（需要 ComfyUI 环境，看课程 demo 材料）
+4. 占位语音替换为 VCTK 真实语音片段
+5. 报告撰写（Experiments 章节按 RQ1–4 组织）
 
 ## 备忘
 

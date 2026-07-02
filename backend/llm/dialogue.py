@@ -1,9 +1,15 @@
 """
 Dialogue handler: takes player input + NPC state → generates response,
-then updates the NPC's dynamic situation layer.
+then updates the NPC's dynamic situation layer (memory, goal, emotion).
 """
 from typing import List, Dict
 
+from backend.config.settings import (
+    DYNAMIC_UPDATE_EVERY,
+    HISTORY_MAX_MESSAGES,
+    SHORT_TERM_MEMORY_SIZE,
+)
+from backend.llm.json_utils import coerce_str, parse_llm_json
 from backend.llm.ollama_client import OllamaClient
 from backend.llm.persona.memory import MemoryStream
 from backend.llm.persona.models import NPC
@@ -37,13 +43,27 @@ Rules:
 - If asked about things outside your knowledge domains, say so in character.
 """
 
+_DYNAMIC_UPDATE_PROMPT = """\
+You are the game engine for an RPG NPC named {name} ({occupation}).
+Current goal: {goal}
+Current emotional state: {emotional_state}
+
+Recent conversation:
+{recent}
+
+Based on the recent conversation, update the NPC's state. Reply ONLY with JSON:
+  {{"current_goal": "...", "emotional_state": "..."}}
+Keep values short. If nothing meaningful changed, return the current values.
+"""
+
 
 class DialogueHandler:
     def __init__(self, llm: OllamaClient, npc: NPC):
         self.llm = llm
         self.npc = npc
-        self.memory = MemoryStream()
+        self.memory = MemoryStream.from_list(npc.memory_log)
         self.history: List[Dict[str, str]] = []   # [{role, content}, ...]
+        self._turn_count = 0
 
     def _build_system_prompt(self, query: str) -> str:
         memories = self.memory.retrieve(query)
@@ -71,17 +91,43 @@ class DialogueHandler:
         system = self._build_system_prompt(player_input)
 
         self.history.append({"role": "user", "content": player_input})
+        self.history = self.history[-HISTORY_MAX_MESSAGES:]
         reply = self.llm.chat(self.history, system=system)
         self.history.append({"role": "assistant", "content": reply})
+        self.history = self.history[-HISTORY_MAX_MESSAGES:]
 
-        # Update dynamic layer: store what the NPC just said
+        # Update dynamic layer: memory stream, short-term mirror, persisted log
         self.memory.add(f"Player said: {player_input}", importance=0.4)
         self.memory.add(f"I ({self.npc.core.name}) replied: {reply}", importance=0.5)
-        self.npc.dynamic.short_term_memory = self.memory.retrieve("", top_k=5)
+        self.npc.dynamic.short_term_memory = self.memory.recent(SHORT_TERM_MEMORY_SIZE)
+        self.npc.memory_log = self.memory.to_list()
+
+        self._turn_count += 1
+        if self._turn_count % DYNAMIC_UPDATE_EVERY == 0:
+            self._update_dynamic_state()
 
         return reply
+
+    def _update_dynamic_state(self) -> None:
+        """Ask the LLM to re-evaluate goal/emotion; keep old state on failure."""
+        d = self.npc.dynamic
+        prompt = _DYNAMIC_UPDATE_PROMPT.format(
+            name=self.npc.core.name,
+            occupation=self.npc.core.occupation,
+            goal=d.current_goal,
+            emotional_state=d.emotional_state,
+            recent="\n".join(self.memory.recent(SHORT_TERM_MEMORY_SIZE)),
+        )
+        try:
+            data = parse_llm_json(self.llm.generate(prompt))
+        except ValueError:
+            return
+        d.current_goal = coerce_str(data.get("current_goal", d.current_goal))
+        d.emotional_state = coerce_str(data.get("emotional_state", d.emotional_state))
 
     def reset(self) -> None:
         self.history.clear()
         self.memory = MemoryStream()
+        self.npc.memory_log = []
         self.npc.dynamic.short_term_memory = []
+        self._turn_count = 0

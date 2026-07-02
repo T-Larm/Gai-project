@@ -1,26 +1,27 @@
+# Versions pinned to the tested environment (Python 3.10, Windows) for reproducibility.
+
 # STT
-openai-whisper
-sounddevice
-numpy
+openai-whisper==20250625
+sounddevice==0.5.5
+numpy==1.26.4
 
 # LLM
-ollama
+ollama==0.6.2
 
 # Memory / Embeddings
-sentence-transformers
-faiss-cpu
+sentence-transformers==5.6.0
 
 # TTS (Phase 3) — coqui-tts (maintained fork of abandoned coqui-ai/TTS; same
 # import name "TTS"). torch/torchaudio pinned to 2.8.0: 2.9+ requires torchcodec,
 # which needs a system FFmpeg install to load on Windows and isn't available here.
-coqui-tts
+coqui-tts==0.27.5
 torch==2.8.0
 torchaudio==2.8.0
-pyttsx3
+pyttsx3==2.99
 
-# Server (Phase 4)
+# Server (Phase 4) — not installed yet; pin when Phase 4 starts
 fastapi
 uvicorn
 
-# Evaluation
+# Evaluation — not installed yet; pin when evaluation starts
 rouge-score

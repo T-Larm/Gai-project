@@ -44,3 +44,6 @@ class NPC:
     core: CorePersona
     social: SocialPersona
     dynamic: DynamicSituation
+    # Serialized MemoryStream entries; persisted with the persona so the NPC
+    # remembers past sessions. Kept as plain dicts to keep this module light.
+    memory_log: List[Dict] = field(default_factory=list)

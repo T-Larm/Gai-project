@@ -6,31 +6,16 @@ import json
 import os
 from pathlib import Path
 
+from backend.llm.json_utils import (
+    coerce_str as _to_str,
+    coerce_str_list as _to_str_list,
+    parse_llm_json,
+)
 from backend.llm.ollama_client import OllamaClient
 from backend.llm.persona.models import (
     CorePersona, DynamicSituation, NPC, PersonaSeed, SocialPersona,
 )
 from backend.config.settings import PERSONAS_DIR
-
-
-def _to_str(value) -> str:
-    """Coerce any LLM output value to a plain string."""
-    if isinstance(value, str):
-        return value
-    if isinstance(value, dict):
-        return ", ".join(f"{k}: {v}" for k, v in value.items())
-    if isinstance(value, list):
-        return ", ".join(str(i) for i in value)
-    return str(value)
-
-
-def _to_str_list(value) -> list:
-    """Coerce any LLM output value to a list of strings."""
-    if isinstance(value, list):
-        return [_to_str(i) for i in value]
-    if isinstance(value, str):
-        return [value]
-    return [_to_str(value)]
 
 
 _CORE_PROMPT = """\
@@ -72,33 +57,7 @@ class PersonaGenerator:
         self.llm = llm
 
     def _parse_json(self, raw: str) -> dict:
-        import re
-        # Strip markdown fences
-        raw = raw.strip()
-        raw = re.sub(r"^```(?:json)?", "", raw, flags=re.MULTILINE).strip()
-        raw = re.sub(r"```$", "", raw, flags=re.MULTILINE).strip()
-
-        # Try direct parse first
-        try:
-            return json.loads(raw)
-        except json.JSONDecodeError:
-            pass
-
-        # Extract the first {...} block
-        match = re.search(r"\{.*\}", raw, re.DOTALL)
-        if match:
-            try:
-                return json.loads(match.group())
-            except json.JSONDecodeError:
-                pass
-
-        # Last resort: ask LLM to fix its own output
-        fix_prompt = (
-            "The following text should be valid JSON but is malformed. "
-            "Return ONLY the corrected JSON, no explanation:\n\n" + raw
-        )
-        fixed = self.llm.generate(fix_prompt)
-        return json.loads(re.search(r"\{.*\}", fixed, re.DOTALL).group())
+        return parse_llm_json(raw, llm=self.llm)
 
     def generate(self, seed: PersonaSeed) -> NPC:
         print(f"[Persona] Generating persona for '{seed.name}'...")
@@ -181,6 +140,7 @@ class PersonaGenerator:
                 "emotional_state": npc.dynamic.emotional_state,
                 "short_term_memory": npc.dynamic.short_term_memory,
             },
+            "memory_log": npc.memory_log,
         }
         with open(path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
@@ -213,4 +173,7 @@ class PersonaGenerator:
             emotional_state=_to_str(d.get("emotional_state", "neutral")),
             short_term_memory=d.get("short_term_memory", []),
         )
-        return NPC(seed=seed, core=core, social=social, dynamic=dynamic)
+        return NPC(
+            seed=seed, core=core, social=social, dynamic=dynamic,
+            memory_log=data.get("memory_log", []),
+        )

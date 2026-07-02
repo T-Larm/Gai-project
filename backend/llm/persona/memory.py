@@ -5,8 +5,9 @@ semantic relevance + recency decay + importance.
 import math
 import time
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import Any, List, Optional
 
+import torch
 from sentence_transformers import SentenceTransformer, util
 
 from backend.config.settings import (
@@ -32,6 +33,7 @@ class MemoryEntry:
     content: str
     timestamp: float = field(default_factory=time.time)
     importance: float = 0.5   # 0–1, higher = more important
+    embedding: Optional[Any] = field(default=None, repr=False, compare=False)
 
 
 class MemoryStream:
@@ -52,9 +54,15 @@ class MemoryStream:
 
         embedder = _get_embedder()
         query_embedding = embedder.encode(query, convert_to_tensor=True)
-        content_embeddings = embedder.encode(
-            [entry.content for entry in self.entries], convert_to_tensor=True
-        )
+
+        missing = [e for e in self.entries if e.embedding is None]
+        if missing:
+            new_embeddings = embedder.encode(
+                [e.content for e in missing], convert_to_tensor=True
+            )
+            for entry, emb in zip(missing, new_embeddings):
+                entry.embedding = emb
+        content_embeddings = torch.stack([e.embedding for e in self.entries])
         similarities = util.cos_sim(query_embedding, content_embeddings)[0]
 
         now = time.time()
@@ -73,6 +81,10 @@ class MemoryStream:
 
         scored.sort(key=lambda pair: pair[0], reverse=True)
         return [entry.content for _, entry in scored[:top_k]]
+
+    def recent(self, n: int) -> List[str]:
+        """Return the content of the n most recently added entries, oldest first."""
+        return [entry.content for entry in self.entries[-n:]]
 
     def to_list(self) -> List[dict]:
         return [

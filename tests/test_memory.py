@@ -80,3 +80,57 @@ def test_retrieve_on_empty_stream_returns_empty_list(monkeypatch):
     stream = MemoryStream()
 
     assert stream.retrieve("anything") == []
+
+
+class _CountingEmbedder(_ConstantEmbedder):
+    """Records every text encoded, to verify entries are embedded only once."""
+
+    def __init__(self):
+        self.encoded_texts = []
+
+    def encode(self, texts, convert_to_tensor=True):
+        if isinstance(texts, str):
+            self.encoded_texts.append(texts)
+        else:
+            self.encoded_texts.extend(texts)
+        return super().encode(texts, convert_to_tensor=convert_to_tensor)
+
+
+def test_retrieve_embeds_each_entry_only_once_across_calls(monkeypatch):
+    embedder = _CountingEmbedder()
+    monkeypatch.setattr(memory_module, "_get_embedder", lambda: embedder)
+    stream = MemoryStream()
+    stream.add("Memory A")
+    stream.add("Memory B")
+
+    stream.retrieve("first query")
+    stream.add("Memory C")
+    stream.retrieve("second query")
+
+    entry_encodes = [t for t in embedder.encoded_texts if t.startswith("Memory")]
+    assert sorted(entry_encodes) == ["Memory A", "Memory B", "Memory C"]
+
+
+def test_recent_returns_last_n_contents_without_touching_embedder(monkeypatch):
+    def _fail():
+        raise AssertionError("recent() must not use the embedder")
+
+    monkeypatch.setattr(memory_module, "_get_embedder", _fail)
+    stream = MemoryStream()
+    for i in range(5):
+        stream.add(f"memory {i}")
+
+    assert stream.recent(3) == ["memory 2", "memory 3", "memory 4"]
+
+
+def test_to_list_from_list_round_trip():
+    stream = MemoryStream()
+    stream.add("The gate guard owes me a favour.", importance=0.7)
+    stream.add("Iron prices doubled this week.", importance=0.3)
+
+    restored = MemoryStream.from_list(stream.to_list())
+
+    assert [(e.content, e.importance) for e in restored.entries] == [
+        ("The gate guard owes me a favour.", 0.7),
+        ("Iron prices doubled this week.", 0.3),
+    ]

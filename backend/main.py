@@ -17,9 +17,7 @@ from backend.llm.persona.generator import PersonaGenerator
 from backend.llm.persona.models import PersonaSeed
 
 
-def load_or_generate_npc(args, llm: OllamaClient):
-    gen = PersonaGenerator(llm)
-
+def load_or_generate_npc(args, gen: PersonaGenerator):
     if args.npc:
         path = os.path.join(PERSONAS_DIR, f"{args.npc.lower()}.json")
         if not os.path.exists(path):
@@ -114,13 +112,18 @@ def main():
     args = parser.parse_args()
 
     llm = OllamaClient()
-    npc = load_or_generate_npc(args, llm)
+    gen = PersonaGenerator(llm)
+    npc = load_or_generate_npc(args, gen)
 
     print(f"\n[Main] NPC ready: {npc.core.name} | {npc.core.occupation}")
     print(f"       Speech style: {npc.core.speech_style}")
 
     handler = DialogueHandler(llm, npc)
-    run_cli(handler, text_mode=args.text)
+    try:
+        run_cli(handler, text_mode=args.text)
+    finally:
+        # Persist dynamic state + memory so the NPC remembers this session
+        gen.save(npc)
 
 
 if __name__ == "__main__":

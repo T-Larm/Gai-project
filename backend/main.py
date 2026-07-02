@@ -103,13 +103,21 @@ def _voice_loop(handler: DialogueHandler) -> None:
         print(f"\n{handler.npc.core.name}: {reply}")
 
 
-def main():
-    parser = argparse.ArgumentParser(description="GAI NPC Dialogue System — Phase 1 CLI")
+def _build_arg_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="GAI NPC Dialogue System — CLI")
     parser.add_argument("--npc",  help="NPC name to load from data/personas/")
     parser.add_argument("--seed", help="Path to seeds JSON file")
     parser.add_argument("--name", help="NPC name within the seed file")
     parser.add_argument("--text", action="store_true", help="Use text input instead of microphone")
-    args = parser.parse_args()
+    parser.add_argument(
+        "--speak", action="store_true",
+        help="Synthesize and play NPC replies with Coqui XTTS v2 (Phase 3)",
+    )
+    return parser
+
+
+def main():
+    args = _build_arg_parser().parse_args()
 
     llm = OllamaClient()
     gen = PersonaGenerator(llm)
@@ -118,7 +126,13 @@ def main():
     print(f"\n[Main] NPC ready: {npc.core.name} | {npc.core.occupation}")
     print(f"       Speech style: {npc.core.speech_style}")
 
-    handler = DialogueHandler(llm, npc)
+    tts = None
+    if args.speak:
+        from backend.tts.xtts_client import XTTSClient
+        print("[Main] Loading Coqui XTTS v2 (first run downloads ~2GB, please wait)...")
+        tts = XTTSClient()
+
+    handler = DialogueHandler(llm, npc, tts=tts)
     try:
         run_cli(handler, text_mode=args.text)
     finally:

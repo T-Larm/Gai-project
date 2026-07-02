@@ -24,9 +24,13 @@ IMPORTANCE_WEIGHTS = {
     "importance": 0.2,
 }
 
+TTS_MODEL     = "tts_models/multilingual/multi-dataset/xtts_v2"
+TTS_LANGUAGE  = "en"
+
 # Anchor data paths at the project root so the app works from any CWD
 _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 DATA_DIR     = str(_PROJECT_ROOT / "data")
 PERSONAS_DIR = str(_PROJECT_ROOT / "data" / "personas")
 SEEDS_DIR    = str(_PROJECT_ROOT / "data" / "seeds")
+VOICES_DIR   = str(_PROJECT_ROOT / "data" / "voices")

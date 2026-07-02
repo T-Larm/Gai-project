@@ -65,8 +65,14 @@ VOICES_DIR    = "data/voices"
 
 ## Dependencies
 
-- Uncomment `TTS` in `requirements.txt` (Coqui TTS package).
-- Add `pyttsx3` to `requirements.txt` (placeholder voice generation only — offline, no model weights).
+**Revised after hands-on verification** (see below): the originally planned `TTS` package does not work in this environment.
+
+- `coqui-tts` (PyPI) — **not** the original `TTS` package. The original `coqui-ai/TTS` (last released 2023, PyPI name `TTS`) is abandoned: it hard-pins `numpy==1.22.0`, which breaks `sentence-transformers`/`transformers` (Phase 2 dependency), and even after forcing a newer numpy, its XTTS code fails with `ImportError: cannot import name 'BeamSearchScorer' from transformers` against any modern `transformers`. `coqui-tts` is the actively maintained fork (same import name `TTS`, same `TTS.api.TTS` interface, same model IDs) built specifically to fix this. Verified: importable and runs real XTTS v2 synthesis alongside the existing `sentence-transformers` Phase 2 stack with no regressions (`pytest tests/test_memory.py` still passes).
+- `torch==2.8.0` / `torchaudio==2.8.0` — pinned down from whatever `coqui-tts` would otherwise pull in. From torch 2.9 onward, `torchaudio`'s audio loading requires `torchcodec`, which dynamically loads system FFmpeg shared libraries at runtime (`libtorchcodec_coreN.dll`) — these are not present on this Windows machine and installing them requires a manual system-wide FFmpeg install outside pip. Pinning to 2.8.0 avoids the `torchcodec` dependency entirely (falls back to the legacy `torchaudio` backend). Verified: XTTS v2 synthesis works and produces a waveform (list of floats) with this pin; `pytest tests/test_memory.py` still passes (sentence-transformers has no torch version floor above 1.11).
+- `pyttsx3` — placeholder voice generation only (offline Windows SAPI, no model weights, no network).
+- Known installer quirk (already resolved on this machine, noted for reproducibility): `coqui-tts` depends on `coqpit-config`, which installs into the same `coqpit` import path as the old, unrelated `coqpit` package. If both end up installed, imports break with `cannot import name 'Coqpit' from 'coqpit'`. Fix: `pip uninstall coqpit` then `pip install --force-reinstall --no-deps coqpit-config`.
+
+Verified end-to-end on this machine: `TTS(TTS_MODEL).tts(text=..., speaker_wav=..., language="en")` returns a `list[float]` waveform, and `model.synthesizer.output_sample_rate` is `24000` for XTTS v2 — confirming the `XTTSClient.speak()` design above is accurate, not speculative.
 
 ## Error handling
 

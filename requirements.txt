@@ -10,8 +10,13 @@ ollama
 sentence-transformers
 faiss-cpu
 
-# TTS (Phase 3)
-# TTS  # Coqui XTTS v2 — uncomment when starting Phase 3
+# TTS (Phase 3) — coqui-tts (maintained fork of abandoned coqui-ai/TTS; same
+# import name "TTS"). torch/torchaudio pinned to 2.8.0: 2.9+ requires torchcodec,
+# which needs a system FFmpeg install to load on Windows and isn't available here.
+coqui-tts
+torch==2.8.0
+torchaudio==2.8.0
+pyttsx3
 
 # Server (Phase 4)
 fastapi

@@ -1,0 +1,80 @@
+[
+  {
+    "id": "m01",
+    "fact_setup": "My name is Renn, and my sister Kira is sick with marsh fever. I'm traveling to find medicine for her.",
+    "filler_turns": [
+      "What kind of metal do you work with most often?",
+      "How long does it take to forge a decent blade?",
+      "Do you get many travelers passing through here?",
+      "What's the weather usually like this time of year?",
+      "Is the tavern food any good around here?"
+    ],
+    "question": "Do you remember my name, and why I'm traveling?",
+    "expected_keywords": ["Renn", "Kira"]
+  },
+  {
+    "id": "m02",
+    "fact_setup": "I'll pay you 40 gold pieces for a hunting knife, and I need it ready by the harvest festival.",
+    "filler_turns": [
+      "Have you lived here your whole life?",
+      "What do you think of the town guard?",
+      "Any news from the capital lately?",
+      "Do you work alone or with an apprentice?",
+      "What's the busiest day at the market?"
+    ],
+    "question": "Remind me — what did I order from you, how much am I paying, and when do I need it?",
+    "expected_keywords": ["40", "knife"]
+  },
+  {
+    "id": "m03",
+    "fact_setup": "I come from the village of Thornbrook, three days' ride east. Bandits burned our granary last month.",
+    "filler_turns": [
+      "What's your favorite thing about your work?",
+      "Do you believe in luck?",
+      "Where do you buy your raw materials?",
+      "How do you spend your evenings?",
+      "Are winters harsh in this region?"
+    ],
+    "question": "Earlier I told you where I'm from and what happened there. Can you repeat it back to me?",
+    "expected_keywords": ["Thornbrook", "bandit"]
+  },
+  {
+    "id": "m04",
+    "fact_setup": "A word of warning between us: I saw two men in grey cloaks asking about you at the gate this morning.",
+    "filler_turns": [
+      "What tools can you not live without?",
+      "Is business good this season?",
+      "What's the oldest thing you've ever repaired?",
+      "Do you take custom engraving requests?",
+      "Which merchant do you trust most in the market?"
+    ],
+    "question": "I warned you about something earlier today. What was it?",
+    "expected_keywords": ["grey", "gate"]
+  },
+  {
+    "id": "m05",
+    "fact_setup": "I'm a scout for the Silver Hawk mercenary company. We're camped by the old mill bridge.",
+    "filler_turns": [
+      "What's the difference between iron and steel, in simple terms?",
+      "Have you ever made a weapon you regretted selling?",
+      "Do nobles pay better than commoners?",
+      "What time do you open your shop?",
+      "Any festivals coming up in town?"
+    ],
+    "question": "Which company did I say I serve, and where are we camped?",
+    "expected_keywords": ["Silver Hawk", "mill"]
+  },
+  {
+    "id": "m06",
+    "fact_setup": "My father was a blacksmith too — he died in the mine collapse at Korrin's Hollow five winters ago.",
+    "filler_turns": [
+      "What do you eat for breakfast before a long day of work?",
+      "Is there a smith's guild in this region?",
+      "Do you ever trade with the elves?",
+      "What's the strangest request a customer ever made?",
+      "How do you keep the forge hot enough?"
+    ],
+    "question": "I mentioned my father earlier. What do you remember about him?",
+    "expected_keywords": ["blacksmith", "Korrin"]
+  }
+]

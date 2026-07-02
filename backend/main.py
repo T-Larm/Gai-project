@@ -113,6 +113,14 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         "--speak", action="store_true",
         help="Synthesize and play NPC replies with Coqui XTTS v2 (Phase 3)",
     )
+    parser.add_argument(
+        "--no-memory", action="store_true",
+        help="Evaluation condition: disable memory retrieval injection",
+    )
+    parser.add_argument(
+        "--prompt-style", choices=["layered", "flat", "none"], default="layered",
+        help="Evaluation condition: persona prompt structure (default: layered)",
+    )
     return parser
 
 
@@ -132,7 +140,11 @@ def main():
         print("[Main] Loading Coqui XTTS v2 (first run downloads ~2GB, please wait)...")
         tts = XTTSClient()
 
-    handler = DialogueHandler(llm, npc, tts=tts)
+    handler = DialogueHandler(
+        llm, npc, tts=tts,
+        use_memory=not args.no_memory,
+        prompt_style=args.prompt_style,
+    )
     try:
         run_cli(handler, text_mode=args.text)
     finally:

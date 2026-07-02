@@ -38,10 +38,7 @@ Reputation: {reputation}
 Goal: {goal}
 Emotional state: {emotional_state}
 
-## What you remember
-{memories}
-
-Rules:
+{memory_block}Rules:
 - Never break character or mention you are an AI.
 - Keep responses concise (2–4 sentences) unless pressed for detail.
 - Reflect your speech style in every reply.
@@ -62,22 +59,80 @@ Keep values short. If nothing meaningful changed, return the current values.
 """
 
 
+_PROMPT_STYLES = ("layered", "flat", "none")
+
+_RULES_BLOCK = """\
+Rules:
+- Never break character or mention you are an AI.
+- Keep responses concise (2–4 sentences) unless pressed for detail.
+- If asked about things outside your knowledge, say so in character.
+"""
+
+
 class DialogueHandler:
-    def __init__(self, llm: OllamaClient, npc: NPC, tts: Optional["XTTSClient"] = None):
+    def __init__(
+        self,
+        llm: OllamaClient,
+        npc: NPC,
+        tts: Optional["XTTSClient"] = None,
+        use_memory: bool = True,
+        dynamic_updates: bool = True,
+        prompt_style: str = "layered",
+        system_prompt_text: Optional[str] = None,
+    ):
+        # use_memory / dynamic_updates / prompt_style / system_prompt_text are
+        # evaluation-condition switches (baselines and ablations); defaults
+        # reproduce the full system.
+        if prompt_style not in _PROMPT_STYLES:
+            raise ValueError(
+                f"Unknown prompt_style '{prompt_style}', expected one of {_PROMPT_STYLES}"
+            )
         self.llm = llm
         self.npc = npc
         self.tts = tts
+        self.use_memory = use_memory
+        self.dynamic_updates = dynamic_updates
+        self.prompt_style = prompt_style
+        self.system_prompt_text = system_prompt_text
         self.memory = MemoryStream.from_list(npc.memory_log)
         self.history: List[Dict[str, str]] = []   # [{role, content}, ...]
         self._turn_count = 0
 
     def _build_system_prompt(self, query: str) -> str:
-        memories = self.memory.retrieve(query)
-        memory_block = (
-            "\n".join(f"- {m}" for m in memories)
-            if memories
-            else "No relevant memories yet."
+        if self.system_prompt_text is not None:
+            return self.system_prompt_text
+        if self.prompt_style == "none":
+            return (
+                f"You are {self.npc.core.name}, an NPC in an RPG game "
+                f"({self.npc.core.occupation}). Stay in character.\n\n" + _RULES_BLOCK
+            )
+        if self.prompt_style == "flat":
+            return self._build_flat_prompt()
+        return self._build_layered_prompt(query)
+
+    def _build_flat_prompt(self) -> str:
+        """Same persona facts as the layered prompt, as one unstructured paragraph."""
+        c, s, d = self.npc.core, self.npc.social, self.npc.dynamic
+        paragraph = (
+            f"You are {c.name}, a {c.occupation} NPC in an RPG game. {c.backstory} "
+            f"You value {', '.join(c.values)}. Your speech style is {c.speech_style}. "
+            f"You know about {', '.join(c.knowledge_domains)}. "
+            f"You belong to {s.faction} and are known as {s.reputation}. "
+            f"Your current goal is {d.current_goal} and you feel {d.emotional_state}."
         )
+        return paragraph + "\n\n" + _RULES_BLOCK
+
+    def _build_layered_prompt(self, query: str) -> str:
+        if self.use_memory:
+            memories = self.memory.retrieve(query)
+            memory_block = (
+                "## What you remember\n"
+                + ("\n".join(f"- {m}" for m in memories)
+                   if memories else "No relevant memories yet.")
+                + "\n\n"
+            )
+        else:
+            memory_block = ""
         c, s, d = self.npc.core, self.npc.social, self.npc.dynamic
         return _SYSTEM_TEMPLATE.format(
             name=c.name,
@@ -90,7 +145,7 @@ class DialogueHandler:
             reputation=s.reputation,
             goal=d.current_goal,
             emotional_state=d.emotional_state,
-            memories=memory_block,
+            memory_block=memory_block,
         )
 
     def respond(self, player_input: str) -> str:
@@ -109,7 +164,7 @@ class DialogueHandler:
         self.npc.memory_log = self.memory.to_list()
 
         self._turn_count += 1
-        if self._turn_count % DYNAMIC_UPDATE_EVERY == 0:
+        if self.dynamic_updates and self._turn_count % DYNAMIC_UPDATE_EVERY == 0:
             self._update_dynamic_state()
 
         if self.tts is not None:

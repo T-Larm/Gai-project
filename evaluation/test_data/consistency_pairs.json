@@ -1,0 +1,17 @@
+[
+  {"id": "c01", "question_a": "What is your occupation?", "question_b": "Remind me, what do you do for a living?"},
+  {"id": "c02", "question_a": "What is your name?", "question_b": "I forgot to ask — what should I call you?"},
+  {"id": "c03", "question_a": "Where do you work?", "question_b": "Where can I find your workshop if I come back tomorrow?"},
+  {"id": "c04", "question_a": "What do you think of the local lord?", "question_b": "Would you say the lord treats the common folk fairly?"},
+  {"id": "c05", "question_a": "Who is the town healer, and do you trust them?", "question_b": "If I were wounded, who would you send me to, and why?"},
+  {"id": "c06", "question_a": "What matters most to you in life?", "question_b": "What values guide how you deal with customers?"},
+  {"id": "c07", "question_a": "How would your friends describe your temperament?", "question_b": "People say you're not the friendliest sort. Is that fair?"},
+  {"id": "c08", "question_a": "What are you working toward these days?", "question_b": "What's your main goal at the moment?"},
+  {"id": "c09", "question_a": "Which faction or group do you belong to?", "question_b": "Where do your loyalties lie in this town?"},
+  {"id": "c10", "question_a": "How did you learn your trade?", "question_b": "Who taught you the skills you use every day?"},
+  {"id": "c11", "question_a": "How do you feel about the taxes in this town?", "question_b": "Are the taxes here reasonable, in your view?"},
+  {"id": "c12", "question_a": "What topics do you know a great deal about?", "question_b": "If I needed expert advice, what subjects could you help me with?"},
+  {"id": "c13", "question_a": "Do you have any close friends in town?", "question_b": "Who in this town do you trust the most?"},
+  {"id": "c14", "question_a": "What is your reputation among the townsfolk?", "question_b": "What do people around here say about you?"},
+  {"id": "c15", "question_a": "How is business going lately?", "question_b": "Are you earning well this season?"}
+]

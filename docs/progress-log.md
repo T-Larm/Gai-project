@@ -81,6 +81,9 @@ f11ff04  Add --speak CLI flag to enable TTS playback
 | RQ2（核心） | 自动生成 persona 能否达到手写 persona 水平？ | 自动 vs 手写 | 同上 + line-to-line 矛盾率（DeBERTa NLI，20–30 对重复事实问题） |
 | RQ3 | 记忆检索 / dynamic 更新各贡献多少？ | ablation：有/无检索、三因子 vs 仅 recency | Memory Recall 正确率（10 轮后问窗口外事实） |
 | RQ4 | 全本地 pipeline 延迟能否满足 VR？ | 延迟测量 | 分组件 + 端到端延迟（30 次取均值±标准差，注明 CPU-only 硬件） |
+| RQ5（用户研究，老师点名） | 玩家实际感受到的交互质量是否更好？ | 10–15 人 within-subject 盲测，2–3 条件各聊 5 分钟 | Likert 1–5：naturalness / believability / engagement / perceived consistency；Wilcoxon signed-rank；可选两两偏好 → Bradley-Terry |
+
+老师反馈原话要点（2026-07-02）："The project is OK"；需补充：① scope 表（自研 vs 现成模型）；② Unity 实时延迟处理；③ **beyond consistency** 的评估——baseline 对比 + 用户侧交互质量评估（即 RQ5）。
 
 Proposal 两处需在报告中修正的硬伤：
 1. **TIFA**：是 text-to-image 指标，不能直接用于对话。表述为"受 TIFA 启发的 QA-based 评估，用 LLM 代替 VQA 判断回答是否符合 persona seed"。

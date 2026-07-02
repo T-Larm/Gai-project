@@ -2,17 +2,22 @@
 Dialogue handler: takes player input + NPC state → generates response,
 then updates the NPC's dynamic situation layer (memory, goal, emotion).
 """
-from typing import List, Dict
+import os
+from typing import TYPE_CHECKING, Dict, List, Optional
 
 from backend.config.settings import (
     DYNAMIC_UPDATE_EVERY,
     HISTORY_MAX_MESSAGES,
     SHORT_TERM_MEMORY_SIZE,
+    VOICES_DIR,
 )
 from backend.llm.json_utils import coerce_str, parse_llm_json
 from backend.llm.ollama_client import OllamaClient
 from backend.llm.persona.memory import MemoryStream
 from backend.llm.persona.models import NPC
+
+if TYPE_CHECKING:
+    from backend.tts.xtts_client import XTTSClient
 
 
 _SYSTEM_TEMPLATE = """\
@@ -58,9 +63,10 @@ Keep values short. If nothing meaningful changed, return the current values.
 
 
 class DialogueHandler:
-    def __init__(self, llm: OllamaClient, npc: NPC):
+    def __init__(self, llm: OllamaClient, npc: NPC, tts: Optional["XTTSClient"] = None):
         self.llm = llm
         self.npc = npc
+        self.tts = tts
         self.memory = MemoryStream.from_list(npc.memory_log)
         self.history: List[Dict[str, str]] = []   # [{role, content}, ...]
         self._turn_count = 0
@@ -105,6 +111,12 @@ class DialogueHandler:
         self._turn_count += 1
         if self._turn_count % DYNAMIC_UPDATE_EVERY == 0:
             self._update_dynamic_state()
+
+        if self.tts is not None:
+            voice_path = os.path.join(
+                VOICES_DIR, f"{self.npc.core.name.lower().replace(' ', '_')}.wav"
+            )
+            self.tts.speak(reply, voice_path)
 
         return reply
 

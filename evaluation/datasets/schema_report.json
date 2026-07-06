@@ -1,0 +1,1088 @@
+{
+  "raw_dir": "..\\archive\\data",
+  "max_records_per_file": 1000,
+  "files": [
+    {
+      "file": "..\\archive\\data\\test_reasoner.jsonl",
+      "records_seen": 1000,
+      "malformed_records": 0,
+      "top_level": {
+        "fields": [
+          "text"
+        ],
+        "missing_rate": {
+          "text": 0.0
+        },
+        "types": {
+          "text": {
+            "str": 1000
+          }
+        }
+      },
+      "chat": {
+        "role_counts": {
+          "system": 1000,
+          "user": 1000,
+          "assistant": 1000
+        },
+        "message_count_histogram": {
+          "3": 1000
+        }
+      },
+      "embedded_json": {
+        "user_json": {
+          "fields": [
+            "arch",
+            "b5.a",
+            "b5.c",
+            "b5.e",
+            "b5.n",
+            "b5.o",
+            "beliefs",
+            "beliefs[].conf",
+            "beliefs[].subj",
+            "beliefs[].val",
+            "emo.ang",
+            "emo.fear",
+            "emo.hap",
+            "emo.mood",
+            "faction",
+            "factions.Bandits",
+            "factions.CityWatch",
+            "goals_top",
+            "id",
+            "interrupt",
+            "inv",
+            "inv[].id",
+            "inv[].n",
+            "memories",
+            "memories[].desc",
+            "memories[].dt",
+            "memories[].evt",
+            "memories[].ew",
+            "occ",
+            "percepts",
+            "percepts[].id",
+            "percepts[].sal",
+            "percepts[].tag",
+            "percepts[].threat",
+            "pos.landmark",
+            "pos.x",
+            "pos.z",
+            "pos.zone",
+            "sched.act",
+            "sched.sleep",
+            "sched.wake",
+            "sched.wk_end",
+            "sched.wk_start",
+            "time.day",
+            "time.hr",
+            "traits",
+            "valid_actions",
+            "vitals.en",
+            "vitals.hp",
+            "vitals.hp_max",
+            "vitals.hun",
+            "vitals.str",
+            "vitals.thi"
+          ],
+          "missing_rate": {
+            "arch": 0.0,
+            "b5.a": 0.0,
+            "b5.c": 0.0,
+            "b5.e": 0.0,
+            "b5.n": 0.0,
+            "b5.o": 0.0,
+            "beliefs": 0.0,
+            "beliefs[].conf": 0.626,
+            "beliefs[].subj": 0.626,
+            "beliefs[].val": 0.626,
+            "emo.ang": 0.0,
+            "emo.fear": 0.0,
+            "emo.hap": 0.0,
+            "emo.mood": 0.0,
+            "faction": 0.0,
+            "factions.Bandits": 0.0,
+            "factions.CityWatch": 0.0,
+            "goals_top": 0.0,
+            "id": 0.0,
+            "interrupt": 0.0,
+            "inv": 0.0,
+            "inv[].id": 0.102,
+            "inv[].n": 0.102,
+            "memories": 0.0,
+            "memories[].desc": 0.0,
+            "memories[].dt": 0.0,
+            "memories[].evt": 0.0,
+            "memories[].ew": 0.0,
+            "occ": 0.0,
+            "percepts": 0.0,
+            "percepts[].id": 0.221,
+            "percepts[].sal": 0.221,
+            "percepts[].tag": 0.221,
+            "percepts[].threat": 0.584,
+            "pos.landmark": 0.0,
+            "pos.x": 0.0,
+            "pos.z": 0.0,
+            "pos.zone": 0.0,
+            "sched.act": 0.0,
+            "sched.sleep": 0.0,
+            "sched.wake": 0.0,
+            "sched.wk_end": 0.0,
+            "sched.wk_start": 0.0,
+            "time.day": 0.0,
+            "time.hr": 0.0,
+            "traits": 0.0,
+            "valid_actions": 0.0,
+            "vitals.en": 0.0,
+            "vitals.hp": 0.0,
+            "vitals.hp_max": 0.0,
+            "vitals.hun": 0.0,
+            "vitals.str": 0.0,
+            "vitals.thi": 0.0
+          },
+          "types": {
+            "arch": {
+              "str": 1000
+            },
+            "b5.a": {
+              "float": 1000
+            },
+            "b5.c": {
+              "float": 1000
+            },
+            "b5.e": {
+              "float": 1000
+            },
+            "b5.n": {
+              "float": 1000
+            },
+            "b5.o": {
+              "float": 1000
+            },
+            "beliefs": {
+              "list[empty]": 626,
+              "list[dict]": 374
+            },
+            "beliefs[].conf": {
+              "float": 374
+            },
+            "beliefs[].subj": {
+              "str": 374
+            },
+            "beliefs[].val": {
+              "float": 374
+            },
+            "emo.ang": {
+              "float": 1000
+            },
+            "emo.fear": {
+              "float": 1000
+            },
+            "emo.hap": {
+              "float": 1000
+            },
+            "emo.mood": {
+              "str": 1000
+            },
+            "faction": {
+              "str": 1000
+            },
+            "factions.Bandits": {
+              "float": 1000
+            },
+            "factions.CityWatch": {
+              "float": 1000
+            },
+            "goals_top": {
+              "str": 631,
+              "null": 369
+            },
+            "id": {
+              "str": 1000
+            },
+            "interrupt": {
+              "bool": 1000
+            },
+            "inv": {
+              "list[dict]": 898,
+              "list[empty]": 102
+            },
+            "inv[].id": {
+              "str": 898
+            },
+            "inv[].n": {
+              "int": 898
+            },
+            "memories": {
+              "list[dict]": 1000
+            },
+            "memories[].desc": {
+              "str": 1000
+            },
+            "memories[].dt": {
+              "int": 1000
+            },
+            "memories[].evt": {
+              "str": 1000
+            },
+            "memories[].ew": {
+              "float": 1000
+            },
+            "occ": {
+              "str": 1000
+            },
+            "percepts": {
+              "list[empty]": 221,
+              "list[dict]": 779
+            },
+            "percepts[].id": {
+              "str": 779
+            },
+            "percepts[].sal": {
+              "float": 779
+            },
+            "percepts[].tag": {
+              "str": 779
+            },
+            "percepts[].threat": {
+              "float": 416
+            },
+            "pos.landmark": {
+              "str": 1000
+            },
+            "pos.x": {
+              "float": 1000
+            },
+            "pos.z": {
+              "float": 1000
+            },
+            "pos.zone": {
+              "str": 1000
+            },
+            "sched.act": {
+              "str": 1000
+            },
+            "sched.sleep": {
+              "int": 1000
+            },
+            "sched.wake": {
+              "int": 1000
+            },
+            "sched.wk_end": {
+              "int": 1000
+            },
+            "sched.wk_start": {
+              "int": 1000
+            },
+            "time.day": {
+              "int": 1000
+            },
+            "time.hr": {
+              "float": 1000
+            },
+            "traits": {
+              "list[str]": 1000
+            },
+            "valid_actions": {
+              "list[str]": 1000
+            },
+            "vitals.en": {
+              "float": 1000
+            },
+            "vitals.hp": {
+              "float": 1000
+            },
+            "vitals.hp_max": {
+              "float": 1000
+            },
+            "vitals.hun": {
+              "float": 1000
+            },
+            "vitals.str": {
+              "float": 1000
+            },
+            "vitals.thi": {
+              "float": 1000
+            }
+          }
+        }
+      },
+      "action_id_counts": {},
+      "emotion_counts": {},
+      "valid_actions": [
+        "attack",
+        "drink",
+        "eat",
+        "flee",
+        "gather",
+        "heal",
+        "pray",
+        "sleep",
+        "socialize",
+        "trade",
+        "walk_to",
+        "work"
+      ],
+      "sample": {
+        "record": {
+          "text": "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\nSen bir ortaçağ simülasyonundaki NPC'nin iç ses motorusun.\nSana NPC'nin anlık durumunu JSON olarak göndereceğim.\nGörevin: NPC'nin ne yapması gerektiğini ve NEDEN yapması gerektiğini\n3-5 cümlelik Türkçe iç monolog olarak yaz.\nASLA JSON üretme. ASLA action_id adı kullanma. Sadece düşün.\nKişilik özellikleri, hayatta kalma ihtiyaçları, tehdit algısı,\nduygusal durum, hafıza ve sosyal bağlamı değerlendir.<|eot_id|><|start_header_id|>user<|end_header_id|>\n\nLeyla, Çiftçi Kooperatifi bünyesinde görev yapan bir hırsız. Temkinli ve endişeli biri olarak tanınır; dışadönüklük düşük, uyumluluk yüksek, öz-denetim orta. Tanıdık ve bildik olan onu rahatlatır; belirsizlikten hoşlanmaz.\n\n{\"id\":\"npc_a2011e52\",\"arch\":\"Fearful\",\"occ\":\"Thief\",\"faction\":\"Farmers\",\"b5\":{\"e\":0.23,\"a\":0.72,\"c\":0.52,\"n\":0.71,\"o\":0.07},\"traits\":[\"Cautious\",\"Anxious\"],\"vitals\":{\"hp\":96.5,\"hp_max\":120.0,\"en\":1.0,\"hun\":0.72,\"thi\":0.57,\"str\":0.55},\"emo\":{\"hap\":0.05,\"fear\":0.2,\"ang\":0.49,\"mood\":\"Calm\"},\"inv\":[{\"id\":\"food\",\"n\":5},{\"id\":\"medicine\",\"n\":3}],\"time\":{\"day\":9,\"hr\":11.6},\"pos\":{\"x\":81.3,\"z\":32.3,\"zone\":\"Temple\",\"landmark\":\"StoneShrineGate\"},\"sched\":{\"act\":\"sleep\",\"wk_start\":20,\"wk_end\":3,\"sleep\":8,\"wake\":16},\"percepts\":[],\"memories\":[{\"evt\":\"Memory\",\"desc\":\"Muhafızlardan kıl payı kaçtım.\",\"ew\":-0.59,\"dt\":455},{\"evt\":\"Memory\",\"desc\":\"Karnım aç, günlerdir sıcak yemek yemedim.\",\"ew\":-0.14,\"dt\":2498},{\"evt\":\"Memory\",\"desc\":\"Lonca payını veremezsem biterdi.\",\"ew\":-0.58,\"dt\":79}],\"beliefs\":[],\"factions\":{\"CityWatch\":0.26,\"Bandits\":0.1},\"goals_top\":\"FindFood\",\"interrupt\":false,\"valid_actions\":[\"eat\",\"drink\",\"sleep\",\"flee\",\"gather\",\"heal\",\"attack\",\"socialize\",\"trade\",\"work\",\"pray\",\"walk_to\"]}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\nAçlık dayanılmaz oldu (0.72). Çantamdaki yiyeceği yiyeceğim. Başka bir seçenek düşündüm ama mevcut koşullar beni bu karardan alıkoyuyor. Temkinli yapım beni acele kararlardan alıkoyuyor, ihtiyatlı olmak şart. Sonuç olarak yemek yemek en acil ihtiyacım, önce bunu karşılamalıyım.<|eot_id|>"
+        },
+        "messages": [
+          {
+            "role": "system",
+            "content_preview": "Sen bir ortaçağ simülasyonundaki NPC'nin iç ses motorusun. Sana NPC'nin anlık durumunu JSON olarak göndereceğim. Görevin: NPC'nin ne yapması gerektiğini ve NEDEN yapması gerektiğini 3-5 cümlelik Türkçe iç monolog olarak yaz. ASLA JSON üretme. ASLA action_id adı kullanma. Sadece düşün. Kişilik özellikleri, hayatta kalma"
+          },
+          {
+            "role": "user",
+            "content_preview": "Leyla, Çiftçi Kooperatifi bünyesinde görev yapan bir hırsız. Temkinli ve endişeli biri olarak tanınır; dışadönüklük düşük, uyumluluk yüksek, öz-denetim orta. Tanıdık ve bildik olan onu rahatlatır; belirsizlikten hoşlanmaz. {\"id\":\"npc_a2011e52\",\"arch\":\"Fearful\",\"occ\":\"Thief\",\"faction\":\"Farmers\",\"b5\":{\"e\":0.23,\"a\":0.72,\""
+          },
+          {
+            "role": "assistant",
+            "content_preview": "Açlık dayanılmaz oldu (0.72). Çantamdaki yiyeceği yiyeceğim. Başka bir seçenek düşündüm ama mevcut koşullar beni bu karardan alıkoyuyor. Temkinli yapım beni acele kararlardan alıkoyuyor, ihtiyatlı olmak şart. Sonuç olarak yemek yemek en acil ihtiyacım, önce bunu karşılamalıyım."
+          }
+        ],
+        "embedded_json": {
+          "user_json": {
+            "id": "npc_a2011e52",
+            "arch": "Fearful",
+            "occ": "Thief",
+            "faction": "Farmers",
+            "b5": {
+              "e": 0.23,
+              "a": 0.72,
+              "c": 0.52,
+              "n": 0.71,
+              "o": 0.07
+            },
+            "traits": [
+              "Cautious",
+              "Anxious"
+            ],
+            "vitals": {
+              "hp": 96.5,
+              "hp_max": 120.0,
+              "en": 1.0,
+              "hun": 0.72,
+              "thi": 0.57,
+              "str": 0.55
+            },
+            "emo": {
+              "hap": 0.05,
+              "fear": 0.2,
+              "ang": 0.49,
+              "mood": "Calm"
+            },
+            "inv": [
+              {
+                "id": "food",
+                "n": 5
+              },
+              {
+                "id": "medicine",
+                "n": 3
+              }
+            ],
+            "time": {
+              "day": 9,
+              "hr": 11.6
+            },
+            "pos": {
+              "x": 81.3,
+              "z": 32.3,
+              "zone": "Temple",
+              "landmark": "StoneShrineGate"
+            },
+            "sched": {
+              "act": "sleep",
+              "wk_start": 20,
+              "wk_end": 3,
+              "sleep": 8,
+              "wake": 16
+            },
+            "percepts": [],
+            "memories": [
+              {
+                "evt": "Memory",
+                "desc": "Muhafızlardan kıl payı kaçtım.",
+                "ew": -0.59,
+                "dt": 455
+              },
+              {
+                "evt": "Memory",
+                "desc": "Karnım aç, günlerdir sıcak yemek yemedim.",
+                "ew": -0.14,
+                "dt": 2498
+              },
+              {
+                "evt": "Memory",
+                "desc": "Lonca payını veremezsem biterdi.",
+                "ew": -0.58,
+                "dt": 79
+              }
+            ],
+            "beliefs": [],
+            "factions": {
+              "CityWatch": 0.26,
+              "Bandits": 0.1
+            },
+            "goals_top": "FindFood",
+            "interrupt": false,
+            "valid_actions": [
+              "eat",
+              "drink",
+              "sleep",
+              "flee",
+              "gather",
+              "heal",
+              "attack",
+              "socialize",
+              "trade",
+              "work",
+              "pray",
+              "walk_to"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "file": "..\\archive\\data\\train_formatter.jsonl",
+      "records_seen": 1000,
+      "malformed_records": 0,
+      "top_level": {
+        "fields": [
+          "text"
+        ],
+        "missing_rate": {
+          "text": 0.0
+        },
+        "types": {
+          "text": {
+            "str": 1000
+          }
+        }
+      },
+      "chat": {
+        "role_counts": {
+          "system": 1000,
+          "user": 1000,
+          "assistant": 1000
+        },
+        "message_count_histogram": {
+          "3": 1000
+        }
+      },
+      "embedded_json": {
+        "assistant_json": {
+          "fields": [
+            "emotion",
+            "reasoning",
+            "selected_action.action_id",
+            "selected_action.dialogue",
+            "selected_action.target_id"
+          ],
+          "missing_rate": {
+            "emotion": 0.0,
+            "reasoning": 0.0,
+            "selected_action.action_id": 0.0,
+            "selected_action.dialogue": 0.0,
+            "selected_action.target_id": 0.0
+          },
+          "types": {
+            "emotion": {
+              "str": 1000
+            },
+            "reasoning": {
+              "str": 1000
+            },
+            "selected_action.action_id": {
+              "str": 1000
+            },
+            "selected_action.dialogue": {
+              "null": 946,
+              "str": 54
+            },
+            "selected_action.target_id": {
+              "null": 1000
+            }
+          }
+        },
+        "system_json": {
+          "fields": [
+            "emotion",
+            "reasoning",
+            "selected_action.action_id",
+            "selected_action.dialogue",
+            "selected_action.target_id"
+          ],
+          "missing_rate": {
+            "emotion": 0.0,
+            "reasoning": 0.0,
+            "selected_action.action_id": 0.0,
+            "selected_action.dialogue": 0.0,
+            "selected_action.target_id": 0.0
+          },
+          "types": {
+            "emotion": {
+              "str": 1000
+            },
+            "reasoning": {
+              "str": 1000
+            },
+            "selected_action.action_id": {
+              "str": 1000
+            },
+            "selected_action.dialogue": {
+              "null": 1000
+            },
+            "selected_action.target_id": {
+              "null": 1000
+            }
+          }
+        }
+      },
+      "action_id_counts": {
+        "walk_to": 216,
+        "gather": 205,
+        "flee": 182,
+        "eat": 113,
+        "drink": 99,
+        "socialize": 54,
+        "sleep": 54,
+        "attack": 36,
+        "work": 26,
+        "heal": 14,
+        "pray": 1
+      },
+      "emotion_counts": {
+        "Calm": 530,
+        "Fearful": 218,
+        "Happy": 71,
+        "Angry": 64,
+        "Tired": 54,
+        "Focused": 26,
+        "Loyal": 19,
+        "Devout": 16,
+        "Brave": 1,
+        "Aggressive": 1
+      },
+      "valid_actions": [],
+      "sample": {
+        "record": {
+          "text": "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\nSen bir NPC simülasyonu için JSON dönüştürücüsün.\nSana bir NPC'nin ne yapmak istediğini Türkçe olarak anlatacağım.\nBunu aşağıdaki JSON şemasına dönüştür:\n{\"reasoning\":\"<girdiyi kopyala>\",\"selected_action\":{\"action_id\":\"<listeden>\",\"target_id\":null,\"dialogue\":null},\"emotion\":\"<tek kelime>\"}\nvalid_actions: [\"eat\",\"drink\",\"sleep\",\"flee\",\"gather\",\"heal\",\"attack\",\"socialize\",\"trade\",\"work\",\"pray\",\"walk_to\"]\nSADECE JSON yaz. Kod bloğu veya açıklama ekleme.<|eot_id|><|start_header_id|>user<|end_header_id|>\n\nSusuzluk dayanılmaz (0.91). Su bulmalıyım. Başka bir seçenek düşündüm ama mevcut koşullar beni bu karardan alıkoyuyor. Kurnaz biri olarak her adımı hesaplıyorum, anlık karar vermek hata olur. Sonuç olarak su içmek en acil ihtiyacım, önce bunu karşılamalıyım. Geçmişteki deneyimlerim (Bugün hava güzel, kuşlar ötüyor....) bana bu yolun doğru olduğunu hatırlatıyor.<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n{\"reasoning\":\"Susuzluk dayanılmaz (0.91). Su bulmalıyım. Başka bir seçenek düşündüm ama mevcut koşullar beni bu karardan alıkoyuyor. Kurnaz biri olarak her adımı hesaplıyorum, anlık karar vermek hata olur. Sonuç olarak su içmek en acil ihtiyacım, önce bunu karşılamalıyım. Geçmişteki deneyimlerim (Bugün hava güzel, kuşlar ötüyor....) bana bu yolun doğru olduğunu hatırlatıyor.\",\"selected_action\":{\"action_id\":\"drink\",\"target_id\":null,\"dialogue\":null},\"emotion\":\"Calm\"}<|eot_id|>"
+        },
+        "messages": [
+          {
+            "role": "system",
+            "content_preview": "Sen bir NPC simülasyonu için JSON dönüştürücüsün. Sana bir NPC'nin ne yapmak istediğini Türkçe olarak anlatacağım. Bunu aşağıdaki JSON şemasına dönüştür: {\"reasoning\":\"<girdiyi kopyala>\",\"selected_action\":{\"action_id\":\"<listeden>\",\"target_id\":null,\"dialogue\":null},\"emotion\":\"<tek kelime>\"} valid_actions: [\"eat\",\"drink\""
+          },
+          {
+            "role": "user",
+            "content_preview": "Susuzluk dayanılmaz (0.91). Su bulmalıyım. Başka bir seçenek düşündüm ama mevcut koşullar beni bu karardan alıkoyuyor. Kurnaz biri olarak her adımı hesaplıyorum, anlık karar vermek hata olur. Sonuç olarak su içmek en acil ihtiyacım, önce bunu karşılamalıyım. Geçmişteki deneyimlerim (Bugün hava güzel, kuşlar ötüyor....)"
+          },
+          {
+            "role": "assistant",
+            "content_preview": "{\"reasoning\":\"Susuzluk dayanılmaz (0.91). Su bulmalıyım. Başka bir seçenek düşündüm ama mevcut koşullar beni bu karardan alıkoyuyor. Kurnaz biri olarak her adımı hesaplıyorum, anlık karar vermek hata olur. Sonuç olarak su içmek en acil ihtiyacım, önce bunu karşılamalıyım. Geçmişteki deneyimlerim (Bugün hava güzel, kuşl"
+          }
+        ],
+        "embedded_json": {
+          "system_json": {
+            "reasoning": "<girdiyi kopyala>",
+            "selected_action": {
+              "action_id": "<listeden>",
+              "target_id": null,
+              "dialogue": null
+            },
+            "emotion": "<tek kelime>"
+          },
+          "assistant_json": {
+            "reasoning": "Susuzluk dayanılmaz (0.91). Su bulmalıyım. Başka bir seçenek düşündüm ama mevcut koşullar beni bu karardan alıkoyuyor. Kurnaz biri olarak her adımı hesaplıyorum, anlık karar vermek hata olur. Sonuç olarak su içmek en acil ihtiyacım, önce bunu karşılamalıyım. Geçmişteki deneyimlerim (Bugün hava güzel, kuşlar ötüyor....) bana bu yolun doğru olduğunu hatırlatıyor.",
+            "selected_action": {
+              "action_id": "drink",
+              "target_id": null,
+              "dialogue": null
+            },
+            "emotion": "Calm"
+          }
+        }
+      }
+    },
+    {
+      "file": "..\\archive\\data\\train_reasoner.jsonl",
+      "records_seen": 1000,
+      "malformed_records": 0,
+      "top_level": {
+        "fields": [
+          "text"
+        ],
+        "missing_rate": {
+          "text": 0.0
+        },
+        "types": {
+          "text": {
+            "str": 1000
+          }
+        }
+      },
+      "chat": {
+        "role_counts": {
+          "system": 1000,
+          "user": 1000,
+          "assistant": 1000
+        },
+        "message_count_histogram": {
+          "3": 1000
+        }
+      },
+      "embedded_json": {
+        "user_json": {
+          "fields": [
+            "arch",
+            "b5.a",
+            "b5.c",
+            "b5.e",
+            "b5.n",
+            "b5.o",
+            "beliefs",
+            "beliefs[].conf",
+            "beliefs[].subj",
+            "beliefs[].val",
+            "emo.ang",
+            "emo.fear",
+            "emo.hap",
+            "emo.mood",
+            "faction",
+            "factions.Bandits",
+            "factions.CityWatch",
+            "goals_top",
+            "id",
+            "interrupt",
+            "inv",
+            "inv[].id",
+            "inv[].n",
+            "memories",
+            "memories[].desc",
+            "memories[].dt",
+            "memories[].evt",
+            "memories[].ew",
+            "occ",
+            "percepts",
+            "percepts[].id",
+            "percepts[].sal",
+            "percepts[].tag",
+            "percepts[].threat",
+            "pos.landmark",
+            "pos.x",
+            "pos.z",
+            "pos.zone",
+            "sched.act",
+            "sched.sleep",
+            "sched.wake",
+            "sched.wk_end",
+            "sched.wk_start",
+            "time.day",
+            "time.hr",
+            "traits",
+            "valid_actions",
+            "vitals.en",
+            "vitals.hp",
+            "vitals.hp_max",
+            "vitals.hun",
+            "vitals.str",
+            "vitals.thi"
+          ],
+          "missing_rate": {
+            "arch": 0.0,
+            "b5.a": 0.0,
+            "b5.c": 0.0,
+            "b5.e": 0.0,
+            "b5.n": 0.0,
+            "b5.o": 0.0,
+            "beliefs": 0.0,
+            "beliefs[].conf": 0.614,
+            "beliefs[].subj": 0.614,
+            "beliefs[].val": 0.614,
+            "emo.ang": 0.0,
+            "emo.fear": 0.0,
+            "emo.hap": 0.0,
+            "emo.mood": 0.0,
+            "faction": 0.0,
+            "factions.Bandits": 0.0,
+            "factions.CityWatch": 0.0,
+            "goals_top": 0.0,
+            "id": 0.0,
+            "interrupt": 0.0,
+            "inv": 0.0,
+            "inv[].id": 0.077,
+            "inv[].n": 0.077,
+            "memories": 0.0,
+            "memories[].desc": 0.0,
+            "memories[].dt": 0.0,
+            "memories[].evt": 0.0,
+            "memories[].ew": 0.0,
+            "occ": 0.0,
+            "percepts": 0.0,
+            "percepts[].id": 0.221,
+            "percepts[].sal": 0.221,
+            "percepts[].tag": 0.221,
+            "percepts[].threat": 0.606,
+            "pos.landmark": 0.0,
+            "pos.x": 0.0,
+            "pos.z": 0.0,
+            "pos.zone": 0.0,
+            "sched.act": 0.0,
+            "sched.sleep": 0.0,
+            "sched.wake": 0.0,
+            "sched.wk_end": 0.0,
+            "sched.wk_start": 0.0,
+            "time.day": 0.0,
+            "time.hr": 0.0,
+            "traits": 0.0,
+            "valid_actions": 0.0,
+            "vitals.en": 0.0,
+            "vitals.hp": 0.0,
+            "vitals.hp_max": 0.0,
+            "vitals.hun": 0.0,
+            "vitals.str": 0.0,
+            "vitals.thi": 0.0
+          },
+          "types": {
+            "arch": {
+              "str": 1000
+            },
+            "b5.a": {
+              "float": 1000
+            },
+            "b5.c": {
+              "float": 1000
+            },
+            "b5.e": {
+              "float": 1000
+            },
+            "b5.n": {
+              "float": 1000
+            },
+            "b5.o": {
+              "float": 1000
+            },
+            "beliefs": {
+              "list[empty]": 614,
+              "list[dict]": 386
+            },
+            "beliefs[].conf": {
+              "float": 386
+            },
+            "beliefs[].subj": {
+              "str": 386
+            },
+            "beliefs[].val": {
+              "float": 386
+            },
+            "emo.ang": {
+              "float": 1000
+            },
+            "emo.fear": {
+              "float": 1000
+            },
+            "emo.hap": {
+              "float": 1000
+            },
+            "emo.mood": {
+              "str": 1000
+            },
+            "faction": {
+              "str": 1000
+            },
+            "factions.Bandits": {
+              "float": 1000
+            },
+            "factions.CityWatch": {
+              "float": 1000
+            },
+            "goals_top": {
+              "str": 636,
+              "null": 364
+            },
+            "id": {
+              "str": 1000
+            },
+            "interrupt": {
+              "bool": 1000
+            },
+            "inv": {
+              "list[dict]": 923,
+              "list[empty]": 77
+            },
+            "inv[].id": {
+              "str": 923
+            },
+            "inv[].n": {
+              "int": 923
+            },
+            "memories": {
+              "list[dict]": 1000
+            },
+            "memories[].desc": {
+              "str": 1000
+            },
+            "memories[].dt": {
+              "int": 1000
+            },
+            "memories[].evt": {
+              "str": 1000
+            },
+            "memories[].ew": {
+              "float": 1000
+            },
+            "occ": {
+              "str": 1000
+            },
+            "percepts": {
+              "list[empty]": 221,
+              "list[dict]": 779
+            },
+            "percepts[].id": {
+              "str": 779
+            },
+            "percepts[].sal": {
+              "float": 779
+            },
+            "percepts[].tag": {
+              "str": 779
+            },
+            "percepts[].threat": {
+              "float": 394
+            },
+            "pos.landmark": {
+              "str": 1000
+            },
+            "pos.x": {
+              "float": 1000
+            },
+            "pos.z": {
+              "float": 1000
+            },
+            "pos.zone": {
+              "str": 1000
+            },
+            "sched.act": {
+              "str": 1000
+            },
+            "sched.sleep": {
+              "int": 1000
+            },
+            "sched.wake": {
+              "int": 1000
+            },
+            "sched.wk_end": {
+              "int": 1000
+            },
+            "sched.wk_start": {
+              "int": 1000
+            },
+            "time.day": {
+              "int": 1000
+            },
+            "time.hr": {
+              "float": 1000
+            },
+            "traits": {
+              "list[str]": 1000
+            },
+            "valid_actions": {
+              "list[str]": 1000
+            },
+            "vitals.en": {
+              "float": 1000
+            },
+            "vitals.hp": {
+              "float": 1000
+            },
+            "vitals.hp_max": {
+              "float": 1000
+            },
+            "vitals.hun": {
+              "float": 1000
+            },
+            "vitals.str": {
+              "float": 1000
+            },
+            "vitals.thi": {
+              "float": 1000
+            }
+          }
+        }
+      },
+      "action_id_counts": {},
+      "emotion_counts": {},
+      "valid_actions": [
+        "attack",
+        "drink",
+        "eat",
+        "flee",
+        "gather",
+        "heal",
+        "pray",
+        "sleep",
+        "socialize",
+        "trade",
+        "walk_to",
+        "work"
+      ],
+      "sample": {
+        "record": {
+          "text": "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\nSen bir ortaçağ simülasyonundaki NPC'nin iç ses motorusun.\nSana NPC'nin anlık durumunu JSON olarak göndereceğim.\nGörevin: NPC'nin ne yapması gerektiğini ve NEDEN yapması gerektiğini\n3-5 cümlelik Türkçe iç monolog olarak yaz.\nASLA JSON üretme. ASLA action_id adı kullanma. Sadece düşün.\nKişilik özellikleri, hayatta kalma ihtiyaçları, tehdit algısı,\nduygusal durum, hafıza ve sosyal bağlamı değerlendir.<|eot_id|><|start_header_id|>user<|end_header_id|>\n\nBurak, Tüccar Loncası bünyesinde görev yapan bir kral. Saldırgan ve öfkeli biri olarak tanınır; dışadönüklük yüksek, uyumluluk düşük, öz-denetim düşük. Çevresiyle kolayca kaynaşır; sessiz kalmak ona göre değildir.\n\n{\"id\":\"npc_d301e377\",\"arch\":\"Aggressive\",\"occ\":\"King\",\"faction\":\"MerchantGuild\",\"b5\":{\"e\":0.88,\"a\":0.16,\"c\":0.38,\"n\":0.73,\"o\":0.32},\"traits\":[\"Aggressive\",\"Wrathful\"],\"vitals\":{\"hp\":101.5,\"hp_max\":120.0,\"en\":0.36,\"hun\":0.25,\"thi\":0.86,\"str\":0.65},\"emo\":{\"hap\":0.0,\"fear\":0.58,\"ang\":0.38,\"mood\":\"Fearful\"},\"inv\":[{\"id\":\"food\",\"n\":5},{\"id\":\"water\",\"n\":2}],\"time\":{\"day\":10,\"hr\":18.6},\"pos\":{\"x\":19.3,\"z\":9.1,\"zone\":\"Barracks\",\"landmark\":\"ArmoryDoor\"},\"sched\":{\"act\":\"social\",\"wk_start\":9,\"wk_end\":17,\"sleep\":22,\"wake\":7},\"percepts\":[],\"memories\":[{\"evt\":\"Memory\",\"desc\":\"Vergileri artırdım, halk isyan edebilir.\",\"ew\":0.45,\"dt\":1585},{\"evt\":\"Memory\",\"desc\":\"Pazarda fiyatlar çok arttı.\",\"ew\":0.33,\"dt\":2969},{\"evt\":\"Memory\",\"desc\":\"Karnım aç, günlerdir sıcak yemek yemedim.\",\"ew\":-0.4,\"dt\":1771}],\"beliefs\":[],\"factions\":{\"CityWatch\":0.1,\"Bandits\":-0.16},\"goals_top\":\"FindWater\",\"interrupt\":false,\"valid_actions\":[\"eat\",\"drink\",\"sleep\",\"flee\",\"gather\",\"heal\",\"attack\",\"socialize\",\"trade\",\"work\",\"pray\",\"walk_to\"]}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\nSusuzluk dayanılmaz (0.86). Su bulmalıyım. Elbette dinlenebilirdim, ancak içinde bulunduğum durum bunu şu an için doğru seçim yapmıyor. Öfkem (0.38) beni harekete geçiriyor, duraksamamalıyım. Sonuç olarak su içmek en acil ihtiyacım, önce bunu karşılamalıyım.<|eot_id|>"
+        },
+        "messages": [
+          {
+            "role": "system",
+            "content_preview": "Sen bir ortaçağ simülasyonundaki NPC'nin iç ses motorusun. Sana NPC'nin anlık durumunu JSON olarak göndereceğim. Görevin: NPC'nin ne yapması gerektiğini ve NEDEN yapması gerektiğini 3-5 cümlelik Türkçe iç monolog olarak yaz. ASLA JSON üretme. ASLA action_id adı kullanma. Sadece düşün. Kişilik özellikleri, hayatta kalma"
+          },
+          {
+            "role": "user",
+            "content_preview": "Burak, Tüccar Loncası bünyesinde görev yapan bir kral. Saldırgan ve öfkeli biri olarak tanınır; dışadönüklük yüksek, uyumluluk düşük, öz-denetim düşük. Çevresiyle kolayca kaynaşır; sessiz kalmak ona göre değildir. {\"id\":\"npc_d301e377\",\"arch\":\"Aggressive\",\"occ\":\"King\",\"faction\":\"MerchantGuild\",\"b5\":{\"e\":0.88,\"a\":0.16,\"c"
+          },
+          {
+            "role": "assistant",
+            "content_preview": "Susuzluk dayanılmaz (0.86). Su bulmalıyım. Elbette dinlenebilirdim, ancak içinde bulunduğum durum bunu şu an için doğru seçim yapmıyor. Öfkem (0.38) beni harekete geçiriyor, duraksamamalıyım. Sonuç olarak su içmek en acil ihtiyacım, önce bunu karşılamalıyım."
+          }
+        ],
+        "embedded_json": {
+          "user_json": {
+            "id": "npc_d301e377",
+            "arch": "Aggressive",
+            "occ": "King",
+            "faction": "MerchantGuild",
+            "b5": {
+              "e": 0.88,
+              "a": 0.16,
+              "c": 0.38,
+              "n": 0.73,
+              "o": 0.32
+            },
+            "traits": [
+              "Aggressive",
+              "Wrathful"
+            ],
+            "vitals": {
+              "hp": 101.5,
+              "hp_max": 120.0,
+              "en": 0.36,
+              "hun": 0.25,
+              "thi": 0.86,
+              "str": 0.65
+            },
+            "emo": {
+              "hap": 0.0,
+              "fear": 0.58,
+              "ang": 0.38,
+              "mood": "Fearful"
+            },
+            "inv": [
+              {
+                "id": "food",
+                "n": 5
+              },
+              {
+                "id": "water",
+                "n": 2
+              }
+            ],
+            "time": {
+              "day": 10,
+              "hr": 18.6
+            },
+            "pos": {
+              "x": 19.3,
+              "z": 9.1,
+              "zone": "Barracks",
+              "landmark": "ArmoryDoor"
+            },
+            "sched": {
+              "act": "social",
+              "wk_start": 9,
+              "wk_end": 17,
+              "sleep": 22,
+              "wake": 7
+            },
+            "percepts": [],
+            "memories": [
+              {
+                "evt": "Memory",
+                "desc": "Vergileri artırdım, halk isyan edebilir.",
+                "ew": 0.45,
+                "dt": 1585
+              },
+              {
+                "evt": "Memory",
+                "desc": "Pazarda fiyatlar çok arttı.",
+                "ew": 0.33,
+                "dt": 2969
+              },
+              {
+                "evt": "Memory",
+                "desc": "Karnım aç, günlerdir sıcak yemek yemedim.",
+                "ew": -0.4,
+                "dt": 1771
+              }
+            ],
+            "beliefs": [],
+            "factions": {
+              "CityWatch": 0.1,
+              "Bandits": -0.16
+            },
+            "goals_top": "FindWater",
+            "interrupt": false,
+            "valid_actions": [
+              "eat",
+              "drink",
+              "sleep",
+              "flee",
+              "gather",
+              "heal",
+              "attack",
+              "socialize",
+              "trade",
+              "work",
+              "pray",
+              "walk_to"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "conclusion": {
+    "top_level_fields": [
+      "text"
+    ],
+    "embedded_json_buckets": [
+      "assistant_json",
+      "system_json",
+      "user_json"
+    ],
+    "has_state_json": true,
+    "has_action_json": true,
+    "action_ids": [
+      "attack",
+      "drink",
+      "eat",
+      "flee",
+      "gather",
+      "heal",
+      "pray",
+      "sleep",
+      "socialize",
+      "walk_to",
+      "work"
+    ],
+    "needs_conversion": true,
+    "notes": [
+      "Top-level JSONL rows are chat-template records, not canonical state/action samples.",
+      "Reasoner files contain NPC state JSON in the user message.",
+      "Formatter files contain selected_action/emotion JSON in the assistant message.",
+      "Conversion must parse chat messages and map simulation fields to StateFeatures/PolicyAction."
+    ]
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "raw_dir": "..\\archive\\data",
+  "out_dir": "data\\behavior_policy\\stateful_rpg",
+  "formatter_labels": 7775,
+  "valid_ratio": 0.1,
+  "seed": 13,
+  "splits": {
+    "train": {
+      "records": 9000,
+      "action_counts": {
+        "gather": 1894,
+        "walk_to": 1821,
+        "flee": 1685,
+        "eat": 1066,
+        "drink": 883,
+        "socialize": 583,
+        "sleep": 428,
+        "attack": 338,
+        "work": 187,
+        "heal": 65,
+        "pray": 50
+      },
+      "label_sources": {
+        "formatter_match": 9000
+      },
+      "emotion_counts": {
+        "neutral": 5545,
+        "afraid": 2114,
+        "friendly": 718,
+        "angry": 623
+      }
+    },
+    "valid": {
+      "records": 1000,
+      "action_counts": {
+        "gather": 225,
+        "walk_to": 200,
+        "flee": 187,
+        "eat": 116,
+        "drink": 100,
+        "socialize": 62,
+        "sleep": 42,
+        "attack": 36,
+        "work": 20,
+        "heal": 9,
+        "pray": 3
+      },
+      "label_sources": {
+        "formatter_match": 1000
+      },
+      "emotion_counts": {
+        "neutral": 627,
+        "afraid": 236,
+        "friendly": 74,
+        "angry": 63
+      }
+    },
+    "test": {
+      "records": 2000,
+      "action_counts": {
+        "flee": 656,
+        "eat": 322,
+        "sleep": 280,
+        "drink": 244,
+        "work": 172,
+        "walk_to": 158,
+        "gather": 86,
+        "heal": 50,
+        "socialize": 28,
+        "pray": 4
+      },
+      "label_sources": {
+        "heuristic": 1599,
+        "formatter_match": 401
+      },
+      "emotion_counts": {
+        "neutral": 1228,
+        "angry": 353,
+        "friendly": 235,
+        "afraid": 184
+      }
+    }
+  },
+  "total_records": 12000,
+  "notes": [
+    "source_action.action_id is the primary supervised label from the dataset.",
+    "action is a lossy dialogue-policy projection kept for compatibility with PolicyAction.",
+    "label_source=formatter_match means reasoning text matched train_formatter exactly.",
+    "label_source=heuristic means action was inferred from vitals, threat, schedule, or goal."
+  ]
+}

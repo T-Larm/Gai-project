@@ -14,6 +14,7 @@ from backend.behavior.schemas import (
     StateFeatures,
 )
 from backend.behavior.state_encoder import StateEncoder, encode_state
+from backend.behavior.supervised_policy import SupervisedPolicy
 
 __all__ = [
     "DialogueAct",
@@ -28,5 +29,6 @@ __all__ = [
     "RelationshipStatus",
     "StateEncoder",
     "StateFeatures",
+    "SupervisedPolicy",
     "encode_state",
 ]

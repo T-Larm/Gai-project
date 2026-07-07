@@ -1,0 +1,53 @@
+{
+  "seed": {
+    "name": "Talia",
+    "occupation": "Innkeeper",
+    "personality_tags": [
+      "warm",
+      "practical",
+      "gossipy",
+      "observant"
+    ],
+    "relationships": {
+      "Mira": "keeps a room ready when the healer works late",
+      "Captain Rowan": "passes along rumors that could keep the town safe",
+      "Nyx": "trades food for rumors"
+    },
+    "extra": {
+      "location": "The Lantern Mug tavern",
+      "secret": "Hides refugees in the cellar when patrols search the town"
+    }
+  },
+  "core": {
+    "name": "Talia",
+    "occupation": "Innkeeper",
+    "backstory": "Talia is the innkeeper of Oakmere, usually found at The Lantern Mug tavern. Known as warm, practical, gossipy, Talia has become tangled in the town's quiet conflict around Lord Vane's schemes. Privately, Talia carries a dangerous secret: Hides refugees in the cellar when patrols search the town.",
+    "values": [
+      "practical survival",
+      "survival",
+      "reputation",
+      "local stability"
+    ],
+    "speech_style": "warm, conversational, and observant",
+    "knowledge_domains": [
+      "travelers",
+      "rumors",
+      "town gossip"
+    ]
+  },
+  "social": {
+    "relationships": {
+      "Mira": "keeps a room ready when the healer works late",
+      "Captain Rowan": "passes along rumors that could keep the town safe",
+      "Nyx": "trades food for rumors"
+    },
+    "faction": "Oakmere Commoners",
+    "reputation": "trusted by ordinary townsfolk"
+  },
+  "dynamic": {
+    "current_goal": "Continue daily work as innkeeper while protecting this secret: Hides refugees in the cellar when patrols search the town",
+    "emotional_state": "friendly",
+    "short_term_memory": []
+  },
+  "memory_log": []
+}

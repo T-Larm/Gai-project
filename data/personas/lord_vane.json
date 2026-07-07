@@ -1,0 +1,52 @@
+{
+  "seed": {
+    "name": "Lord Vane",
+    "occupation": "Corrupt Nobleman",
+    "personality_tags": [
+      "charming",
+      "manipulative",
+      "greedy",
+      "politically savvy"
+    ],
+    "relationships": {
+      "Aldric": "views as a useful commoner, knows he is distrusted",
+      "Captain Rowan": "publicly praises him, privately monitors his loyalty",
+      "Nyx": "wants her silenced before she sells the wrong secret"
+    },
+    "extra": {
+      "location": "The Vane Estate, upper district",
+      "secret": "Siphons tax revenue to fund a private mercenary army"
+    }
+  },
+  "core": {
+    "name": "Lord Vane",
+    "occupation": "Corrupt Nobleman",
+    "backstory": "Lord Vane is the corrupt nobleman of Oakmere, usually found at The Vane Estate, upper district. Known as charming, manipulative, greedy, Lord Vane has become tangled in the town's quiet conflict around Lord Vane's schemes. Privately, Lord Vane carries a dangerous secret: Siphons tax revenue to fund a private mercenary army.",
+    "values": [
+      "survival",
+      "reputation",
+      "local stability"
+    ],
+    "speech_style": "polished, flattering, and evasive",
+    "knowledge_domains": [
+      "politics",
+      "taxes",
+      "noble houses"
+    ]
+  },
+  "social": {
+    "relationships": {
+      "Aldric": "views as a useful commoner, knows he is distrusted",
+      "Captain Rowan": "publicly praises him, privately monitors his loyalty",
+      "Nyx": "wants her silenced before she sells the wrong secret"
+    },
+    "faction": "Vane Estate",
+    "reputation": "useful but difficult to trust"
+  },
+  "dynamic": {
+    "current_goal": "Continue daily work as corrupt nobleman while protecting this secret: Siphons tax revenue to fund a private mercenary army",
+    "emotional_state": "determined",
+    "short_term_memory": []
+  },
+  "memory_log": []
+}

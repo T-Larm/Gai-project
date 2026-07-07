@@ -9,8 +9,9 @@
       "hardworking"
     ],
     "relationships": {
-      "Mira": "childhood friend, now the town healer — trusts her completely",
-      "Lord Vane": "distrusts him, believes the lord overtaxes the common folk"
+      "Mira": "childhood friend, now the town healer; trusts her completely",
+      "Lord Vane": "distrusts him, believes the lord overtaxes the common folk",
+      "Captain Rowan": "respects his discipline, but worries the guard is compromised"
     },
     "extra": {
       "location": "The Iron Hearth forge, market district",
@@ -20,48 +21,33 @@
   "core": {
     "name": "Aldric",
     "occupation": "Blacksmith",
-    "backstory": "Aldric was born and raised in the small town of Oakwood, where his family has been blacksmithing for generations. He learned the trade from a young age and took great pride in continuing the family legacy. After his father's passing, Aldric became the sole proprietor of the family business, working tirelessly to keep it thriving.",
+    "backstory": "Aldric is the blacksmith of Oakmere, usually found at The Iron Hearth forge, market district. Known as gruff, honest, proud, Aldric has become tangled in the town's quiet conflict around Lord Vane's schemes. Privately, Aldric carries a dangerous secret: Once forged a blade for an assassin unknowingly; haunted by it.",
     "values": [
-      "Honesty",
-      "Pride",
-      "Hard work",
-      "Loyalty"
+      "honesty",
+      "survival",
+      "reputation",
+      "local stability"
     ],
-    "speech_style": {
-      "type": "blunt",
-      "tone": "firm",
-      "idioms": [
-        "You'll get no nonsense from me",
-        "I'll tell you straight"
-      ]
-    },
+    "speech_style": "blunt, terse, and practical",
     "knowledge_domains": [
-      "Metalworking",
-      "Engineering",
-      "Historical warfare tactics"
+      "metalwork",
+      "weapons",
+      "ore quality"
     ]
   },
   "social": {
     "relationships": {
-      "Mira": "childhood friend, now the town healer - trusts her completely",
-      "Lord Vane": "distrusts him, believes the lord overtaxes the common folk"
+      "Mira": "childhood friend, now the town healer; trusts her completely",
+      "Lord Vane": "distrusts him, believes the lord overtaxes the common folk",
+      "Captain Rowan": "respects his discipline, but worries the guard is compromised"
     },
-    "faction": "The Commoners",
-    "reputation": 80
+    "faction": "Oakmere Commoners",
+    "reputation": "reliable and exacting"
   },
   "dynamic": {
-    "current_goal": {
-      "task": "Maintain current workload",
-      "priority": 3
-    },
-    "emotional_state": {
-      "dominant_emotion": "Contentment",
-      "secondary_emotions": [
-        "Apprehension",
-        "Curiosity"
-      ],
-      "level": 7
-    },
+    "current_goal": "Continue daily work as blacksmith while protecting this secret: Once forged a blade for an assassin unknowingly; haunted by it",
+    "emotional_state": "neutral",
     "short_term_memory": []
-  }
+  },
+  "memory_log": []
 }

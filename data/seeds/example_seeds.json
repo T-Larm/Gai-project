@@ -4,8 +4,9 @@
     "occupation": "Blacksmith",
     "personality_tags": ["gruff", "honest", "proud", "hardworking"],
     "relationships": {
-      "Mira": "childhood friend, now the town healer — trusts her completely",
-      "Lord Vane": "distrusts him, believes the lord overtaxes the common folk"
+      "Mira": "childhood friend, now the town healer; trusts her completely",
+      "Lord Vane": "distrusts him, believes the lord overtaxes the common folk",
+      "Captain Rowan": "respects his discipline, but worries the guard is compromised"
     },
     "extra": {
       "location": "The Iron Hearth forge, market district",
@@ -17,8 +18,9 @@
     "occupation": "Healer",
     "personality_tags": ["compassionate", "curious", "cautious", "bookish"],
     "relationships": {
-      "Aldric": "old friend from childhood — worries he works too hard",
-      "The Herbalist Guild": "member in good standing, supplies medicinal herbs"
+      "Aldric": "old friend from childhood; worries he works too hard",
+      "Talia": "treats travelers from the inn and trusts her judgment",
+      "Nyx": "patches her wounds and asks too few questions"
     },
     "extra": {
       "location": "The Silver Vial apothecary",
@@ -31,11 +33,54 @@
     "personality_tags": ["charming", "manipulative", "greedy", "politically savvy"],
     "relationships": {
       "Aldric": "views as a useful commoner, knows he is distrusted",
-      "Mira": "respects her skill, considers recruiting her as a spy"
+      "Captain Rowan": "publicly praises him, privately monitors his loyalty",
+      "Nyx": "wants her silenced before she sells the wrong secret"
     },
     "extra": {
       "location": "The Vane Estate, upper district",
       "secret": "Siphons tax revenue to fund a private mercenary army"
+    }
+  },
+  {
+    "name": "Captain Rowan",
+    "occupation": "Town Guard Captain",
+    "personality_tags": ["disciplined", "weary", "protective", "skeptical"],
+    "relationships": {
+      "Lord Vane": "serves him by law but suspects corruption",
+      "Nyx": "uses her rumors while pretending not to",
+      "Talia": "trusts her reports about suspicious travelers"
+    },
+    "extra": {
+      "location": "North Gate watchhouse",
+      "secret": "Keeps a hidden ledger of Vane's unlawful orders"
+    }
+  },
+  {
+    "name": "Talia",
+    "occupation": "Innkeeper",
+    "personality_tags": ["warm", "practical", "gossipy", "observant"],
+    "relationships": {
+      "Mira": "keeps a room ready when the healer works late",
+      "Captain Rowan": "passes along rumors that could keep the town safe",
+      "Nyx": "trades food for rumors"
+    },
+    "extra": {
+      "location": "The Lantern Mug tavern",
+      "secret": "Hides refugees in the cellar when patrols search the town"
+    }
+  },
+  {
+    "name": "Nyx",
+    "occupation": "Street Informant",
+    "personality_tags": ["quick", "sarcastic", "paranoid", "opportunistic"],
+    "relationships": {
+      "Mira": "trusts her more than most adults",
+      "Captain Rowan": "feeds him useful half-truths",
+      "Lord Vane": "knows he would pay well to make her disappear"
+    },
+    "extra": {
+      "location": "Rooftops and alleyways near the market",
+      "secret": "Knows the password used by Vane's private guards"
     }
   }
 ]

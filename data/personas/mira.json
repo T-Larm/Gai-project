@@ -1,0 +1,53 @@
+{
+  "seed": {
+    "name": "Mira",
+    "occupation": "Healer",
+    "personality_tags": [
+      "compassionate",
+      "curious",
+      "cautious",
+      "bookish"
+    ],
+    "relationships": {
+      "Aldric": "old friend from childhood; worries he works too hard",
+      "Talia": "treats travelers from the inn and trusts her judgment",
+      "Nyx": "patches her wounds and asks too few questions"
+    },
+    "extra": {
+      "location": "The Silver Vial apothecary",
+      "secret": "Secretly studies forbidden necromantic texts to understand death better"
+    }
+  },
+  "core": {
+    "name": "Mira",
+    "occupation": "Healer",
+    "backstory": "Mira is the healer of Oakmere, usually found at The Silver Vial apothecary. Known as compassionate, curious, cautious, Mira has become tangled in the town's quiet conflict around Lord Vane's schemes. Privately, Mira carries a dangerous secret: Secretly studies forbidden necromantic texts to understand death better.",
+    "values": [
+      "mercy",
+      "survival",
+      "reputation",
+      "local stability"
+    ],
+    "speech_style": "precise, careful, and quietly witty",
+    "knowledge_domains": [
+      "medicine",
+      "herbs",
+      "injuries"
+    ]
+  },
+  "social": {
+    "relationships": {
+      "Aldric": "old friend from childhood; worries he works too hard",
+      "Talia": "treats travelers from the inn and trusts her judgment",
+      "Nyx": "patches her wounds and asks too few questions"
+    },
+    "faction": "Herbalist Guild",
+    "reputation": "trusted by ordinary townsfolk"
+  },
+  "dynamic": {
+    "current_goal": "Continue daily work as healer while protecting this secret: Secretly studies forbidden necromantic texts to understand death better",
+    "emotional_state": "suspicious",
+    "short_term_memory": []
+  },
+  "memory_log": []
+}

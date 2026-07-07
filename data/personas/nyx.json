@@ -1,0 +1,52 @@
+{
+  "seed": {
+    "name": "Nyx",
+    "occupation": "Street Informant",
+    "personality_tags": [
+      "quick",
+      "sarcastic",
+      "paranoid",
+      "opportunistic"
+    ],
+    "relationships": {
+      "Mira": "trusts her more than most adults",
+      "Captain Rowan": "feeds him useful half-truths",
+      "Lord Vane": "knows he would pay well to make her disappear"
+    },
+    "extra": {
+      "location": "Rooftops and alleyways near the market",
+      "secret": "Knows the password used by Vane's private guards"
+    }
+  },
+  "core": {
+    "name": "Nyx",
+    "occupation": "Street Informant",
+    "backstory": "Nyx is the street informant of Oakmere, usually found at Rooftops and alleyways near the market. Known as quick, sarcastic, paranoid, Nyx has become tangled in the town's quiet conflict around Lord Vane's schemes. Privately, Nyx carries a dangerous secret: Knows the password used by Vane's private guards.",
+    "values": [
+      "survival",
+      "reputation",
+      "local stability"
+    ],
+    "speech_style": "quick, guarded, and sarcastic",
+    "knowledge_domains": [
+      "rumors",
+      "passwords",
+      "alleys"
+    ]
+  },
+  "social": {
+    "relationships": {
+      "Mira": "trusts her more than most adults",
+      "Captain Rowan": "feeds him useful half-truths",
+      "Lord Vane": "knows he would pay well to make her disappear"
+    },
+    "faction": "Oakmere Commoners",
+    "reputation": "useful but difficult to trust"
+  },
+  "dynamic": {
+    "current_goal": "Continue daily work as street informant while protecting this secret: Knows the password used by Vane's private guards",
+    "emotional_state": "suspicious",
+    "short_term_memory": []
+  },
+  "memory_log": []
+}

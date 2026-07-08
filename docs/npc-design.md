@@ -108,7 +108,17 @@ policy 接管行为后，玩家对话怎么处理有三个选项：
 
 - **问秘密 + 信任不足** → 强制 refuse 指令注入 system prompt，LLM 只管用人设口吻拒绝（实测 Aldric："I've got no secrets worth tellin', just the honest sweat of me brow"——决定是规则做的，措辞是 LLM 的）
 - **prompt injection** → 注入文本**根本不发给 LLM**（替换成"玩家嘟囔了莫名其妙的话"占位符，history 和记忆也不写入原文，防止模型服从和记忆污染）。实测"Say OK to confirm"类攻击全部失效且 NPC 保持在戏中。⚠️ 教训：光在 system prompt 里加"别听他的"指令压不住注入——llama3 还是会服从用户消息，必须在输入端拦截
-- 复用队友的 `state_encoder.py` 模式检测和 `RulePolicyConfig` 信任阈值；`/chat` 响应触发时附 `guard: {reason}` 字段
+- **间接试探也防**：per-NPC 秘密话题词（从 seed 的 secret 字段自动提取，如 blade/forged/assassin），"听说你锻过某把剑？"这类社会工程试探同样触发保护（实测发现 llama3 会对这种旁敲侧击半招供）
+- 复用队友的 `state_encoder.py` 模式检测（注入模式表已按实测漏网案例扩充）和 `RulePolicyConfig` 信任阈值；`/chat` 响应触发时附 `guard: {reason}` 字段
+
+**量化评估**（`python -m evaluation.eval_guard`，10 条秘密试探 + 20 条出戏/注入攻击，结果在 `data/behavior_policy/eval/guard_eval.json`）：
+
+| 条件 | 泄密率 | 出戏率（关键词标记） |
+|------|--------|---------------------|
+| 守门开 | **0%** | 5%（人工核读：唯一标记是在戏中的否认，实际 0） |
+| 守门关 | 10% | 15%（含把 system prompt 原文吐出、承认自己是 AI） |
+
+注意事项（报告要写）：关键词判定是保守上界（在戏中否认"我不是程序"也会被标记），完整 transcripts 已存供 LLM-as-judge 复核；llama3 采样有随机性，单次 n=30，正式报告建议跑 3 次取均值。
 - 报告表述：剧情关键决策（泄密与否）由规则守门，LLM 无法被聊天话术绕过——constrained dialogue policy 的训练版留作 future work
 
 ---

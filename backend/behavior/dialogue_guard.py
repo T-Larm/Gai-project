@@ -10,12 +10,26 @@ RuleBasedPolicy decision logic.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Any, Iterable, List, Optional
 
 from backend.behavior.policy import RulePolicyConfig
 from backend.behavior.schemas import PlayerIntent
 from backend.behavior.state_encoder import StateEncoder
+
+
+_STOPWORDS = {
+    "a", "an", "the", "for", "and", "or", "but", "by", "of", "to", "in", "on",
+    "at", "it", "its", "was", "is", "are", "be", "been", "has", "had", "have",
+    "his", "her", "their", "them", "with", "that", "this", "once", "now",
+}
+
+
+def secret_topics_from_text(secret: str) -> List[str]:
+    """Extract content words from a persona secret to use as probe keywords."""
+    words = re.findall(r"[a-zA-Z']+", (secret or "").lower())
+    return sorted({w for w in words if len(w) >= 4 and w not in _STOPWORDS})
 
 
 _INJECTION_INSTRUCTION = (
@@ -50,14 +64,26 @@ class GuardResult:
 class DialogueGuard:
     """Assess one player utterance; return a constraint or None (no interference)."""
 
-    def __init__(self, trust: float = 0.0, config: RulePolicyConfig | None = None):
+    def __init__(
+        self,
+        trust: float = 0.0,
+        config: RulePolicyConfig | None = None,
+        secret_topics: Optional[Iterable[str]] = None,
+    ):
         # trust is a per-NPC/-session game value; stranger (0.0) by default.
+        # secret_topics: content words of this NPC's secret, so indirect probes
+        # ("I heard rumors about a certain blade...") are also protected.
         self.trust = trust
         self.config = config or RulePolicyConfig()
+        self.secret_topics = [t.lower() for t in (secret_topics or [])]
         self._encoder = StateEncoder()
 
     def assess(self, player_text: str, npc: Any = None) -> Optional[GuardResult]:
-        features = self._encoder.encode(player_text, npc=npc)
+        # Only the player-text patterns matter for the guard decision. The npc
+        # object is deliberately NOT passed to the encoder: real persona JSONs
+        # carry free-text emotional states that don't fit the NpcEmotion enum.
+        del npc
+        features = self._encoder.encode(player_text)
 
         if features.prompt_injection_detected:
             return GuardResult(
@@ -69,8 +95,15 @@ class DialogueGuard:
         secret_probe = (
             features.forbidden_secret_asked
             or features.player_intent is PlayerIntent.ASK_SECRET
+            or self._mentions_secret_topic(player_text)
         )
         if secret_probe and self.trust < self.config.reveal_trust_threshold:
             return GuardResult(reason="secret_low_trust", instruction=_SECRET_INSTRUCTION)
 
         return None
+
+    def _mentions_secret_topic(self, player_text: str) -> bool:
+        lowered = (player_text or "").lower()
+        return any(
+            re.search(rf"\b{re.escape(topic)}\b", lowered) for topic in self.secret_topics
+        )

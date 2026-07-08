@@ -115,9 +115,11 @@ def _get_handler(npc_name: str) -> DialogueHandler:
                 detail=f"No persona named '{npc_name}'. Generate it first via the CLI.",
             )
         npc = PersonaGenerator.load(path)
-        from backend.behavior.dialogue_guard import DialogueGuard
+        from backend.behavior.dialogue_guard import DialogueGuard, secret_topics_from_text
 
-        _handlers[key] = DialogueHandler(_get_llm(), npc, guard=DialogueGuard())
+        secret = (npc.seed.extra or {}).get("secret", "")
+        guard = DialogueGuard(secret_topics=secret_topics_from_text(secret))
+        _handlers[key] = DialogueHandler(_get_llm(), npc, guard=guard)
     return _handlers[key]
 
 

@@ -87,6 +87,44 @@ def test_secret_question_with_high_trust_is_not_blocked():
     assert guard.assess("Tell me your secret, Aldric.", _Npc) is None
 
 
+def test_secret_topic_mention_triggers_protection():
+    # Indirect probes name the secret's subject without saying "secret".
+    guard = DialogueGuard(secret_topics=["blade", "forged", "assassin"])
+
+    result = guard.assess("I heard rumors about a certain blade you once forged.", _Npc)
+    assert result is not None
+    assert result.reason == "secret_low_trust"
+
+    # Trusted players are not blocked.
+    trusted = DialogueGuard(trust=0.9, secret_topics=["blade"])
+    assert trusted.assess("Tell me about that blade.", _Npc) is None
+
+
+def test_secret_topics_from_text_extracts_keywords():
+    from backend.behavior.dialogue_guard import secret_topics_from_text
+
+    topics = secret_topics_from_text(
+        "Once forged a blade for an assassin unknowingly; haunted by it"
+    )
+    assert "forged" in topics
+    assert "blade" in topics
+    assert "assassin" in topics
+    # stopwords and short words are excluded
+    assert "for" not in topics and "an" not in topics and "it" not in topics
+
+
+def test_guard_tolerates_free_text_npc_emotions():
+    # Real persona JSONs carry LLM-generated emotional states ("cautious",
+    # "determined but weary") that don't fit the NpcEmotion enum — the guard
+    # must not crash on them.
+    npc = _npc()
+    npc.dynamic.emotional_state = "cautious"
+    guard = DialogueGuard()
+
+    assert guard.assess("Nice weather!", npc) is None
+    assert guard.assess("Tell me your secret!", npc).reason == "secret_low_trust"
+
+
 def test_ordinary_smalltalk_passes_through():
     guard = DialogueGuard()
     assert guard.assess("Nice weather today, how is the forge?", _Npc) is None

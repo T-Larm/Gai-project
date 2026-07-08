@@ -64,6 +64,7 @@ def train_policy(
     allow_cpu: bool = False,
     amp: bool = True,
     max_vocab_size: int = 512,
+    balanced_action_loss: bool = False,
 ) -> Dict[str, Any]:
     torch = require_torch()
     train_device = resolve_device(torch, device=device, allow_cpu=allow_cpu)
@@ -95,7 +96,14 @@ def train_policy(
     test_y = {head: values.to(train_device) for head, values in test_y.items()}
 
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
-    loss_fn = torch.nn.CrossEntropyLoss()
+    loss_fns = {}
+    for head in label_spec.heads:
+        weight = None
+        if balanced_action_loss and head == "action_id":
+            counts = torch.bincount(train_y[head], minlength=len(label_spec.heads[head])).float()
+            weight = torch.where(counts > 0, counts.sum() / (counts.clamp(min=1) * (counts > 0).sum()), torch.zeros_like(counts))
+            weight = weight.to(train_device)
+        loss_fns[head] = torch.nn.CrossEntropyLoss(weight=weight)
     use_amp = bool(amp and train_device.type == "cuda")
     scaler = torch.amp.GradScaler("cuda", enabled=use_amp)
     history = []
@@ -112,7 +120,7 @@ def train_policy(
             optimizer.zero_grad()
             with torch.amp.autocast("cuda", enabled=use_amp):
                 logits = model(batch_x)
-                loss = sum(loss_fn(logits[head], batch_y[head]) for head in label_spec.heads)
+                loss = sum(loss_fns[head](logits[head], batch_y[head]) for head in label_spec.heads)
             scaler.scale(loss).backward()
             scaler.step(optimizer)
             scaler.update()
@@ -137,6 +145,7 @@ def train_policy(
         "device": str(train_device),
         "amp": use_amp,
         "max_vocab_size": max_vocab_size,
+        "balanced_action_loss": balanced_action_loss,
         "input_dim": feature_spec.input_dim,
         "heads": list(label_spec.heads),
         "train_records": len(train_samples),
@@ -217,6 +226,8 @@ def main() -> None:
                         help="Max values kept per categorical feature; rare values map to <UNK>.")
     parser.add_argument("--no-mood-head", action="store_true",
                         help="Train only the action_id head, excluding the auxiliary mood head")
+    parser.add_argument("--balanced-action-loss", action="store_true",
+                        help="Weight the action_id loss by inverse class frequency (helps heal/pray)")
     args = parser.parse_args()
 
     metrics = train_policy(
@@ -232,6 +243,7 @@ def main() -> None:
         allow_cpu=args.allow_cpu,
         amp=not args.no_amp,
         max_vocab_size=args.max_vocab_size,
+        balanced_action_loss=args.balanced_action_loss,
     )
     summary = {
         "valid_accuracy": metrics["valid"]["accuracy"],

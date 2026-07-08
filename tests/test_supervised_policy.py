@@ -52,10 +52,12 @@ def test_feature_spec_encodes_v2_feature_groups():
     vector = encode_state_vector(_sample()["features"], restored)
 
     assert len(vector) == restored.input_dim
-    # Continuous features come first, in spec order.
-    assert vector[: len(restored.continuous)] == [
-        _sample()["features"]["continuous"][name] for name in restored.continuous
-    ]
+    # Continuous features come first, z-scored with train statistics.
+    for position, name in enumerate(restored.continuous):
+        stats = restored.continuous_stats[name]
+        raw = _sample()["features"]["continuous"][name]
+        expected = (raw - stats["mean"]) / stats["std"] if stats["std"] else 0.0
+        assert vector[position] == pytest.approx(expected)
     # Multi-hot: both traits of the first sample are active.
     trait_vocab = restored.multi["traits"]
     assert trait_vocab["aggressive"] >= 0 and trait_vocab["wrathful"] >= 0
@@ -66,6 +68,23 @@ def test_feature_spec_encodes_v2_feature_groups():
         offset += len(vocab)
     trait_slice = vector[offset:offset + len(trait_vocab)]
     assert sum(trait_slice) == 2.0
+
+
+def test_continuous_stats_standardize_large_scale_features():
+    samples = [_sample(thi=0.2), _sample(thi=0.8)]
+    spec = build_feature_spec(samples)
+
+    stats = spec.continuous_stats["thi"]
+    assert stats["mean"] == pytest.approx(0.5)
+    assert stats["std"] == pytest.approx(0.3)
+
+    vector = encode_state_vector(_features(thi=0.8), spec)
+    thi_position = spec.continuous.index("thi")
+    assert vector[thi_position] == pytest.approx(1.0)
+
+    # Constant features (zero std) encode as 0 instead of exploding.
+    hp_position = spec.continuous.index("hp")
+    assert vector[hp_position] == 0.0
 
 
 def test_unknown_categorical_value_maps_to_unk():

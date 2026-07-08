@@ -29,9 +29,20 @@ def extract_native_features(state: Mapping[str, Any]) -> Dict[str, Any]:
     percepts = [p for p in _list(state.get("percepts")) if isinstance(p, Mapping)]
     memories = [m for m in _list(state.get("memories")) if isinstance(m, Mapping)]
 
-    threats = [_float(p.get("threat")) for p in percepts if p.get("tag") == "Threat"]
-    neg_ews = [abs(_float(m.get("ew"))) for m in memories if _float(m.get("ew")) < 0]
+    threat_percepts = [p for p in percepts if p.get("tag") == "Threat"]
+    threats = [_float(p.get("threat")) for p in threat_percepts]
+    neg_memories = [m for m in memories if _float(m.get("ew")) < 0]
+    neg_ews = [abs(_float(m.get("ew"))) for m in neg_memories]
     faction_reps = [_float(v) for v in factions.values()]
+
+    top_threat = max(threat_percepts, key=lambda p: _float(p.get("threat")), default=None)
+    top_threat_id = _norm(top_threat.get("id")) if top_threat else "none"
+    # Does any negative memory mention the perceived threat entity? Raw string
+    # check on state fields — the NPC "remembers" this kind of enemy.
+    threat_root = top_threat_id.split("_")[0] if top_threat else ""
+    threat_in_neg_memory = 1.0 if threat_root and any(
+        threat_root in str(m.get("desc", "")).lower() for m in neg_memories
+    ) else 0.0
 
     categorical = {
         "occ": _norm(state.get("occ")),
@@ -39,6 +50,7 @@ def extract_native_features(state: Mapping[str, Any]) -> Dict[str, Any]:
         "faction": _norm(state.get("faction")),
         "sched_act": _norm(sched.get("act")),
         "goals_top": _norm(state.get("goals_top")),
+        "top_threat_id": top_threat_id or "none",
     }
     multi = {
         "traits": sorted(_norm(t) for t in _list(state.get("traits")) if _norm(t)),
@@ -72,6 +84,7 @@ def extract_native_features(state: Mapping[str, Any]) -> Dict[str, Any]:
         "n_memories": float(len(memories)),
         "n_neg_memories": float(len(neg_ews)),
         "max_neg_memory_ew": max(neg_ews) if neg_ews else 0.0,
+        "threat_in_neg_memory": threat_in_neg_memory,
         "faction_rep_min": min(faction_reps) if faction_reps else 0.0,
         "faction_rep_max": max(faction_reps) if faction_reps else 0.0,
         "interrupt": 1.0 if state.get("interrupt") else 0.0,

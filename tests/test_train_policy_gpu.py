@@ -92,9 +92,11 @@ def test_train_policy_cpu_smoke_on_v2_data(tmp_path):
         device="cpu",
         allow_cpu=True,
         amp=False,
+        balanced_action_loss=True,
     )
 
     assert "action_id" in metrics["test"]["accuracy"]
     assert "action_id" in metrics["test"]["macro_f1"]
+    assert metrics["balanced_action_loss"] is True
     assert (tmp_path / "ckpt" / "model.pt").exists()
     assert (tmp_path / "ckpt" / "metadata.json").exists()

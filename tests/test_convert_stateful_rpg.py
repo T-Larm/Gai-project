@@ -115,6 +115,7 @@ def test_native_features_have_expected_values():
         "faction": "merchantguild",
         "sched_act": "social",
         "goals_top": "findwater",
+        "top_threat_id": "none",
     }
     assert features["multi"]["traits"] == ["aggressive", "wrathful"]
     assert features["multi"]["inv"] == ["food", "water"]
@@ -148,7 +149,8 @@ def test_native_features_summarize_percepts_and_memories():
             {"evt": "Memory", "desc": "kötü anı", "ew": -0.73, "dt": 200},
         ],
     )
-    continuous = extract_native_features(state)["continuous"]
+    features = extract_native_features(state)
+    continuous = features["continuous"]
     assert continuous["max_threat"] == 0.59
     assert continuous["n_threat_percepts"] == 2
     assert continuous["has_social_percept"] == 1.0
@@ -156,6 +158,19 @@ def test_native_features_summarize_percepts_and_memories():
     assert continuous["n_memories"] == 2
     assert continuous["n_neg_memories"] == 1
     assert continuous["max_neg_memory_ew"] == 0.73
+    # Top threat is the percept with the highest threat value.
+    assert features["categorical"]["top_threat_id"] == "wolf"
+    assert continuous["threat_in_neg_memory"] == 0.0
+
+
+def test_threat_in_neg_memory_flags_entity_mentions():
+    state = _state(
+        percepts=[{"id": "bandit_01", "tag": "Threat", "sal": 0.9, "threat": 0.7}],
+        memories=[{"evt": "Memory", "desc": "Bir bandit beni soydu, korkunçtu.", "ew": -0.6, "dt": 10}],
+    )
+    features = extract_native_features(state)
+    assert features["categorical"]["top_threat_id"] == "bandit_01"
+    assert features["continuous"]["threat_in_neg_memory"] == 1.0
 
 
 def test_native_features_exclude_leakage_fields():

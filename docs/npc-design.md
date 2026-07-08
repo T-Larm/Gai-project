@@ -97,6 +97,16 @@ POST /act ─► ① SupervisedPolicy（0.6 ms）→ action_id + mood
 - 鲁棒性：LLM 异常/空回复/超长 → 回退到 12 动作的确定性模板表，**gameplay 永不阻塞在 LLM 上**
 - 实测效果：口渴的 Aldric →"Time for a mug of ale not water, I'm parched."；见到 Mira →"Well met, Mira! Good day to you, by my fire and hammer."（从 percepts 认人、保持铁匠口吻）
 
+**一致性量化**（`python -m evaluation.eval_barks`，LLM-as-judge 二元判定，3 persona × 11 动作场景，结果在 `data/behavior_policy/eval/bark_eval.json`）：
+
+| 条件 | Persona 符合率 | 动作契合率 |
+|------|---------------|-----------|
+| **完整 persona（ours）** | **91.7%** | **77.8%** |
+| 无 persona 消融 | 47.2% | 44.4% |
+| 回退模板（下界） | 36.1% | 44.4% |
+
+persona 条件化让角色符合率接近翻倍——直接支撑"自动 persona 有效"主张（回应老师 beyond-consistency + baseline 对比的要求）。定性例子：同是去吃饭，ours="Time for a bit o' bread before I go back to hammerin'"（铁匠），no_persona="indulge in that warm bread and savory stew I've been craving"（通用小资腔）。注意：judge 与生成端同为 llama3（self-preference bias 报告需注明）；单次运行 n=36/条件。
+
 ## A5. 对话层方案选择（记录决策依据）
 
 policy 接管行为后，玩家对话怎么处理有三个选项：

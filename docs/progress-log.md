@@ -5,7 +5,7 @@
 
 ---
 
-## 当前状态一览（2026-07-02）
+## 当前状态一览（2026-07-08）
 
 | Phase | 内容 | 状态 |
 |-------|------|------|
@@ -13,10 +13,12 @@
 | Phase 2 | 语义记忆检索（semantic + recency + importance 三因子排序） | ✅ 完成 |
 | 代码审查修复 | 记忆持久化、history 窗口、dynamic 层更新等 8 项 | ✅ 完成（2026-07-02） |
 | Phase 3 | TTS（Coqui XTTS v2 零样本音色克隆）+ `--speak` 开关 | ✅ 完成（2026-07-02） |
-| Phase 4 | FastAPI server + Unity 集成 + OVRLipSync | ⬜ 未开始 |
-| 评估实验 | 四组 baseline 对比 + ablation | ⬜ 未开始（计划已定） |
+| Phase 4a | FastAPI server（/chat /transcribe /npc） | ✅ 完成（2026-07-02） |
+| **方案 B 行为层** | 数据转换 v2 + policy 训练 + RQ1 三方对比 + bark verbalizer + `/act` | ✅ 完成（2026-07-08，分支 `dataset-v2-behavior-policy`） |
+| Phase 4b | Unity 场景 + C# client + lip-sync | ⬜ 未开始 |
+| 评估实验 | 对话侧 runs + 用户研究 | 🔧 脚手架就绪 |
 
-测试：**34 个 pytest 用例全绿**（Phase 2 结束时 5 个 → 审查修复后 24 个 → Phase 3 后 34 个），全部走 TDD 红→绿流程。
+测试：**143 个 pytest 用例全绿**（Phase 2 结束 5 → 审查修复 24 → Phase 3 34 → Phase 4a+评估脚手架 69 → NewVersion1.0 101 → 方案 B 143），全部走 TDD 红→绿流程。
 
 Commit 时间线：
 
@@ -108,16 +110,31 @@ uvicorn backend.server:app --host 127.0.0.1 --port 8000
 
 Unity slides 结论（08/09/11 已读）：角色生成（SDXL→Hunyuan3D→Blender→Unity）和场景集成课程有完整教学 + demo 素材包（Portale 上的 `HybridPCGGenEnvSample.unitypackage`）；**没教的只有对话桥接（本次已完成后端侧）和 lip-sync**。注意：Hunyuan3D 生成的网格没有 viseme blendshapes，OVRLipSync 用不了——方案 A 振幅驱动下颌，方案 B 用带 blendshapes 的现成 avatar（如 Ready Player Me），slide 09 最后一页把这个列为 open problem 可直接引用。
 
+## 2026-07-08：方案 B 落地 — 行为 policy + LLM verbalizer（分支 `dataset-v2-behavior-policy`，12 commits）
+
+背景：仓库根目录的 Codex 简报 PDF 提议"训练 behavior policy、LLM 降级为 verbalizer"。审计发现 Kaggle 数据集是生存模拟而非对话数据（对话动作零样本、`player_intent` 特征泄漏），因此按**方案 B** 重新诠释：policy 学数据集原生 11 动作（自主行为），对话保留 Phase 1–3 系统（=对话层方案①）。完整架构见 `docs/npc-design.md`（已重构为双通道叙事）。
+
+当天完成（TDD，测试 101→143）：
+
+1. **数据转换 v2**：标签用生成器确定性规则精确复算（生存 override 先于三区威胁模型）；发现原数据 ~15% 标签是随机"人格偏离"（D1–D7）不可复算 → 确定性重打并如实记录；与 formatter 标签无碰撞一致率 94.1%，分歧模式与 D1–D7 吻合。去重 12,000→10,248，分层 80/10/10。删 `player_intent` 等全部泄漏源
+2. **policy 改造与训练**：原生特征三组（categorical/multi-hot/continuous）+ z-score 归一化（76.6→87.7%）+ 补 `top_threat_id`/`threat_in_neg_memory` 特征（→91.0%，attack 类 0.19→0.76）
+3. **RQ1 三方对比**（同批 1,024 测试状态）：**trained MLP 91.0%/0.76 ≫ 手写 heuristic 51.6%/0.40 ≫ LLM-as-policy 16.0%/0.15**。LLM 失败模式：狂选戏剧化动作（flee/attack/pray），几乎不选 gather——"LLM 不该管行为"的直接证据
+4. **BarkVerbalizer**：policy 动作 → 一句 persona 台词；LLM 故障回退确定性模板，gameplay 永不阻塞
+5. **`POST /act`**：Unity 行为接口，真机 e2e 验证（口渴 Aldric→drink+"Time for a mug of ale not water, I'm parched."）；**热延迟 policy 0.6ms / bark 1.2s**——行为即时、台词异步，直接回答老师的实时性问题
+6. 结果文件：`data/behavior_policy/eval/rq1_policies_full.json`；checkpoint：`data/behavior_policy/checkpoints/stateful_rpg_v2_mlp_h256/`
+
 ## 下一步
 
-1. **评估脚手架**（优先，RQ2/RQ3 最划算）：`--no-memory` / `--flat-persona` 开关、50–100 条评估对话集（quest / small talk / adversarial 各约 1/3）、LLM-as-judge 打分脚本
-2. Phase 4b：Unity 场景（用课程素材包）+ C# client 脚本 + lip-sync（方案 A 保底）
-3. 用 slide 09 的 pipeline 生成 Aldric 的 3D 形象（需要 ComfyUI 环境，看课程 demo 材料）
-4. 占位语音替换为 VCTK 真实语音片段
-5. 报告撰写（Experiments 章节按 RQ1–4 组织）
+1. Phase 4b：Unity 场景 + C# client（`/act` 驱动 NPC 行为动画；`should_talk=true` 时开对话 UI 走 `/chat`）+ lip-sync（方案 A 振幅保底）
+2. **与组员对齐**：对话层方案①确认；原 RQ1–RQ5 中对话侧实验的取舍（persona 消融已被 policy 三方对比取代）
+3. bark 的 persona 一致性评估（LLM-as-judge，"这句像不像铁匠说的"）——回应老师 beyond-consistency 要求的新素材
+4. 用户研究（RQ5）：10–15 被试，Google Form 待建
+5. 占位语音替换为 VCTK 真实语音片段；3D 形象（需课程 ComfyUI 算力确认）
+6. 报告撰写：Method 直接映射 `docs/npc-design.md` 双通道结构；Experiments 含 RQ1 表、延迟表、标签重打的诚实说明
 
 ## 备忘
 
 - 运行：`python -m backend.main --npc aldric --text`（文字）/ 加 `--speak`（语音输出）/ 去掉 `--text`（麦克风输入）
 - 每次 CLI 退出会覆盖保存 persona（含记忆）——评估实验前备份 `data/personas/*.json` 或用 `reset`
-- 测试：`python -m pytest`（34 个，不依赖 Ollama/XTTS，用 stub 隔离）
+- 测试：`python -m pytest`（143 个，不依赖 Ollama/XTTS/GPU，用 stub 隔离）
+- 本机 torch 是 CPU 版（coqui-tts 依赖锁），policy MLP 很小无所谓；Ollama 自动用本机 RTX 4060

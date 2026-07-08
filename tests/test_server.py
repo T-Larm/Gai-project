@@ -42,6 +42,19 @@ class _FakeWhisper:
         return {"text": " hello there "}
 
 
+class _FakePolicy:
+    def __init__(self, action="drink"):
+        self.action = action
+
+    def predict(self, state):
+        return {"action_id": self.action, "mood": "calm"}
+
+
+class _FakeVerbalizer:
+    def bark(self, persona, state, action):
+        return f"Time for a good {action}."
+
+
 def _write_persona(directory: str) -> None:
     npc = NPC(
         seed=PersonaSeed(name="Aldric", occupation="Blacksmith",
@@ -63,6 +76,8 @@ def client(tmp_path, monkeypatch):
     monkeypatch.setattr(server_module, "_get_llm", lambda: _FakeLLM())
     monkeypatch.setattr(server_module, "_get_tts", lambda: _FakeTTS())
     monkeypatch.setattr(server_module, "_get_stt", lambda: _FakeWhisper())
+    monkeypatch.setattr(server_module, "_get_policy", lambda: _FakePolicy())
+    monkeypatch.setattr(server_module, "_get_verbalizer", lambda: _FakeVerbalizer())
     server_module._handlers.clear()
     _write_persona(str(tmp_path))
     (tmp_path / "aldric.wav").write_bytes(b"fake reference wav")
@@ -119,6 +134,69 @@ def test_chat_with_speak_returns_playable_wav(client):
 def test_chat_404_for_unknown_npc(client):
     response = client.post("/chat", json={"npc": "nobody", "text": "Hi"})
     assert response.status_code == 404
+
+
+_GAME_STATE = {
+    "vitals": {"hp": 100, "hp_max": 120, "en": 0.8, "hun": 0.2, "thi": 0.9, "str": 0.5},
+    "emo": {"mood": "Calm"},
+    "percepts": [],
+}
+
+
+def test_act_returns_action_mood_and_bark(client):
+    response = client.post("/act", json={"npc": "Aldric", "game_state": _GAME_STATE})
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["npc"] == "Aldric"
+    assert body["action_id"] == "drink"
+    assert body["mood"] == "calm"
+    assert body["bark"] == "Time for a good drink."
+    assert body["should_talk"] is False
+    assert body["latency_ms"]["policy"] >= 0
+    assert "audio_base64" not in body
+
+
+def test_act_flags_socialize_for_full_dialogue(client, monkeypatch):
+    monkeypatch.setattr(server_module, "_get_policy", lambda: _FakePolicy("socialize"))
+    response = client.post("/act", json={"npc": "Aldric", "game_state": _GAME_STATE})
+
+    assert response.status_code == 200
+    assert response.json()["should_talk"] is True
+
+
+def test_act_can_skip_bark(client):
+    response = client.post(
+        "/act", json={"npc": "Aldric", "game_state": _GAME_STATE, "bark": False}
+    )
+
+    assert response.status_code == 200
+    assert "bark" not in response.json()
+
+
+def test_act_with_speak_returns_playable_wav(client):
+    response = client.post(
+        "/act", json={"npc": "Aldric", "game_state": _GAME_STATE, "speak": True}
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    waveform, sample_rate = wav_bytes_to_float32(base64.b64decode(body["audio_base64"]))
+    assert sample_rate == 24000
+    assert len(waveform) == 3
+
+
+def test_act_404_for_unknown_npc(client):
+    response = client.post("/act", json={"npc": "nobody", "game_state": _GAME_STATE})
+    assert response.status_code == 404
+
+
+def test_act_503_when_checkpoint_missing(client, monkeypatch, tmp_path):
+    monkeypatch.setattr(server_module, "POLICY_CHECKPOINT_DIR", str(tmp_path / "missing"))
+    monkeypatch.setattr(server_module, "_get_policy", server_module._load_policy)
+    server_module._policy = None
+    response = client.post("/act", json={"npc": "Aldric", "game_state": _GAME_STATE})
+    assert response.status_code == 503
 
 
 def test_transcribe_accepts_wav_upload(client):

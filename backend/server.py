@@ -5,25 +5,32 @@ Endpoints:
     GET  /health          — liveness check
     GET  /npc/{name}      — persona summary + current dynamic state
     POST /chat            — {npc, text, speak?} -> {npc, reply[, audio_base64, sample_rate]}
+    POST /act             — {npc, game_state, bark?, speak?} -> policy action + in-character bark
     POST /transcribe      — WAV upload (16 kHz mono preferred) -> {text}
 
 Run from the project root:
     uvicorn backend.server:app --host 127.0.0.1 --port 8000
 
-Heavy models (Whisper, XTTS) are lazy-loaded on first use, so /chat in
-text-only mode stays light. NPC state (memory + dynamic layer) is persisted
-back to data/personas/ after every turn.
+Heavy models (Whisper, XTTS, policy checkpoint) are lazy-loaded on first use,
+so /chat in text-only mode stays light. NPC state (memory + dynamic layer) is
+persisted back to data/personas/ after every turn.
 """
 import base64
 import os
-from typing import Dict, Optional
+import time
+from typing import Any, Dict, Optional
 
 import numpy as np
 from fastapi import FastAPI, HTTPException, UploadFile
 from pydantic import BaseModel
 
 from backend.audio_utils import wav_bytes_to_float32, waveform_to_wav_bytes
-from backend.config.settings import PERSONAS_DIR, VOICES_DIR, WHISPER_MODEL
+from backend.config.settings import (
+    PERSONAS_DIR,
+    POLICY_CHECKPOINT_DIR,
+    VOICES_DIR,
+    WHISPER_MODEL,
+)
 from backend.llm.dialogue import DialogueHandler
 from backend.llm.ollama_client import OllamaClient
 from backend.llm.persona.generator import PersonaGenerator
@@ -34,6 +41,8 @@ _handlers: Dict[str, DialogueHandler] = {}
 _llm = None
 _tts = None
 _stt = None
+_policy = None
+_verbalizer = None
 
 
 def _get_llm() -> OllamaClient:
@@ -59,6 +68,39 @@ def _get_stt():
     return _stt
 
 
+def _load_policy():
+    global _policy
+    if _policy is None:
+        from pathlib import Path
+
+        from backend.behavior.supervised_policy import SupervisedPolicy
+
+        checkpoint = Path(POLICY_CHECKPOINT_DIR)
+        if not (checkpoint / "metadata.json").exists():
+            raise HTTPException(
+                status_code=503,
+                detail=(
+                    f"No trained policy checkpoint at {checkpoint}. "
+                    "Train one with: python -m evaluation.train_policy"
+                ),
+            )
+        _policy = SupervisedPolicy(checkpoint)
+    return _policy
+
+
+def _get_policy():
+    return _load_policy()
+
+
+def _get_verbalizer():
+    global _verbalizer
+    if _verbalizer is None:
+        from backend.behavior.verbalizer import BarkVerbalizer
+
+        _verbalizer = BarkVerbalizer(_get_llm())
+    return _verbalizer
+
+
 def _npc_key(name: str) -> str:
     return name.lower().replace(" ", "_")
 
@@ -80,6 +122,13 @@ def _get_handler(npc_name: str) -> DialogueHandler:
 class ChatRequest(BaseModel):
     npc: str
     text: str
+    speak: bool = False
+
+
+class ActRequest(BaseModel):
+    npc: str
+    game_state: Dict[str, Any]
+    bark: bool = True
     speak: bool = False
 
 
@@ -117,6 +166,50 @@ def chat(request: ChatRequest):
             waveform_to_wav_bytes(waveform, sample_rate)
         ).decode("ascii")
         response["sample_rate"] = sample_rate
+    return response
+
+
+@app.post("/act")
+def act(request: ActRequest):
+    """Policy picks the NPC's next action; the LLM only verbalizes it (方案 B)."""
+    handler = _get_handler(request.npc)
+    npc = handler.npc
+
+    start = time.perf_counter()
+    prediction = _get_policy().predict(request.game_state)
+    policy_ms = (time.perf_counter() - start) * 1000.0
+
+    action_id = prediction.get("action_id", "")
+    response: Dict[str, Any] = {
+        "npc": npc.core.name,
+        "action_id": action_id,
+        "mood": prediction.get("mood"),
+        # socialize (or the player speaking) should route to the full
+        # dialogue system via POST /chat
+        "should_talk": action_id == "socialize",
+        "latency_ms": {"policy": round(policy_ms, 2)},
+    }
+
+    if request.bark:
+        persona = {
+            "name": npc.core.name,
+            "occupation": npc.core.occupation,
+            "speech_style": npc.core.speech_style,
+            "traits": npc.seed.personality_tags,
+        }
+        start = time.perf_counter()
+        line = _get_verbalizer().bark(persona, request.game_state, action_id)
+        response["bark"] = line
+        response["latency_ms"]["bark"] = round((time.perf_counter() - start) * 1000.0, 2)
+
+        if request.speak:
+            voice_path = os.path.join(VOICES_DIR, f"{_npc_key(request.npc)}.wav")
+            waveform, sample_rate = _get_tts().synthesize(line, voice_path)
+            response["audio_base64"] = base64.b64encode(
+                waveform_to_wav_bytes(waveform, sample_rate)
+            ).decode("ascii")
+            response["sample_rate"] = sample_rate
+
     return response
 
 

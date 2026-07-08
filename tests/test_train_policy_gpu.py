@@ -1,6 +1,8 @@
+import json
+
 import pytest
 
-from evaluation.train_policy import resolve_device
+from evaluation.train_policy import resolve_device, train_policy
 
 
 class _FakeDevice:
@@ -56,3 +58,43 @@ def test_resolve_device_allows_cuda_when_available():
     device = resolve_device(_FakeTorch(cuda_available=True), "auto")
 
     assert str(device) == "cuda"
+
+
+def _v2_sample(action_id, mood, thi):
+    return {
+        "features": {
+            "categorical": {"occ": "king", "arch": "aggressive"},
+            "multi": {"traits": ["aggressive"], "inv": ["water"]},
+            "continuous": {"thi": thi, "hun": 0.2, "max_threat": 0.0},
+        },
+        "label": {"action_id": action_id, "zone": "no_threat"},
+        "aux": {"mood": mood},
+    }
+
+
+def test_train_policy_cpu_smoke_on_v2_data(tmp_path):
+    pytest.importorskip("torch")
+    data_dir = tmp_path / "data"
+    data_dir.mkdir()
+    samples = [_v2_sample("drink", "calm", 0.9), _v2_sample("work", "happy", 0.1)] * 4
+    for split in ("train", "valid", "test"):
+        (data_dir / f"{split}.jsonl").write_text(
+            "\n".join(json.dumps(sample) for sample in samples),
+            encoding="utf-8",
+        )
+
+    metrics = train_policy(
+        data_dir=data_dir,
+        out_dir=tmp_path / "ckpt",
+        epochs=2,
+        batch_size=4,
+        hidden_dim=8,
+        device="cpu",
+        allow_cpu=True,
+        amp=False,
+    )
+
+    assert "action_id" in metrics["test"]["accuracy"]
+    assert "action_id" in metrics["test"]["macro_f1"]
+    assert (tmp_path / "ckpt" / "model.pt").exists()
+    assert (tmp_path / "ckpt" / "metadata.json").exists()

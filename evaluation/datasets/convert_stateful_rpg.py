@@ -26,6 +26,11 @@ from pathlib import Path
 from types import ModuleType
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple
 
+from backend.behavior.native_features import (
+    NATIVE_ACTIONS,
+    extract_native_features,
+    inventory_flags as _inventory_flags,
+)
 from evaluation.datasets.inspect_stateful_rpg import (
     extract_json_objects,
     iter_jsonl,
@@ -38,12 +43,7 @@ DEFAULT_RAW_DIR = PROJECT_ROOT / "data" / "archive" / "data"
 DEFAULT_OUT_DIR = PROJECT_ROOT / "data" / "behavior_policy" / "stateful_rpg_v2"
 DECISION_MODULE_PATH = PROJECT_ROOT / "data" / "archive" / "generator" / "decision_factors.py"
 
-# Native action space of the dataset ("trade" has zero samples but stays in
-# the vocabulary so policies expose the full simulator interface).
-VALID_ACTIONS = (
-    "eat", "drink", "sleep", "flee", "gather", "heal",
-    "attack", "socialize", "trade", "work", "pray", "walk_to",
-)
+VALID_ACTIONS = NATIVE_ACTIONS
 
 SPLIT_RATIOS = {"train": 0.8, "valid": 0.1, "test": 0.1}
 
@@ -103,67 +103,6 @@ def _survival_override(state: Mapping[str, Any]) -> Optional[str]:
     if _float(vitals.get("thi")) > 0.85:
         return "drink" if "water" in inv_ids else "gather"
     return None
-
-
-def extract_native_features(state: Mapping[str, Any]) -> Dict[str, Any]:
-    """Project a raw simulator state onto leakage-free native features."""
-    vitals = _mapping(state.get("vitals"))
-    emo = _mapping(state.get("emo"))
-    b5 = _mapping(state.get("b5"))
-    time = _mapping(state.get("time"))
-    sched = _mapping(state.get("sched"))
-    factions = _mapping(state.get("factions"))
-    percepts = [p for p in _list(state.get("percepts")) if isinstance(p, Mapping)]
-    memories = [m for m in _list(state.get("memories")) if isinstance(m, Mapping)]
-
-    threats = [_float(p.get("threat")) for p in percepts if p.get("tag") == "Threat"]
-    neg_ews = [abs(_float(m.get("ew"))) for m in memories if _float(m.get("ew")) < 0]
-    faction_reps = [_float(v) for v in factions.values()]
-
-    categorical = {
-        "occ": _norm(state.get("occ")),
-        "arch": _norm(state.get("arch")),
-        "faction": _norm(state.get("faction")),
-        "sched_act": _norm(sched.get("act")),
-        "goals_top": _norm(state.get("goals_top")),
-    }
-    multi = {
-        "traits": sorted(_norm(t) for t in _list(state.get("traits")) if _norm(t)),
-        "inv": _inventory_flags(state.get("inv")),
-    }
-    continuous = {
-        "hp": _float(vitals.get("hp")),
-        "hp_max": _float(vitals.get("hp_max")),
-        "en": _float(vitals.get("en")),
-        "hun": _float(vitals.get("hun")),
-        "thi": _float(vitals.get("thi")),
-        "str": _float(vitals.get("str")),
-        "b5_e": _float(b5.get("e")),
-        "b5_a": _float(b5.get("a")),
-        "b5_c": _float(b5.get("c")),
-        "b5_n": _float(b5.get("n")),
-        "b5_o": _float(b5.get("o")),
-        "emo_hap": _float(emo.get("hap")),
-        "emo_fear": _float(emo.get("fear")),
-        "emo_ang": _float(emo.get("ang")),
-        "time_day": _float(time.get("day")),
-        "time_hr": _float(time.get("hr")),
-        "sched_wk_start": _float(sched.get("wk_start")),
-        "sched_wk_end": _float(sched.get("wk_end")),
-        "sched_sleep": _float(sched.get("sleep")),
-        "sched_wake": _float(sched.get("wake")),
-        "max_threat": max(threats) if threats else 0.0,
-        "n_threat_percepts": float(len(threats)),
-        "has_social_percept": 1.0 if any(p.get("tag") == "Social" for p in percepts) else 0.0,
-        "has_food_percept": 1.0 if any(p.get("tag") == "Food" for p in percepts) else 0.0,
-        "n_memories": float(len(memories)),
-        "n_neg_memories": float(len(neg_ews)),
-        "max_neg_memory_ew": max(neg_ews) if neg_ews else 0.0,
-        "faction_rep_min": min(faction_reps) if faction_reps else 0.0,
-        "faction_rep_max": max(faction_reps) if faction_reps else 0.0,
-        "interrupt": 1.0 if state.get("interrupt") else 0.0,
-    }
-    return {"categorical": categorical, "multi": multi, "continuous": continuous}
 
 
 def convert_reasoner_file(
@@ -420,16 +359,6 @@ def _counts(records: List[Dict[str, Any]], key) -> Dict[str, int]:
 def _state_digest(state: Mapping[str, Any]) -> str:
     canonical = json.dumps(state, ensure_ascii=False, sort_keys=True)
     return hashlib.sha1(canonical.encode("utf-8")).hexdigest()[:12]
-
-
-def _inventory_flags(inv: Any) -> List[str]:
-    flags = []
-    for item in _list(inv):
-        if isinstance(item, Mapping) and _float(item.get("n")) > 0:
-            flag = _norm(item.get("id"))
-            if flag:
-                flags.append(flag)
-    return sorted(set(flags))
 
 
 def _message_content(messages: List[Dict[str, str]], role: str) -> str:

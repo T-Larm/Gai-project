@@ -15,8 +15,8 @@ Expected: CUDA is `True`, device name contains `A40`.
 
 ```powershell
 python -m evaluation.train_policy `
-  --data-dir data\behavior_policy\stateful_rpg `
-  --out-dir data\behavior_policy\checkpoints\stateful_rpg_a40 `
+  --data-dir data\behavior_policy\stateful_rpg_v2 `
+  --out-dir data\behavior_policy\checkpoints\stateful_rpg_v2_a40 `
   --epochs 30 `
   --batch-size 1024 `
   --hidden-dim 256 `
@@ -31,7 +31,8 @@ Outputs:
 - `metrics.json`
 - `confusion_matrices.json`
 
-The model trains `dialogue_act`, `emotion`, `disclosure_level`, `gesture`,
-`quest_update`, and `source_action_id`. The `source_action_id` head is the most
-faithful label from the Stateful RPG dataset; the other heads are the current
-dialogue-policy projection used by the project pipeline.
+The model trains the native `action_id` head (11 effective simulator actions —
+the behavior-cloning target recomputed with the generator's deterministic
+rule) plus an auxiliary `mood` head. Metrics report accuracy and macro-F1 per
+head; macro-F1 matters because `heal`/`pray` are rare. Pass `--no-mood-head`
+to train the action head alone.

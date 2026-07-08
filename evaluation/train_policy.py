@@ -1,9 +1,9 @@
-"""Train a supervised multi-head NPC behavior policy.
+"""Train the supervised NPC behavior policy on the v2 native-action dataset.
 
 Example:
     python -m evaluation.train_policy \
-        --data-dir data/behavior_policy/stateful_rpg \
-        --out-dir data/behavior_policy/checkpoints/stateful_rpg_mlp
+        --data-dir data/behavior_policy/stateful_rpg_v2 \
+        --out-dir data/behavior_policy/checkpoints/stateful_rpg_v2_mlp
 """
 
 from __future__ import annotations
@@ -15,14 +15,12 @@ from pathlib import Path
 from typing import Any, Dict, Mapping, Sequence
 
 from backend.behavior.supervised_policy import (
-    ACTION_HEADS,
-    SOURCE_ACTION_HEAD,
     accuracy_for_logits,
     build_feature_spec,
     build_label_spec,
     confusion_matrix,
-    label_value,
     load_jsonl,
+    macro_f1_for_logits,
     make_model,
     require_torch,
     save_checkpoint,
@@ -61,7 +59,7 @@ def train_policy(
     lr: float = 1e-3,
     hidden_dim: int = 128,
     seed: int = 13,
-    include_source_action: bool = True,
+    include_mood: bool = True,
     device: str = "cuda",
     allow_cpu: bool = False,
     amp: bool = True,
@@ -79,7 +77,7 @@ def train_policy(
     test_samples = load_jsonl(data_dir / "test.jsonl")
 
     feature_spec = build_feature_spec(train_samples, max_vocab_size=max_vocab_size)
-    label_spec = build_label_spec(train_samples, include_source_action=include_source_action)
+    label_spec = build_label_spec(train_samples, include_mood=include_mood)
     model = make_model(
         input_dim=feature_spec.input_dim,
         head_sizes={head: len(vocab) for head, vocab in label_spec.heads.items()},
@@ -162,7 +160,8 @@ def evaluate_tensors(model: Any, features: Any, targets: Mapping[str, Any]) -> D
         loss_fn = torch.nn.CrossEntropyLoss()
         loss = sum(loss_fn(logits[head], targets[head]) for head in logits)
         accuracies = accuracy_for_logits(logits, targets)
-    return {"loss": float(loss.item()), "accuracy": accuracies}
+        f1_scores = macro_f1_for_logits(logits, targets)
+    return {"loss": float(loss.item()), "accuracy": accuracies, "macro_f1": f1_scores}
 
 
 def write_metrics(out_dir: Path, metrics: Mapping[str, Any]) -> None:
@@ -201,8 +200,8 @@ def write_confusion_matrices(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Train supervised behavior policy")
-    parser.add_argument("--data-dir", default="data/behavior_policy/stateful_rpg")
-    parser.add_argument("--out-dir", default="data/behavior_policy/checkpoints/stateful_rpg_mlp")
+    parser.add_argument("--data-dir", default="data/behavior_policy/stateful_rpg_v2")
+    parser.add_argument("--out-dir", default="data/behavior_policy/checkpoints/stateful_rpg_v2_mlp")
     parser.add_argument("--epochs", type=int, default=20)
     parser.add_argument("--batch-size", type=int, default=128)
     parser.add_argument("--lr", type=float, default=1e-3)
@@ -216,8 +215,8 @@ def main() -> None:
                         help="Disable CUDA mixed precision.")
     parser.add_argument("--max-vocab-size", type=int, default=512,
                         help="Max values kept per categorical feature; rare values map to <UNK>.")
-    parser.add_argument("--no-source-action-head", action="store_true",
-                        help="Train only PolicyAction heads, excluding source_action_id")
+    parser.add_argument("--no-mood-head", action="store_true",
+                        help="Train only the action_id head, excluding the auxiliary mood head")
     args = parser.parse_args()
 
     metrics = train_policy(
@@ -228,7 +227,7 @@ def main() -> None:
         lr=args.lr,
         hidden_dim=args.hidden_dim,
         seed=args.seed,
-        include_source_action=not args.no_source_action_head,
+        include_mood=not args.no_mood_head,
         device=args.device,
         allow_cpu=args.allow_cpu,
         amp=not args.no_amp,
@@ -237,6 +236,7 @@ def main() -> None:
     summary = {
         "valid_accuracy": metrics["valid"]["accuracy"],
         "test_accuracy": metrics["test"]["accuracy"],
+        "test_macro_f1": metrics["test"]["macro_f1"],
         "out_dir": args.out_dir,
     }
     print(json.dumps(summary, ensure_ascii=False, indent=2))

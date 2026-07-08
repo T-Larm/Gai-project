@@ -44,6 +44,7 @@ class FeatureSpec:
     categorical: Dict[str, Dict[str, int]]
     multi: Dict[str, Dict[str, int]] = field(default_factory=dict)
     continuous: List[str] = field(default_factory=list)
+    continuous_stats: Dict[str, Dict[str, float]] = field(default_factory=dict)
     max_vocab_size: int = 512
 
     def to_dict(self) -> Dict[str, Any]:
@@ -51,6 +52,7 @@ class FeatureSpec:
             "categorical": self.categorical,
             "multi": self.multi,
             "continuous": self.continuous,
+            "continuous_stats": self.continuous_stats,
             "max_vocab_size": self.max_vocab_size,
         }
 
@@ -60,6 +62,10 @@ class FeatureSpec:
             categorical=_vocab_map(data.get("categorical", {})),
             multi=_vocab_map(data.get("multi", {})),
             continuous=[str(name) for name in data.get("continuous", [])],
+            continuous_stats={
+                str(name): {"mean": float(stats["mean"]), "std": float(stats["std"])}
+                for name, stats in data.get("continuous_stats", {}).items()
+            },
             max_vocab_size=int(data.get("max_vocab_size", 512)),
         )
 
@@ -108,6 +114,17 @@ def build_feature_spec(
                 counter[str(value)] += 1
         continuous_names.update(features.get("continuous", {}))
 
+    continuous = sorted(continuous_names)
+    stats: Dict[str, Dict[str, float]] = {}
+    for name in continuous:
+        values = [
+            _safe_float(_features_of(sample).get("continuous", {}).get(name, 0.0))
+            for sample in samples
+        ]
+        mean = sum(values) / len(values) if values else 0.0
+        variance = sum((v - mean) ** 2 for v in values) / len(values) if values else 0.0
+        stats[name] = {"mean": mean, "std": variance ** 0.5}
+
     return FeatureSpec(
         categorical={
             name: _build_vocab(counts, max_vocab_size)
@@ -117,7 +134,8 @@ def build_feature_spec(
             name: _build_vocab(counts, max_vocab_size, include_unknown=False)
             for name, counts in sorted(multi_counts.items())
         },
-        continuous=sorted(continuous_names),
+        continuous=continuous,
+        continuous_stats=stats,
         max_vocab_size=max_vocab_size,
     )
 
@@ -144,7 +162,14 @@ def encode_state_vector(features: Mapping[str, Any], spec: FeatureSpec) -> List[
     categorical = features.get("categorical", {})
     multi = features.get("multi", {})
 
-    vector: List[float] = [_safe_float(continuous.get(name, 0.0)) for name in spec.continuous]
+    vector: List[float] = []
+    for name in spec.continuous:
+        value = _safe_float(continuous.get(name, 0.0))
+        stats = spec.continuous_stats.get(name)
+        if stats:
+            std = stats.get("std", 0.0)
+            value = (value - stats.get("mean", 0.0)) / std if std > 1e-12 else 0.0
+        vector.append(value)
     for name, vocab in spec.categorical.items():
         value = str(categorical.get(name, UNKNOWN_TOKEN))
         index = vocab.get(value, vocab.get(UNKNOWN_TOKEN, 0))

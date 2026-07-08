@@ -272,8 +272,10 @@ class SupervisedPolicy:
         self.model.eval()
 
     def predict(self, state: StateFeatures | Mapping[str, Any]) -> PolicyAction:
+        # 把连续特征和分类特征转变成模型能够认识的形式（神经网路输入向量），然后再根据这些值来预测输出一个PolicyAction
         state_dict = state.to_dict() if isinstance(state, StateFeatures) else dict(state)
         vector = encode_state_vector(state_dict, self.feature_spec)
+        #关闭梯度，这不是训练，是推理，可以省内存，加速推理
         with self.torch.no_grad():
             inputs = self.torch.tensor([vector], dtype=self.torch.float32)
             logits = self.model(inputs)

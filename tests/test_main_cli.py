@@ -23,6 +23,15 @@ def test_condition_flags_can_select_ablation():
     )
     assert args.no_memory is True
     assert args.prompt_style == "flat"
+    assert args.policy_mode == "llm_only"
+
+
+def test_policy_mode_can_select_rule_baseline():
+    args = _build_arg_parser().parse_args(
+        ["--npc", "aldric", "--text", "--policy-mode", "rule"]
+    )
+
+    assert args.policy_mode == "rule"
 
 
 def test_prompt_style_rejects_unknown_value():

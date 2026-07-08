@@ -7,9 +7,6 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, List, Optional
 
-import torch
-from sentence_transformers import SentenceTransformer, util
-
 from backend.config.settings import (
     EMBEDDING_MODEL,
     IMPORTANCE_WEIGHTS,
@@ -18,12 +15,19 @@ from backend.config.settings import (
     MEMORY_TOP_K,
 )
 
-_embedder: Optional[SentenceTransformer] = None
+_embedder: Optional[Any] = None
 
 
-def _get_embedder() -> SentenceTransformer:
+def _get_embedder() -> Any:
     global _embedder
     if _embedder is None:
+        try:
+            from sentence_transformers import SentenceTransformer
+        except ModuleNotFoundError as exc:
+            raise RuntimeError(
+                "sentence-transformers is required for semantic memory retrieval. "
+                "Install project requirements or disable memory retrieval for light tests."
+            ) from exc
         _embedder = SentenceTransformer(EMBEDDING_MODEL)
     return _embedder
 
@@ -53,6 +57,14 @@ class MemoryStream:
             return []
 
         embedder = _get_embedder()
+        try:
+            import torch
+            from sentence_transformers import util
+        except ModuleNotFoundError as exc:
+            raise RuntimeError(
+                "torch and sentence-transformers are required for semantic memory retrieval. "
+                "Install project requirements or disable memory retrieval."
+            ) from exc
         query_embedding = embedder.encode(query, convert_to_tensor=True)
 
         missing = [e for e in self.entries if e.embedding is None]

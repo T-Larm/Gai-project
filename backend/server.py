@@ -16,7 +16,7 @@ back to data/personas/ after every turn.
 """
 import base64
 import os
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 import numpy as np
 from fastapi import FastAPI, HTTPException, UploadFile
@@ -81,6 +81,8 @@ class ChatRequest(BaseModel):
     npc: str
     text: str
     speak: bool = False
+    game_state: Optional[Dict[str, Any]] = None
+    policy_mode: str = "llm_only"
 
 
 @app.get("/health")
@@ -106,10 +108,24 @@ def npc_info(name: str):
 @app.post("/chat")
 def chat(request: ChatRequest):
     handler = _get_handler(request.npc)
-    reply = handler.respond(request.text)
+    try:
+        result = handler.respond_with_metadata(
+            request.text,
+            game_state=request.game_state,
+            policy_mode=request.policy_mode,
+        )
+    except (ValueError, FileNotFoundError, RuntimeError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    reply = result["reply"]
     PersonaGenerator(_get_llm()).save(handler.npc, directory=PERSONAS_DIR)
 
-    response = {"npc": handler.npc.core.name, "reply": reply}
+    response = {
+        "npc": handler.npc.core.name,
+        "reply": reply,
+        "policy_mode": result["policy_mode"],
+        "action": result["action"],
+        "state": result["state"],
+    }
     if request.speak:
         voice_path = os.path.join(VOICES_DIR, f"{_npc_key(request.npc)}.wav")
         waveform, sample_rate = _get_tts().synthesize(reply, voice_path)

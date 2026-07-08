@@ -5,7 +5,6 @@ from evaluation.datasets.convert_stateful_rpg import (
     convert_reasoner_file,
     dedupe_records,
     extract_native_features,
-    heuristic_action_id,
     load_decision_module,
     oracle_label,
     stratified_split,
@@ -298,11 +297,3 @@ def test_formatter_agreement_skips_colliding_reasoning_texts():
     assert result["skipped_ambiguous"] == 2
 
 
-def test_heuristic_action_id_is_independent_survival_baseline():
-    assert heuristic_action_id(_state()) == "drink"
-    threatened = _state(
-        vitals={"hp": 30.0, "hp_max": 120.0, "en": 0.9, "hun": 0.2, "thi": 0.2, "str": 0.2},
-        percepts=[{"id": "wolf", "tag": "Threat", "sal": 0.8, "threat": 0.8}],
-        inv=[],
-    )
-    assert heuristic_action_id(threatened) == "flee"

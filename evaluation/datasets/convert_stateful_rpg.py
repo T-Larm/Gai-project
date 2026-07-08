@@ -318,40 +318,6 @@ def convert_directory(
     return report
 
 
-def heuristic_action_id(state: Mapping[str, Any]) -> str:
-    """Independent survival heuristic — the fair rule baseline for RQ1.
-
-    Written from gameplay common sense, NOT from the generator's rule (which
-    is the labeling oracle and would make the comparison circular).
-    """
-    vitals = _mapping(state.get("vitals"))
-    inv = set(_inventory_flags(state.get("inv")))
-    percepts = [p for p in _list(state.get("percepts")) if isinstance(p, Mapping)]
-    max_threat = max([_float(p.get("threat")) for p in percepts if p.get("tag") == "Threat"] or [0.0])
-    strength = _float(vitals.get("str"))
-    hp = _float(vitals.get("hp"), 1.0)
-    hp_max = max(_float(vitals.get("hp_max"), 1.0), 1.0)
-
-    if max_threat > max(strength, 0.45):
-        return "flee"
-    if max_threat > 0.0 and strength > max_threat:
-        return "attack"
-    if _float(vitals.get("thi")) >= 0.7 and "water" in inv:
-        return "drink"
-    if _float(vitals.get("hun")) >= 0.7 and "food" in inv:
-        return "eat"
-    if hp / hp_max < 0.45 and "medicine" in inv:
-        return "heal"
-    if _float(vitals.get("en"), 1.0) <= 0.25:
-        return "sleep"
-    if any(p.get("tag") == "Social" for p in percepts):
-        return "socialize"
-    scheduled = _norm(_mapping(state.get("sched")).get("act"))
-    if scheduled == "work":
-        return "work"
-    return "walk_to"
-
-
 def _counts(records: List[Dict[str, Any]], key) -> Dict[str, int]:
     return dict(Counter(key(record) for record in records).most_common())
 

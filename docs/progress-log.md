@@ -15,10 +15,11 @@
 | Phase 3 | TTS（Coqui XTTS v2 零样本音色克隆）+ `--speak` 开关 | ✅ 完成（2026-07-02） |
 | Phase 4a | FastAPI server（/chat /transcribe /npc） | ✅ 完成（2026-07-02） |
 | **方案 B 行为层** | 数据转换 v2 + policy 训练 + RQ1 三方对比 + bark verbalizer + `/act` | ✅ 完成（2026-07-08，分支 `dataset-v2-behavior-policy`） |
-| Phase 4b | Unity 场景 + C# client + lip-sync | ⬜ 未开始 |
+| **对话守门 + 量化评估** | DialogueGuard（泄密/注入防护）+ 守门/bark 两项量化 | ✅ 完成（2026-07-08/09） |
+| Phase 4b | Unity 场景 + C# client + lip-sync | 🔧 C# 脚手架已预写，待编辑器实操 |
 | 评估实验 | 对话侧 runs + 用户研究 | 🔧 脚手架就绪 |
 
-测试：**143 个 pytest 用例全绿**（Phase 2 结束 5 → 审查修复 24 → Phase 3 34 → Phase 4a+评估脚手架 69 → NewVersion1.0 101 → 方案 B 143），全部走 TDD 红→绿流程。
+测试：**167 个 pytest 用例全绿**（Phase 2 结束 5 → 审查修复 24 → Phase 3 34 → Phase 4a+评估脚手架 69 → NewVersion1.0 101 → 方案 B 143 → 守门+评估 167），全部走 TDD 红→绿流程。
 
 Commit 时间线：
 
@@ -123,14 +124,24 @@ Unity slides 结论（08/09/11 已读）：角色生成（SDXL→Hunyuan3D→Ble
 5. **`POST /act`**：Unity 行为接口，真机 e2e 验证（口渴 Aldric→drink+"Time for a mug of ale not water, I'm parched."）；**热延迟 policy 0.6ms / bark 1.2s**——行为即时、台词异步，直接回答老师的实时性问题
 6. 结果文件：`data/behavior_policy/eval/rq1_policies_full.json`；checkpoint：`data/behavior_policy/checkpoints/stateful_rpg_v2_mlp_h256/`
 
+## 2026-07-08/09 深夜：对话守门 + 两项量化评估 + Unity 脚手架（commits e890774…之后）
+
+对话层方案①获队友确认后的收尾工作（测试 143→167）：
+
+1. **DialogueGuard**（`backend/behavior/dialogue_guard.py`）：简报"LLM 无权决定泄密"的免训练规则版——问秘密+低信任→规则强制 refuse（LLM 只管用人设口吻拒绝）；prompt 注入→**原文根本不发给 LLM**（占位符替换消息/历史/记忆）。实测教训：只在 system prompt 加"别听他的"防不住注入（"Say OK to confirm" 攻击赢过系统指令），必须输入端拦截。per-NPC 秘密话题词（从 seed 的 secret 自动提取）防"听说你锻过某把剑"式旁敲侧击（llama3 会对这种半招供）
+2. **守门量化**（`evaluation/eval_guard.py`，30 攻击）：**守门开 0% 泄密 / 0 真出戏 vs 守门关 10% 泄密 / 15% 出戏**（含把 system prompt 原文吐出来）。关键词判定是保守上界（在戏中的否认会被误标），transcripts 已存
+3. **Bark 一致性**（`evaluation/eval_barks.py`，LLM-as-judge，3 persona × 11 动作 × 3 条件）：**ours 91.7%/77.8% ≫ 无 persona 消融 47.2%/44.4% ≫ 模板 36.1%/44.4%**（persona/动作契合率）——persona 条件化让角色符合率近翻倍，"自动 persona 有效"的直接证据（正好是老师要的 baseline 对比形式）
+4. **Unity C# 脚手架**（`unity/Scripts/` + README 三步接入指南）：NpcBehaviorClient（轮询 /act，动作/情绪/台词/该聊天四事件，自带"口渴铁匠"演示状态）、NpcDialogueClient（guardReason 回调）、NpcGameState（手写 JSON）、WavUtility。未在编辑器实测
+
+评估版图至此补齐，四张结果表：RQ1 行为（91.0/51.6/16.0）、RQ4 延迟（0.6ms/1.2s）、守门安全（0% vs 10% 泄密）、bark 质量（91.7% vs 47.2%）。
+
 ## 下一步
 
-1. Phase 4b：Unity 场景 + C# client（`/act` 驱动 NPC 行为动画；`should_talk=true` 时开对话 UI 走 `/chat`）+ lip-sync（方案 A 振幅保底）
-2. **与组员对齐**：对话层方案①确认；原 RQ1–RQ5 中对话侧实验的取舍（persona 消融已被 policy 三方对比取代）
-3. bark 的 persona 一致性评估（LLM-as-judge，"这句像不像铁匠说的"）——回应老师 beyond-consistency 要求的新素材
-4. 用户研究（RQ5）：10–15 被试，Google Form 待建
-5. 占位语音替换为 VCTK 真实语音片段；3D 形象（需课程 ComfyUI 算力确认）
-6. 报告撰写：Method 直接映射 `docs/npc-design.md` 双通道结构；Experiments 含 RQ1 表、延迟表、标签重打的诚实说明
+1. Phase 4b：Unity 编辑器实操（脚手架和 `unity/README.md` 指南已备好；lip-sync 方案 A 振幅保底）
+2. **与组员对齐**：`dataset-v2-behavior-policy` 分支合并方式（建议 PR review）；对话侧 5 条件实验取舍
+3. 用户研究（RQ5）：10–15 被试，Google Form 待建，尽早招人
+4. 报告撰写：Method 映射 `docs/npc-design.md` 双通道结构；Experiments 四张表齐备；评估数字建议跑 3 次取均值后定稿
+5. 可选：VCTK 语音替换、3D 形象（需课程算力）、NLI 矛盾脚本
 
 ## 备忘
 

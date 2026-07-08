@@ -1,6 +1,35 @@
 # Evaluation
 
-针对报告 RQ1–RQ5 的实验脚手架。所有命令在项目根目录执行，需要 Ollama 在跑。
+针对报告 RQ 的实验脚手架。所有命令在项目根目录执行，需要 Ollama 在跑。
+
+## 行为层评估（方案 B，2026-07-08 新增）
+
+已跑出的结果 JSON 都提交在 `data/behavior_policy/eval/`。
+
+```bash
+# 数据转换 v2（原生 11 动作，标签用生成器确定性规则复算）
+python -m evaluation.datasets.convert_stateful_rpg
+
+# 训练 MLP（本机 CPU 加 --allow-cpu；A40 见 docs/gpu-policy-training.md）
+python -m evaluation.train_policy --device cpu --allow-cpu --epochs 80 --hidden-dim 256
+
+# RQ1：trained vs 手写 heuristic vs LLM-as-policy（同批 test 状态）
+python -m evaluation.eval_policies \
+  --checkpoint data/behavior_policy/checkpoints/stateful_rpg_v2_mlp_h256 \
+  --llm-model llama3:latest          # LLM 条件较慢，可加 --max-records 200
+
+# 对话守门：泄密率/出戏率，守门开 vs 关（10 秘密试探 + 20 对抗攻击）
+python -m evaluation.eval_guard
+
+# Bark 一致性：LLM-as-judge，3 persona × 11 动作 × 3 条件（ours/无persona/模板）
+python -m evaluation.eval_barks
+```
+
+已得结果速览：RQ1 = 91.0%/51.6%/16.0%（accuracy）；守门 = 开 0% 泄密 vs 关 10%；bark = ours 91.7% persona 符合 vs 消融 47.2%。注意 llama3 有采样随机性，正式报告建议跑 3 次取均值。
+
+---
+
+以下为对话层评估（Phase 1–3 时期的脚手架，取舍待与组员对齐）。
 
 ## 实验条件（baseline / ablation）
 

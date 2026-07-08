@@ -1,0 +1,229 @@
+{
+  "version": 2,
+  "raw_dir": "D:\\Master Material\\Generative AI\\GAI-project\\data\\archive\\data",
+  "out_dir": "D:\\Master Material\\Generative AI\\GAI-project\\data\\behavior_policy\\stateful_rpg_v2",
+  "seed": 13,
+  "source_files": [
+    "train_reasoner.jsonl",
+    "test_reasoner.jsonl"
+  ],
+  "label_source": "deterministic generator rule: survival overrides + pick_action_multifactor (mirrors _select_action_standard in data/archive/generator/npc_sim_generator_v2.py)",
+  "parsed_records": 12000,
+  "dedup": {
+    "removed": 1752
+  },
+  "total_records": 10248,
+  "action_counts": {
+    "gather": 2415,
+    "walk_to": 2142,
+    "flee": 1838,
+    "eat": 1391,
+    "drink": 1052,
+    "sleep": 508,
+    "socialize": 348,
+    "work": 233,
+    "attack": 214,
+    "heal": 73,
+    "pray": 34
+  },
+  "zone_counts": {
+    "no_threat": 4865,
+    "survival_override": 2754,
+    "retreat": 1838,
+    "ambivalent": 577,
+    "duty_attack": 200,
+    "dominant": 14
+  },
+  "mood_counts": {
+    "calm": 6044,
+    "angry": 1878,
+    "happy": 1241,
+    "fearful": 1085
+  },
+  "oracle_vs_formatter": {
+    "matched": 6415,
+    "agreed": 6035,
+    "rate": 0.9408,
+    "skipped_ambiguous": 2504,
+    "disagreements_sample": [
+      {
+        "id": "srpg_0c11e7be8d03",
+        "oracle": "drink",
+        "formatter": "socialize",
+        "zone": "survival_override"
+      },
+      {
+        "id": "srpg_6d9714d22e1b",
+        "oracle": "gather",
+        "formatter": "socialize",
+        "zone": "ambivalent"
+      },
+      {
+        "id": "srpg_c790aab14c84",
+        "oracle": "gather",
+        "formatter": "socialize",
+        "zone": "survival_override"
+      },
+      {
+        "id": "srpg_0c82ac893f62",
+        "oracle": "eat",
+        "formatter": "walk_to",
+        "zone": "survival_override"
+      },
+      {
+        "id": "srpg_a03eb8fd90f4",
+        "oracle": "gather",
+        "formatter": "sleep",
+        "zone": "survival_override"
+      },
+      {
+        "id": "srpg_378d08c1099a",
+        "oracle": "drink",
+        "formatter": "socialize",
+        "zone": "no_threat"
+      },
+      {
+        "id": "srpg_7f73188dcdab",
+        "oracle": "gather",
+        "formatter": "socialize",
+        "zone": "survival_override"
+      },
+      {
+        "id": "srpg_5171479b54b8",
+        "oracle": "eat",
+        "formatter": "socialize",
+        "zone": "survival_override"
+      },
+      {
+        "id": "srpg_a3ecb51450be",
+        "oracle": "sleep",
+        "formatter": "walk_to",
+        "zone": "no_threat"
+      },
+      {
+        "id": "srpg_c3113410d25f",
+        "oracle": "sleep",
+        "formatter": "walk_to",
+        "zone": "no_threat"
+      },
+      {
+        "id": "srpg_e4755bcc3ffb",
+        "oracle": "eat",
+        "formatter": "socialize",
+        "zone": "no_threat"
+      },
+      {
+        "id": "srpg_ac54b9a5d831",
+        "oracle": "gather",
+        "formatter": "attack",
+        "zone": "ambivalent"
+      },
+      {
+        "id": "srpg_d1caa3123695",
+        "oracle": "flee",
+        "formatter": "walk_to",
+        "zone": "retreat"
+      },
+      {
+        "id": "srpg_f35828ad14ec",
+        "oracle": "flee",
+        "formatter": "walk_to",
+        "zone": "retreat"
+      },
+      {
+        "id": "srpg_630488d10462",
+        "oracle": "flee",
+        "formatter": "walk_to",
+        "zone": "retreat"
+      },
+      {
+        "id": "srpg_06a31af7b124",
+        "oracle": "flee",
+        "formatter": "socialize",
+        "zone": "retreat"
+      },
+      {
+        "id": "srpg_b884810e9985",
+        "oracle": "eat",
+        "formatter": "socialize",
+        "zone": "survival_override"
+      },
+      {
+        "id": "srpg_f56ef69964f9",
+        "oracle": "gather",
+        "formatter": "socialize",
+        "zone": "survival_override"
+      },
+      {
+        "id": "srpg_0ffd9a42af7e",
+        "oracle": "gather",
+        "formatter": "attack",
+        "zone": "ambivalent"
+      },
+      {
+        "id": "srpg_c6b26775a1c6",
+        "oracle": "eat",
+        "formatter": "socialize",
+        "zone": "survival_override"
+      }
+    ]
+  },
+  "splits": {
+    "train": {
+      "records": 8200,
+      "action_counts": {
+        "gather": 1931,
+        "walk_to": 1714,
+        "flee": 1470,
+        "eat": 1113,
+        "drink": 842,
+        "sleep": 406,
+        "socialize": 278,
+        "work": 187,
+        "attack": 172,
+        "heal": 59,
+        "pray": 28
+      }
+    },
+    "valid": {
+      "records": 1024,
+      "action_counts": {
+        "gather": 242,
+        "walk_to": 214,
+        "flee": 184,
+        "eat": 139,
+        "drink": 105,
+        "sleep": 51,
+        "socialize": 35,
+        "work": 23,
+        "attack": 21,
+        "heal": 7,
+        "pray": 3
+      }
+    },
+    "test": {
+      "records": 1024,
+      "action_counts": {
+        "gather": 242,
+        "walk_to": 214,
+        "flee": 184,
+        "eat": 139,
+        "drink": 105,
+        "sleep": 51,
+        "socialize": 35,
+        "work": 23,
+        "attack": 21,
+        "heal": 7,
+        "pray": 3
+      }
+    }
+  },
+  "notes": [
+    "label.action_id is recomputed with the generator's deterministic rule (survival overrides + multifactor); every state gets an exact label.",
+    "the original dataset replaced ~15% of labels with stochastic persona deviations (D1-D7 in npc_sim_generator_v2.py); these are irreproducible from the state alone and are relabeled deterministically here — expect oracle_vs_formatter.rate ~0.85-0.9.",
+    "label.zone/factors are oracle metadata for analysis only — never model inputs.",
+    "features exclude player_intent, emo.mood, and all oracle intermediates (leakage).",
+    "aux.mood is the auxiliary emotion label, predicted from numeric emo features.",
+    "trade never occurs in the data; the effective action space has 11 classes."
+  ]
+}

@@ -175,5 +175,137 @@
         "eat": 1
       }
     }
-  }
+  },
+  "llm": {
+    "n": 1024,
+    "accuracy": 0.1602,
+    "macro_f1": 0.1472,
+    "per_class_f1": {
+      "attack": 0.0591,
+      "drink": 0.2246,
+      "eat": 0.2072,
+      "flee": 0.3646,
+      "gather": 0.0082,
+      "heal": 0.1212,
+      "pray": 0.0118,
+      "sleep": 0.1667,
+      "socialize": 0.2424,
+      "walk_to": 0.0784,
+      "work": 0.1346
+    },
+    "confusion": {
+      "gather": {
+        "flee": 37,
+        "eat": 10,
+        "walk_to": 31,
+        "pray": 42,
+        "socialize": 24,
+        "drink": 14,
+        "work": 22,
+        "attack": 57,
+        "heal": 4,
+        "gather": 1
+      },
+      "eat": {
+        "walk_to": 11,
+        "eat": 23,
+        "socialize": 14,
+        "flee": 29,
+        "work": 12,
+        "pray": 18,
+        "gather": 1,
+        "attack": 26,
+        "heal": 3,
+        "drink": 2
+      },
+      "flee": {
+        "flee": 70,
+        "attack": 57,
+        "pray": 38,
+        "heal": 7,
+        "work": 4,
+        "socialize": 2,
+        "drink": 1,
+        "walk_to": 4,
+        "sleep": 1
+      },
+      "drink": {
+        "walk_to": 25,
+        "socialize": 8,
+        "work": 15,
+        "flee": 13,
+        "attack": 6,
+        "drink": 21,
+        "pray": 11,
+        "eat": 3,
+        "heal": 3
+      },
+      "walk_to": {
+        "socialize": 27,
+        "attack": 22,
+        "flee": 37,
+        "drink": 33,
+        "pray": 32,
+        "work": 12,
+        "eat": 29,
+        "heal": 5,
+        "sleep": 3,
+        "walk_to": 12,
+        "trade": 2
+      },
+      "attack": {
+        "pray": 8,
+        "attack": 6,
+        "walk_to": 2,
+        "flee": 5
+      },
+      "heal": {
+        "flee": 1,
+        "work": 1,
+        "attack": 1,
+        "heal": 2,
+        "walk_to": 1,
+        "eat": 1
+      },
+      "sleep": {
+        "pray": 7,
+        "walk_to": 5,
+        "socialize": 5,
+        "sleep": 5,
+        "flee": 3,
+        "attack": 4,
+        "work": 4,
+        "drink": 8,
+        "eat": 8,
+        "trade": 1,
+        "heal": 1
+      },
+      "socialize": {
+        "socialize": 16,
+        "pray": 8,
+        "eat": 5,
+        "attack": 2,
+        "work": 3,
+        "flee": 1
+      },
+      "work": {
+        "work": 7,
+        "flee": 4,
+        "walk_to": 1,
+        "socialize": 1,
+        "pray": 2,
+        "drink": 3,
+        "eat": 4,
+        "attack": 1
+      },
+      "pray": {
+        "heal": 1,
+        "work": 1,
+        "pray": 1
+      }
+    }
+  },
+  "notes": [
+    "All three policies evaluated on the identical full test split (n=1024)."
+  ]
 }

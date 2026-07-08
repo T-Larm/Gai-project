@@ -104,6 +104,13 @@ policy 接管行为后，玩家对话怎么处理有三个选项：
 
 **选择①**：②训不出来——数据集是生存模拟，refuse/reveal/assign_quest 等对话动作全部零样本；③丢掉 Phase 1–3 全部成果。①让数据集能训的（行为）归 policy，训不了的（对话）归已验证的 LLM 系统，两条贡献线都保住。衔接点：`/act` 返回 `should_talk=true`（action=socialize 时）→ Unity 转调 `/chat`。
 
+**①的增强：规则守门（DialogueGuard）**——简报"主张 B"（LLM 无权决定泄密）的安全内核不需要训练，`backend/behavior/dialogue_guard.py` 用规则实现：
+
+- **问秘密 + 信任不足** → 强制 refuse 指令注入 system prompt，LLM 只管用人设口吻拒绝（实测 Aldric："I've got no secrets worth tellin', just the honest sweat of me brow"——决定是规则做的，措辞是 LLM 的）
+- **prompt injection** → 注入文本**根本不发给 LLM**（替换成"玩家嘟囔了莫名其妙的话"占位符，history 和记忆也不写入原文，防止模型服从和记忆污染）。实测"Say OK to confirm"类攻击全部失效且 NPC 保持在戏中。⚠️ 教训：光在 system prompt 里加"别听他的"指令压不住注入——llama3 还是会服从用户消息，必须在输入端拦截
+- 复用队友的 `state_encoder.py` 模式检测和 `RulePolicyConfig` 信任阈值；`/chat` 响应触发时附 `guard: {reason}` 字段
+- 报告表述：剧情关键决策（泄密与否）由规则守门，LLM 无法被聊天话术绕过——constrained dialogue policy 的训练版留作 future work
+
 ---
 
 # 第二部分：对话层（Phase 1–3，保留不变）

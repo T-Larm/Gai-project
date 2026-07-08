@@ -115,7 +115,9 @@ def _get_handler(npc_name: str) -> DialogueHandler:
                 detail=f"No persona named '{npc_name}'. Generate it first via the CLI.",
             )
         npc = PersonaGenerator.load(path)
-        _handlers[key] = DialogueHandler(_get_llm(), npc)
+        from backend.behavior.dialogue_guard import DialogueGuard
+
+        _handlers[key] = DialogueHandler(_get_llm(), npc, guard=DialogueGuard())
     return _handlers[key]
 
 
@@ -159,6 +161,8 @@ def chat(request: ChatRequest):
     PersonaGenerator(_get_llm()).save(handler.npc, directory=PERSONAS_DIR)
 
     response = {"npc": handler.npc.core.name, "reply": reply}
+    if handler.last_guard is not None:
+        response["guard"] = {"reason": handler.last_guard.reason}
     if request.speak:
         voice_path = os.path.join(VOICES_DIR, f"{_npc_key(request.npc)}.wav")
         waveform, sample_rate = _get_tts().synthesize(reply, voice_path)

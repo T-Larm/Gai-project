@@ -1,4 +1,9 @@
-"""Supervised behavior-policy inference and training utilities.
+"""Supervised behavior-policy inference and training utilities (方案 B).
+
+Consumes the v2 dataset schema (data/behavior_policy/stateful_rpg_v2): each
+sample carries ``features`` split into categorical / multi / continuous
+groups, a native ``label.action_id`` (11 effective classes) and an auxiliary
+``aux.mood`` emotion label.
 
 This module is importable without PyTorch. Functions that build, train, or load
 the neural model call ``require_torch()`` lazily so lightweight dataset tests can
@@ -8,43 +13,16 @@ run in minimal environments.
 from __future__ import annotations
 
 import json
-import math
 from collections import Counter
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence
+from typing import Any, Dict, List, Mapping, Sequence
 
-from backend.behavior.schemas import PolicyAction, StateFeatures
+from backend.behavior.native_features import extract_native_features
 
 
-CONTINUOUS_FEATURES = [
-    "trust_score",
-    "memory_relevance",
-    "danger_level",
-    "distance_to_player",
-    "forbidden_secret_asked",
-    "prompt_injection_detected",
-]
-
-CATEGORICAL_FEATURES = [
-    "player_intent",
-    "quest_stage",
-    "npc_emotion",
-    "relationship",
-    "npc_role",
-    "persona_id",
-    "location",
-]
-
-ACTION_HEADS = [
-    "dialogue_act",
-    "emotion",
-    "disclosure_level",
-    "gesture",
-    "quest_update",
-]
-
-SOURCE_ACTION_HEAD = "source_action_id"
+ACTION_HEAD = "action_id"
+MOOD_HEAD = "mood"
 UNKNOWN_TOKEN = "<UNK>"
 
 
@@ -61,31 +39,43 @@ def require_torch():
 
 @dataclass
 class FeatureSpec:
+    """Vectorization plan: continuous slots, one-hot and multi-hot vocabularies."""
+
     categorical: Dict[str, Dict[str, int]]
-    continuous: List[str]
+    multi: Dict[str, Dict[str, int]] = field(default_factory=dict)
+    continuous: List[str] = field(default_factory=list)
+    continuous_stats: Dict[str, Dict[str, float]] = field(default_factory=dict)
     max_vocab_size: int = 512
 
     def to_dict(self) -> Dict[str, Any]:
         return {
             "categorical": self.categorical,
+            "multi": self.multi,
             "continuous": self.continuous,
+            "continuous_stats": self.continuous_stats,
             "max_vocab_size": self.max_vocab_size,
         }
 
     @classmethod
     def from_dict(cls, data: Mapping[str, Any]) -> "FeatureSpec":
         return cls(
-            categorical={
-                str(name): {str(key): int(value) for key, value in vocab.items()}
-                for name, vocab in data.get("categorical", {}).items()
+            categorical=_vocab_map(data.get("categorical", {})),
+            multi=_vocab_map(data.get("multi", {})),
+            continuous=[str(name) for name in data.get("continuous", [])],
+            continuous_stats={
+                str(name): {"mean": float(stats["mean"]), "std": float(stats["std"])}
+                for name, stats in data.get("continuous_stats", {}).items()
             },
-            continuous=[str(name) for name in data.get("continuous", CONTINUOUS_FEATURES)],
             max_vocab_size=int(data.get("max_vocab_size", 512)),
         )
 
     @property
     def input_dim(self) -> int:
-        return len(self.continuous) + sum(len(vocab) for vocab in self.categorical.values())
+        return (
+            len(self.continuous)
+            + sum(len(vocab) for vocab in self.categorical.values())
+            + sum(len(vocab) for vocab in self.multi.values())
+        )
 
 
 @dataclass
@@ -97,12 +87,7 @@ class LabelSpec:
 
     @classmethod
     def from_dict(cls, data: Mapping[str, Any]) -> "LabelSpec":
-        return cls(
-            heads={
-                str(name): {str(key): int(value) for key, value in vocab.items()}
-                for name, vocab in data.get("heads", {}).items()
-            }
-        )
+        return cls(heads=_vocab_map(data.get("heads", {})))
 
     def labels_for(self, head: str) -> List[str]:
         vocab = self.heads[head]
@@ -116,33 +101,50 @@ def build_feature_spec(
     samples: Sequence[Mapping[str, Any]],
     max_vocab_size: int = 512,
 ) -> FeatureSpec:
-    vocabs: Dict[str, Dict[str, int]] = {}
-    for name in CATEGORICAL_FEATURES:
-        counts = Counter(_state_value(sample, name, UNKNOWN_TOKEN) for sample in samples)
-        values = [UNKNOWN_TOKEN]
-        for value, _count in counts.most_common(max(max_vocab_size - 1, 0)):
-            if value != UNKNOWN_TOKEN:
-                values.append(value)
-        values = sorted(set(values))
-        if UNKNOWN_TOKEN in values:
-            values.remove(UNKNOWN_TOKEN)
-        values.insert(0, UNKNOWN_TOKEN)
-        vocabs[name] = {value: index for index, value in enumerate(values)}
+    categorical_counts: Dict[str, Counter] = {}
+    multi_counts: Dict[str, Counter] = {}
+    continuous_names: set = set()
+    for sample in samples:
+        features = _features_of(sample)
+        for name, value in features.get("categorical", {}).items():
+            categorical_counts.setdefault(name, Counter())[str(value)] += 1
+        for name, values in features.get("multi", {}).items():
+            counter = multi_counts.setdefault(name, Counter())
+            for value in values:
+                counter[str(value)] += 1
+        continuous_names.update(features.get("continuous", {}))
+
+    continuous = sorted(continuous_names)
+    stats: Dict[str, Dict[str, float]] = {}
+    for name in continuous:
+        values = [
+            _safe_float(_features_of(sample).get("continuous", {}).get(name, 0.0))
+            for sample in samples
+        ]
+        mean = sum(values) / len(values) if values else 0.0
+        variance = sum((v - mean) ** 2 for v in values) / len(values) if values else 0.0
+        stats[name] = {"mean": mean, "std": variance ** 0.5}
+
     return FeatureSpec(
-        categorical=vocabs,
-        continuous=list(CONTINUOUS_FEATURES),
+        categorical={
+            name: _build_vocab(counts, max_vocab_size)
+            for name, counts in sorted(categorical_counts.items())
+        },
+        multi={
+            name: _build_vocab(counts, max_vocab_size, include_unknown=False)
+            for name, counts in sorted(multi_counts.items())
+        },
+        continuous=continuous,
+        continuous_stats=stats,
         max_vocab_size=max_vocab_size,
     )
 
 
 def build_label_spec(
     samples: Sequence[Mapping[str, Any]],
-    include_source_action: bool = True,
+    include_mood: bool = True,
 ) -> LabelSpec:
-    head_names = list(ACTION_HEADS)
-    if include_source_action:
-        head_names.append(SOURCE_ACTION_HEAD)
-
+    head_names = [ACTION_HEAD] + ([MOOD_HEAD] if include_mood else [])
     heads: Dict[str, Dict[str, int]] = {}
     for head in head_names:
         labels = {UNKNOWN_TOKEN}
@@ -154,14 +156,27 @@ def build_label_spec(
     return LabelSpec(heads=heads)
 
 
-def encode_state_vector(state: Mapping[str, Any], spec: FeatureSpec) -> List[float]:
+def encode_state_vector(features: Mapping[str, Any], spec: FeatureSpec) -> List[float]:
+    """Vectorize one v2 ``features`` dict: continuous, then one-hot, then multi-hot."""
+    continuous = features.get("continuous", {})
+    categorical = features.get("categorical", {})
+    multi = features.get("multi", {})
+
     vector: List[float] = []
     for name in spec.continuous:
-        vector.append(_safe_float(state.get(name, 0.0)))
+        value = _safe_float(continuous.get(name, 0.0))
+        stats = spec.continuous_stats.get(name)
+        if stats:
+            std = stats.get("std", 0.0)
+            value = (value - stats.get("mean", 0.0)) / std if std > 1e-12 else 0.0
+        vector.append(value)
     for name, vocab in spec.categorical.items():
-        value = str(state.get(name, UNKNOWN_TOKEN))
-        index = vocab.get(value, vocab[UNKNOWN_TOKEN])
+        value = str(categorical.get(name, UNKNOWN_TOKEN))
+        index = vocab.get(value, vocab.get(UNKNOWN_TOKEN, 0))
         vector.extend(1.0 if i == index else 0.0 for i in range(len(vocab)))
+    for name, vocab in spec.multi.items():
+        active = {vocab[str(value)] for value in multi.get(name, []) if str(value) in vocab}
+        vector.extend(1.0 if i in active else 0.0 for i in range(len(vocab)))
     return vector
 
 
@@ -176,9 +191,26 @@ def labels_to_indices(sample: Mapping[str, Any], label_spec: LabelSpec) -> Dict[
 
 
 def label_value(sample: Mapping[str, Any], head: str) -> str:
-    if head == SOURCE_ACTION_HEAD:
-        return str(sample.get("source_action", {}).get("action_id", ""))
-    return str(sample.get("action", {}).get(head, ""))
+    if head == ACTION_HEAD:
+        return str(sample.get("label", {}).get("action_id", ""))
+    if head == MOOD_HEAD:
+        return str(sample.get("aux", {}).get("mood", ""))
+    raise ValueError(f"Unknown label head '{head}'")
+
+
+def macro_f1(predicted: Sequence[int], gold: Sequence[int]) -> float:
+    """Macro-averaged F1 over the classes present in gold (rare classes count equally)."""
+    classes = sorted(set(gold))
+    if not classes:
+        return 0.0
+    scores = []
+    for cls in classes:
+        tp = sum(1 for p, g in zip(predicted, gold) if p == cls and g == cls)
+        fp = sum(1 for p, g in zip(predicted, gold) if p == cls and g != cls)
+        fn = sum(1 for p, g in zip(predicted, gold) if p != cls and g == cls)
+        denominator = 2 * tp + fp + fn
+        scores.append((2 * tp / denominator) if denominator else 0.0)
+    return sum(scores) / len(scores)
 
 
 def load_jsonl(path: Path) -> List[Dict[str, Any]]:
@@ -216,7 +248,7 @@ def tensors_from_samples(
     label_spec: LabelSpec,
 ):
     torch = require_torch()
-    features = [encode_state_vector(sample["state"], feature_spec) for sample in samples]
+    features = [encode_state_vector(_features_of(sample), feature_spec) for sample in samples]
     targets = {head: [] for head in label_spec.heads}
     for sample in samples:
         labels = labels_to_indices(sample, label_spec)
@@ -253,7 +285,7 @@ def save_checkpoint(
 
 
 class SupervisedPolicy:
-    """Load a trained checkpoint and predict a PolicyAction."""
+    """Load a trained checkpoint and predict native action + mood."""
 
     def __init__(self, checkpoint_dir: Path):
         torch = require_torch()
@@ -271,28 +303,16 @@ class SupervisedPolicy:
         self.model.load_state_dict(state)
         self.model.eval()
 
-    def predict(self, state: StateFeatures | Mapping[str, Any]) -> PolicyAction:
-        # 把连续特征和分类特征转变成模型能够认识的形式（神经网路输入向量），然后再根据这些值来预测输出一个PolicyAction
-        state_dict = state.to_dict() if isinstance(state, StateFeatures) else dict(state)
-        vector = encode_state_vector(state_dict, self.feature_spec)
-        #关闭梯度，这不是训练，是推理，可以省内存，加速推理
-        with self.torch.no_grad():
-            inputs = self.torch.tensor([vector], dtype=self.torch.float32)
-            logits = self.model(inputs)
-        labels = {}
-        for head in ACTION_HEADS:
-            if head not in logits:
-                continue
+    def predict(self, state: Mapping[str, Any]) -> Dict[str, str]:
+        logits = self._logits(state)
+        prediction = {}
+        for head in self.label_spec.heads:
             index = int(logits[head].argmax(dim=1).item())
-            labels[head] = self.label_spec.labels_for(head)[index]
-        return PolicyAction.from_dict(labels)
+            prediction[head] = self.label_spec.labels_for(head)[index]
+        return prediction
 
-    def predict_with_metadata(self, state: StateFeatures | Mapping[str, Any]) -> Dict[str, Any]:
-        state_dict = state.to_dict() if isinstance(state, StateFeatures) else dict(state)
-        vector = encode_state_vector(state_dict, self.feature_spec)
-        with self.torch.no_grad():
-            inputs = self.torch.tensor([vector], dtype=self.torch.float32)
-            logits = self.model(inputs)
+    def predict_with_metadata(self, state: Mapping[str, Any]) -> Dict[str, Any]:
+        logits = self._logits(state)
         predictions: Dict[str, Dict[str, Any]] = {}
         for head, values in logits.items():
             probs = self.torch.softmax(values, dim=1)[0]
@@ -302,9 +322,16 @@ class SupervisedPolicy:
                 "confidence": float(probs[index].item()),
             }
         return {
-            "action": self.predict(state_dict).to_dict(),
+            "action": {head: info["label"] for head, info in predictions.items()},
             "predictions": predictions,
         }
+
+    def _logits(self, state: Mapping[str, Any]):
+        features = _features_of({"features": state}) if _is_features_dict(state) else extract_native_features(state)
+        vector = encode_state_vector(features, self.feature_spec)
+        with self.torch.no_grad():
+            inputs = self.torch.tensor([vector], dtype=self.torch.float32)
+            return self.model(inputs)
 
 
 def accuracy_for_logits(logits: Mapping[str, Any], targets: Mapping[str, Any]) -> Dict[str, float]:
@@ -316,6 +343,15 @@ def accuracy_for_logits(logits: Mapping[str, Any], targets: Mapping[str, Any]) -
     return accuracies
 
 
+def macro_f1_for_logits(logits: Mapping[str, Any], targets: Mapping[str, Any]) -> Dict[str, float]:
+    scores = {}
+    for head, values in logits.items():
+        predicted = values.argmax(dim=1).tolist()
+        gold = targets[head].tolist()
+        scores[head] = macro_f1(predicted, gold)
+    return scores
+
+
 def confusion_matrix(predicted: Sequence[str], gold: Sequence[str]) -> Dict[str, Dict[str, int]]:
     matrix: Dict[str, Dict[str, int]] = {}
     for pred, actual in zip(predicted, gold):
@@ -324,15 +360,38 @@ def confusion_matrix(predicted: Sequence[str], gold: Sequence[str]) -> Dict[str,
     return matrix
 
 
-def _state_value(sample: Mapping[str, Any], name: str, default: str) -> str:
-    return str(sample.get("state", {}).get(name, default))
+def _is_features_dict(state: Mapping[str, Any]) -> bool:
+    return any(group in state for group in ("categorical", "multi", "continuous"))
+
+
+def _features_of(sample: Mapping[str, Any]) -> Mapping[str, Any]:
+    features = sample.get("features", {})
+    return features if isinstance(features, Mapping) else {}
+
+
+def _build_vocab(counts: Counter, max_vocab_size: int, include_unknown: bool = True) -> Dict[str, int]:
+    values = [
+        value for value, _count in counts.most_common(max(max_vocab_size - 1, 0))
+        if value != UNKNOWN_TOKEN
+    ]
+    values = sorted(values)
+    if include_unknown:
+        values.insert(0, UNKNOWN_TOKEN)
+    return {value: index for index, value in enumerate(values)}
+
+
+def _vocab_map(data: Mapping[str, Any]) -> Dict[str, Dict[str, int]]:
+    return {
+        str(name): {str(key): int(value) for key, value in vocab.items()}
+        for name, vocab in data.items()
+    }
 
 
 def _safe_float(value: Any) -> float:
     try:
         number = float(value)
     except (TypeError, ValueError):
-        number = 0.0
-    if math.isnan(number) or math.isinf(number):
+        return 0.0
+    if number != number or number in (float("inf"), float("-inf")):
         return 0.0
     return number

@@ -1,0 +1,311 @@
+{
+  "data_dir": "data/behavior_policy/stateful_rpg_v2",
+  "split": "test",
+  "n": 1024,
+  "heuristic": {
+    "n": 1024,
+    "accuracy": 0.5156,
+    "macro_f1": 0.3986,
+    "per_class_f1": {
+      "attack": 0.0723,
+      "drink": 0.7778,
+      "eat": 0.775,
+      "flee": 0.6807,
+      "gather": 0.0,
+      "heal": 0.1754,
+      "pray": 0.0,
+      "sleep": 0.6992,
+      "socialize": 0.369,
+      "walk_to": 0.5376,
+      "work": 0.2979
+    },
+    "confusion": {
+      "gather": {
+        "attack": 26,
+        "walk_to": 39,
+        "socialize": 38,
+        "heal": 11,
+        "flee": 68,
+        "sleep": 25,
+        "drink": 11,
+        "work": 20,
+        "eat": 4
+      },
+      "eat": {
+        "flee": 28,
+        "eat": 93,
+        "drink": 13,
+        "attack": 5
+      },
+      "flee": {
+        "flee": 162,
+        "attack": 22
+      },
+      "drink": {
+        "drink": 84,
+        "attack": 5,
+        "flee": 16
+      },
+      "walk_to": {
+        "socialize": 57,
+        "work": 34,
+        "heal": 23,
+        "walk_to": 93,
+        "sleep": 4,
+        "eat": 2,
+        "drink": 1
+      },
+      "attack": {
+        "attack": 3,
+        "flee": 17,
+        "socialize": 1
+      },
+      "heal": {
+        "flee": 1,
+        "heal": 5,
+        "attack": 1
+      },
+      "sleep": {
+        "sleep": 43,
+        "heal": 7,
+        "drink": 1
+      },
+      "socialize": {
+        "socialize": 31,
+        "heal": 4
+      },
+      "work": {
+        "work": 14,
+        "socialize": 6,
+        "eat": 2,
+        "drink": 1
+      },
+      "pray": {
+        "work": 3
+      }
+    }
+  },
+  "trained": {
+    "n": 1024,
+    "accuracy": 0.9102,
+    "macro_f1": 0.7598,
+    "per_class_f1": {
+      "attack": 0.7111,
+      "drink": 0.9423,
+      "eat": 0.9366,
+      "flee": 0.9162,
+      "gather": 0.901,
+      "heal": 0.3333,
+      "pray": 0.0,
+      "sleep": 0.8649,
+      "socialize": 0.9254,
+      "walk_to": 0.9381,
+      "work": 0.8889
+    },
+    "confusion": {
+      "gather": {
+        "gather": 223,
+        "flee": 6,
+        "eat": 2,
+        "drink": 2,
+        "walk_to": 3,
+        "attack": 6
+      },
+      "eat": {
+        "eat": 133,
+        "work": 1,
+        "flee": 2,
+        "gather": 2,
+        "drink": 1
+      },
+      "flee": {
+        "flee": 164,
+        "drink": 1,
+        "gather": 14,
+        "eat": 3,
+        "attack": 2
+      },
+      "drink": {
+        "drink": 98,
+        "gather": 4,
+        "flee": 1,
+        "eat": 1,
+        "walk_to": 1
+      },
+      "walk_to": {
+        "walk_to": 197,
+        "socialize": 1,
+        "gather": 3,
+        "sleep": 8,
+        "eat": 3,
+        "heal": 2
+      },
+      "attack": {
+        "attack": 16,
+        "gather": 4,
+        "eat": 1
+      },
+      "heal": {
+        "gather": 1,
+        "work": 1,
+        "flee": 1,
+        "sleep": 1,
+        "heal": 2,
+        "walk_to": 1
+      },
+      "sleep": {
+        "sleep": 48,
+        "walk_to": 3
+      },
+      "socialize": {
+        "socialize": 31,
+        "heal": 1,
+        "gather": 1,
+        "sleep": 2
+      },
+      "work": {
+        "work": 20,
+        "drink": 1,
+        "eat": 1,
+        "sleep": 1
+      },
+      "pray": {
+        "walk_to": 1,
+        "gather": 1,
+        "eat": 1
+      }
+    }
+  },
+  "llm": {
+    "n": 1024,
+    "accuracy": 0.1602,
+    "macro_f1": 0.1472,
+    "per_class_f1": {
+      "attack": 0.0591,
+      "drink": 0.2246,
+      "eat": 0.2072,
+      "flee": 0.3646,
+      "gather": 0.0082,
+      "heal": 0.1212,
+      "pray": 0.0118,
+      "sleep": 0.1667,
+      "socialize": 0.2424,
+      "walk_to": 0.0784,
+      "work": 0.1346
+    },
+    "confusion": {
+      "gather": {
+        "flee": 37,
+        "eat": 10,
+        "walk_to": 31,
+        "pray": 42,
+        "socialize": 24,
+        "drink": 14,
+        "work": 22,
+        "attack": 57,
+        "heal": 4,
+        "gather": 1
+      },
+      "eat": {
+        "walk_to": 11,
+        "eat": 23,
+        "socialize": 14,
+        "flee": 29,
+        "work": 12,
+        "pray": 18,
+        "gather": 1,
+        "attack": 26,
+        "heal": 3,
+        "drink": 2
+      },
+      "flee": {
+        "flee": 70,
+        "attack": 57,
+        "pray": 38,
+        "heal": 7,
+        "work": 4,
+        "socialize": 2,
+        "drink": 1,
+        "walk_to": 4,
+        "sleep": 1
+      },
+      "drink": {
+        "walk_to": 25,
+        "socialize": 8,
+        "work": 15,
+        "flee": 13,
+        "attack": 6,
+        "drink": 21,
+        "pray": 11,
+        "eat": 3,
+        "heal": 3
+      },
+      "walk_to": {
+        "socialize": 27,
+        "attack": 22,
+        "flee": 37,
+        "drink": 33,
+        "pray": 32,
+        "work": 12,
+        "eat": 29,
+        "heal": 5,
+        "sleep": 3,
+        "walk_to": 12,
+        "trade": 2
+      },
+      "attack": {
+        "pray": 8,
+        "attack": 6,
+        "walk_to": 2,
+        "flee": 5
+      },
+      "heal": {
+        "flee": 1,
+        "work": 1,
+        "attack": 1,
+        "heal": 2,
+        "walk_to": 1,
+        "eat": 1
+      },
+      "sleep": {
+        "pray": 7,
+        "walk_to": 5,
+        "socialize": 5,
+        "sleep": 5,
+        "flee": 3,
+        "attack": 4,
+        "work": 4,
+        "drink": 8,
+        "eat": 8,
+        "trade": 1,
+        "heal": 1
+      },
+      "socialize": {
+        "socialize": 16,
+        "pray": 8,
+        "eat": 5,
+        "attack": 2,
+        "work": 3,
+        "flee": 1
+      },
+      "work": {
+        "work": 7,
+        "flee": 4,
+        "walk_to": 1,
+        "socialize": 1,
+        "pray": 2,
+        "drink": 3,
+        "eat": 4,
+        "attack": 1
+      },
+      "pray": {
+        "heal": 1,
+        "work": 1,
+        "pray": 1
+      }
+    }
+  },
+  "notes": [
+    "All three policies evaluated on the identical full test split (n=1024)."
+  ]
+}

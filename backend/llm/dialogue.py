@@ -23,6 +23,7 @@ from backend.llm.persona.memory import MemoryStream
 from backend.llm.persona.models import NPC
 
 if TYPE_CHECKING:
+    from backend.behavior.dialogue_guard import DialogueGuard, GuardResult
     from backend.tts.xtts_client import XTTSClient
 
 
@@ -86,13 +87,12 @@ class DialogueHandler:
         dynamic_updates: bool = True,
         prompt_style: str = "layered",
         system_prompt_text: Optional[str] = None,
-        policy_mode: str = "llm_only",
-        behavior_policy=None,
-        trained_policy_checkpoint: Optional[str] = None,
+        guard: Optional["DialogueGuard"] = None,
     ):
         # use_memory / dynamic_updates / prompt_style / system_prompt_text are
         # evaluation-condition switches (baselines and ablations); defaults
-        # reproduce the full system.
+        # reproduce the full system. guard is the optional rule-based dialogue
+        # guard (secret/injection protection); None keeps legacy behavior.
         if prompt_style not in _PROMPT_STYLES:
             raise ValueError(
                 f"Unknown prompt_style '{prompt_style}', expected one of {_PROMPT_STYLES}"
@@ -108,17 +108,8 @@ class DialogueHandler:
         self.dynamic_updates = dynamic_updates
         self.prompt_style = prompt_style
         self.system_prompt_text = system_prompt_text
-        self.policy_mode = policy_mode
-        self.behavior_policy = behavior_policy
-        self.trained_policy_checkpoint = (
-            trained_policy_checkpoint
-            or os.path.join(DATA_DIR, "behavior_policy", "checkpoints", "stateful_rpg_a40")
-        )
-        self.state_encoder = StateEncoder()
-        self._rule_policy = RuleBasedPolicy()
-        self._trained_policy = None
-        self.last_policy_action: Optional[PolicyAction] = None
-        self.last_state_features: Optional[StateFeatures] = None
+        self.guard = guard
+        self.last_guard: Optional["GuardResult"] = None
         self.memory = MemoryStream.from_list(npc.memory_log)
         self.history: List[Dict[str, str]] = []   # [{role, content}, ...]
         self._turn_count = 0
@@ -292,15 +283,31 @@ Policy rules:
         )
         system = self._build_system_prompt(player_input, policy_action=action, memories=memories)
 
-        self.history.append({"role": "user", "content": player_input})
+        # Rule-based guard: the decision to refuse (secret probing, prompt
+        # injection) is made here; the LLM only phrases it in character.
+        # Injection text is replaced before it reaches the LLM or the history,
+        # so there is nothing for the model to obey.
+        self.last_guard = self.guard.assess(player_input, self.npc) if self.guard else None
+        llm_input = player_input
+        if self.last_guard is not None:
+            system = system + "\n" + self.last_guard.instruction
+            if self.last_guard.sanitized_input:
+                llm_input = self.last_guard.sanitized_input
+
+        self.history.append({"role": "user", "content": llm_input})
         self.history = self.history[-HISTORY_MAX_MESSAGES:]
         raw_reply = self.llm.chat(self.history, system=system)
         reply, policy_memory = self._coerce_policy_reply(raw_reply, action)
         self.history.append({"role": "assistant", "content": reply})
         self.history = self.history[-HISTORY_MAX_MESSAGES:]
 
-        # Update dynamic layer: memory stream, short-term mirror, persisted log
-        self.memory.add(f"Player said: {player_input}", importance=0.4)
+        # Update dynamic layer: memory stream, short-term mirror, persisted log.
+        # Injection attempts are not memorized — they would poison retrieval.
+        injection_blocked = (
+            self.last_guard is not None and self.last_guard.reason == "prompt_injection"
+        )
+        if not injection_blocked:
+            self.memory.add(f"Player said: {player_input}", importance=0.4)
         self.memory.add(f"I ({self.npc.core.name}) replied: {reply}", importance=0.5)
         if policy_memory:
             self.memory.add(policy_memory, importance=0.6)

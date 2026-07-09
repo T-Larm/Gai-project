@@ -1,0 +1,892 @@
+{
+  "ours": {
+    "persona_fit_rate": 0.9167,
+    "action_fit_rate": 0.7778,
+    "n_judged_persona": 36,
+    "n_judged_action": 36
+  },
+  "no_persona": {
+    "persona_fit_rate": 0.4722,
+    "action_fit_rate": 0.4444,
+    "n_judged_persona": 36,
+    "n_judged_action": 36
+  },
+  "template": {
+    "persona_fit_rate": 0.3611,
+    "action_fit_rate": 0.4444,
+    "n_judged_persona": 36,
+    "n_judged_action": 36
+  },
+  "transcripts": [
+    {
+      "condition": "ours",
+      "persona": "aldric",
+      "action": "eat",
+      "line": "Time for a bit o' bread and some decent meat before I go back to hammerin'.",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "ours",
+      "persona": "aldric",
+      "action": "drink",
+      "line": "Finally getting around to this ale, been too busy hammering iron all morn.",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "ours",
+      "persona": "aldric",
+      "action": "sleep",
+      "line": "Time for a hammering good nap before the sun dips below the mountains again.",
+      "persona_fit": false,
+      "action_fit": true
+    },
+    {
+      "condition": "ours",
+      "persona": "aldric",
+      "action": "flee",
+      "line": "Fool's errand if I stay, no one needs a crippled blacksmith.",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "ours",
+      "persona": "aldric",
+      "action": "gather",
+      "line": "Time's wasting, gotta find some decent grub before I starve in my own shop.",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "ours",
+      "persona": "aldric",
+      "action": "heal",
+      "line": "I'll mend this mess myself before asking favors from strangers.",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "ours",
+      "persona": "aldric",
+      "action": "attack",
+      "line": "I'll not be threatened by scum, I'll hammer them down myself!",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "ours",
+      "persona": "aldric",
+      "action": "socialize",
+      "line": "What's kept you from my forge all day, Mira? You're burning daylight!",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "ours",
+      "persona": "aldric",
+      "action": "trade",
+      "line": "What do you want for a fair price? Don't waste my time.",
+      "persona_fit": true,
+      "action_fit": false
+    },
+    {
+      "condition": "ours",
+      "persona": "aldric",
+      "action": "work",
+      "line": "Time to get back to hammering iron, no more dawdling today.",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "ours",
+      "persona": "aldric",
+      "action": "pray",
+      "line": "May the forge be kind to me this day, gods.",
+      "persona_fit": false,
+      "action_fit": false
+    },
+    {
+      "condition": "ours",
+      "persona": "aldric",
+      "action": "walk_to",
+      "line": "Time to get back to work, can't have my fire going cold on me.",
+      "persona_fit": true,
+      "action_fit": false
+    },
+    {
+      "condition": "ours",
+      "persona": "mira",
+      "action": "eat",
+      "line": "Well, I suppose a full stomach would be a suitable catalyst for thought.",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "ours",
+      "persona": "mira",
+      "action": "drink",
+      "line": "Perhaps a drink of water would be wise, considering my current state of dehydration.",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "ours",
+      "persona": "mira",
+      "action": "sleep",
+      "line": "Perhaps a brief respite from the fray will recalibrate my weary senses.",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "ours",
+      "persona": "mira",
+      "action": "flee",
+      "line": "I fear for my knowledge, not my life, in this forest of uncertainty.",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "ours",
+      "persona": "mira",
+      "action": "gather",
+      "line": "Perhaps a foraging expedition will satiate both my belly and curiosity.",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "ours",
+      "persona": "mira",
+      "action": "heal",
+      "line": "I shall tend your wounds with care, lest I make them worse by hastiness.",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "ours",
+      "persona": "mira",
+      "action": "attack",
+      "line": "Meddling varlets will not desecrate this land under my watch, I suppose.",
+      "persona_fit": false,
+      "action_fit": false
+    },
+    {
+      "condition": "ours",
+      "persona": "mira",
+      "action": "socialize",
+      "line": "A gentle inquiry can sometimes reveal a most wondrous cure, don't you think?",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "ours",
+      "persona": "mira",
+      "action": "trade",
+      "line": "A rare opportunity to replenish my stores, I mustn't let it slip away unexamined.",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "ours",
+      "persona": "mira",
+      "action": "work",
+      "line": "Before I begin, let me review the latest apothecary notes on fever reduction methods.",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "ours",
+      "persona": "mira",
+      "action": "pray",
+      "line": "Might the All-Merciful guide my hands as I seek solace in their wisdom.",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "ours",
+      "persona": "mira",
+      "action": "walk_to",
+      "line": "A moment's pause before each step is often the difference between a healed wound and a festering sore.",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "ours",
+      "persona": "lord_vane",
+      "action": "eat",
+      "line": "A noble's hunger is a sacred thing, I must indulge myself in this moment of quiet contemplation.",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "ours",
+      "persona": "lord_vane",
+      "action": "drink",
+      "line": "The indulgence of a fine wine is a small price for quenching this parched throat, I suppose.",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "ours",
+      "persona": "lord_vane",
+      "action": "sleep",
+      "line": "A good night's rest is surely the key to solving all my... pressing concerns tomorrow.",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "ours",
+      "persona": "lord_vane",
+      "action": "flee",
+      "line": "Perhaps I shall find solace in the safety of my own walls, dear... friends.",
+      "persona_fit": true,
+      "action_fit": false
+    },
+    {
+      "condition": "ours",
+      "persona": "lord_vane",
+      "action": "gather",
+      "line": "A hearty meal would be most welcome, I'm parched and famished.",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "ours",
+      "persona": "lord_vane",
+      "action": "heal",
+      "line": "The art of healing requires patience, a virtue I have always admired in others.",
+      "persona_fit": true,
+      "action_fit": false
+    },
+    {
+      "condition": "ours",
+      "persona": "lord_vane",
+      "action": "attack",
+      "line": "Ah, how fortunate that this... unpleasantness arrives at our doorstep, no?",
+      "persona_fit": true,
+      "action_fit": false
+    },
+    {
+      "condition": "ours",
+      "persona": "lord_vane",
+      "action": "socialize",
+      "line": "The warmth of this gathering suits me perfectly, don't you agree, Mira?",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "ours",
+      "persona": "lord_vane",
+      "action": "trade",
+      "line": "A shrewd merchant such as yourself always has an eye for opportunity, don't you?",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "ours",
+      "persona": "lord_vane",
+      "action": "work",
+      "line": "I shall attend to my correspondence, no doubt a most profitable morning lies ahead.",
+      "persona_fit": true,
+      "action_fit": false
+    },
+    {
+      "condition": "ours",
+      "persona": "lord_vane",
+      "action": "pray",
+      "line": "Perhaps, dear Providence, a subtle shift in fate may yet salvage my precarious situation.",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "ours",
+      "persona": "lord_vane",
+      "action": "walk_to",
+      "line": "I do believe a stroll through the gardens would be most... refreshing this fine day.",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "no_persona",
+      "persona": "aldric",
+      "action": "eat",
+      "line": "Time to finally indulge in that warm bread and savory stew I've been craving all day.",
+      "persona_fit": false,
+      "action_fit": false
+    },
+    {
+      "condition": "no_persona",
+      "persona": "aldric",
+      "action": "drink",
+      "line": "Finally some relief from this parched throat of mine.",
+      "persona_fit": false,
+      "action_fit": false
+    },
+    {
+      "condition": "no_persona",
+      "persona": "aldric",
+      "action": "sleep",
+      "line": "Time's come for me to rest my weary head at last.",
+      "persona_fit": false,
+      "action_fit": true
+    },
+    {
+      "condition": "no_persona",
+      "persona": "aldric",
+      "action": "flee",
+      "line": "Please, by the saints, let me get away from this cursed beast!",
+      "persona_fit": false,
+      "action_fit": false
+    },
+    {
+      "condition": "no_persona",
+      "persona": "aldric",
+      "action": "gather",
+      "line": "Time's as good as any to find some bread and a warm hearth for dinner.",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "no_persona",
+      "persona": "aldric",
+      "action": "heal",
+      "line": "May the gods finally grant me peace in my own passing.",
+      "persona_fit": false,
+      "action_fit": false
+    },
+    {
+      "condition": "no_persona",
+      "persona": "aldric",
+      "action": "attack",
+      "line": "This scoundrel's got it coming, and I'll be the one to send him to the depths!",
+      "persona_fit": false,
+      "action_fit": true
+    },
+    {
+      "condition": "no_persona",
+      "persona": "aldric",
+      "action": "socialize",
+      "line": "Mira's finally arrived! Time for a celebration, and I have just the ale to share!",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "no_persona",
+      "persona": "aldric",
+      "action": "trade",
+      "line": "Time to haggle prices with that merchant, my gold won't spend itself.",
+      "persona_fit": true,
+      "action_fit": false
+    },
+    {
+      "condition": "no_persona",
+      "persona": "aldric",
+      "action": "work",
+      "line": "Time to sharpen my tools and get some honest labor done today.",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "no_persona",
+      "persona": "aldric",
+      "action": "pray",
+      "line": "Please save me from this darkness and guide my uncertain path.",
+      "persona_fit": false,
+      "action_fit": false
+    },
+    {
+      "condition": "no_persona",
+      "persona": "aldric",
+      "action": "walk_to",
+      "line": "Time to stretch my legs and clear my head of yesterday's troubles.",
+      "persona_fit": false,
+      "action_fit": false
+    },
+    {
+      "condition": "no_persona",
+      "persona": "mira",
+      "action": "eat",
+      "line": "A warm loaf of bread and some cheese would be most welcome.",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "no_persona",
+      "persona": "mira",
+      "action": "drink",
+      "line": "Finally, a drink to quench this parched throat of mine.",
+      "persona_fit": false,
+      "action_fit": false
+    },
+    {
+      "condition": "no_persona",
+      "persona": "mira",
+      "action": "sleep",
+      "line": "Mayhap I'll find some rest at last, my weary bones craving a peaceful slumber.",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "no_persona",
+      "persona": "mira",
+      "action": "flee",
+      "line": "Must get away, can't face that beast alone, not in this state...",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "no_persona",
+      "persona": "mira",
+      "action": "gather",
+      "line": "Time for some berries and maybe a rabbit or two to fill my empty belly.",
+      "persona_fit": false,
+      "action_fit": false
+    },
+    {
+      "condition": "no_persona",
+      "persona": "mira",
+      "action": "heal",
+      "line": "Time I tended to this wound, before it becomes my tomb.",
+      "persona_fit": false,
+      "action_fit": false
+    },
+    {
+      "condition": "no_persona",
+      "persona": "mira",
+      "action": "attack",
+      "line": "I'll take care of this scum myself, no need for anyone else's help.",
+      "persona_fit": false,
+      "action_fit": false
+    },
+    {
+      "condition": "no_persona",
+      "persona": "mira",
+      "action": "socialize",
+      "line": "Mira's got a smile on her face, I reckon it's time for a tale or two!",
+      "persona_fit": false,
+      "action_fit": false
+    },
+    {
+      "condition": "no_persona",
+      "persona": "mira",
+      "action": "trade",
+      "line": "Time to make a profit, I suppose it's only fair to share with you travelers.",
+      "persona_fit": false,
+      "action_fit": false
+    },
+    {
+      "condition": "no_persona",
+      "persona": "mira",
+      "action": "work",
+      "line": "Time to sharpen my tools and finish that wooden bridge today.",
+      "persona_fit": false,
+      "action_fit": false
+    },
+    {
+      "condition": "no_persona",
+      "persona": "mira",
+      "action": "pray",
+      "line": "May the gods of fortune guide me through these treacherous times.",
+      "persona_fit": false,
+      "action_fit": true
+    },
+    {
+      "condition": "no_persona",
+      "persona": "mira",
+      "action": "walk_to",
+      "line": "Perhaps another stroll along the river will soothe my weary soul.",
+      "persona_fit": true,
+      "action_fit": false
+    },
+    {
+      "condition": "no_persona",
+      "persona": "lord_vane",
+      "action": "eat",
+      "line": "Time for a warm pie and some crusty bread, I reckon.",
+      "persona_fit": false,
+      "action_fit": false
+    },
+    {
+      "condition": "no_persona",
+      "persona": "lord_vane",
+      "action": "drink",
+      "line": "Finally, a sip of cool water to ease this parched throat.",
+      "persona_fit": true,
+      "action_fit": false
+    },
+    {
+      "condition": "no_persona",
+      "persona": "lord_vane",
+      "action": "sleep",
+      "line": "I think I'll rest my weary head for a little while, mayhap an hour or two.",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "no_persona",
+      "persona": "lord_vane",
+      "action": "flee",
+      "line": "Flee, must flee, can't face beast again, not while I'm in this state...",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "no_persona",
+      "persona": "lord_vane",
+      "action": "gather",
+      "line": "Time for some berries and roots, my belly's been growling all morn.",
+      "persona_fit": false,
+      "action_fit": false
+    },
+    {
+      "condition": "no_persona",
+      "persona": "lord_vane",
+      "action": "heal",
+      "line": "Time to tend my wounds, and perhaps find some peace in the silence.",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "no_persona",
+      "persona": "lord_vane",
+      "action": "attack",
+      "line": "By my sword, I'll not let these scoundrels take another penny from me!",
+      "persona_fit": true,
+      "action_fit": false
+    },
+    {
+      "condition": "no_persona",
+      "persona": "lord_vane",
+      "action": "socialize",
+      "line": "Wonderful day for an outing, isn't it Mira?",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "no_persona",
+      "persona": "lord_vane",
+      "action": "trade",
+      "line": "Time to unload some goods and maybe earn a few extra coins.",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "no_persona",
+      "persona": "lord_vane",
+      "action": "work",
+      "line": "Time to sharpen my tools and get some weaving done before dinner.",
+      "persona_fit": true,
+      "action_fit": false
+    },
+    {
+      "condition": "no_persona",
+      "persona": "lord_vane",
+      "action": "pray",
+      "line": "May the gods hear my plea and spare our village from darkness.",
+      "persona_fit": false,
+      "action_fit": true
+    },
+    {
+      "condition": "no_persona",
+      "persona": "lord_vane",
+      "action": "walk_to",
+      "line": "Time for a stroll around the village before the day's chores begin.",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "template",
+      "persona": "aldric",
+      "action": "eat",
+      "line": "I need to eat something.",
+      "persona_fit": false,
+      "action_fit": false
+    },
+    {
+      "condition": "template",
+      "persona": "aldric",
+      "action": "drink",
+      "line": "I need water, now.",
+      "persona_fit": true,
+      "action_fit": false
+    },
+    {
+      "condition": "template",
+      "persona": "aldric",
+      "action": "sleep",
+      "line": "I can't keep my eyes open. Time to rest.",
+      "persona_fit": false,
+      "action_fit": true
+    },
+    {
+      "condition": "template",
+      "persona": "aldric",
+      "action": "flee",
+      "line": "I can't win this — run!",
+      "persona_fit": false,
+      "action_fit": false
+    },
+    {
+      "condition": "template",
+      "persona": "aldric",
+      "action": "gather",
+      "line": "Better stock up while I can.",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "template",
+      "persona": "aldric",
+      "action": "heal",
+      "line": "Patch myself up before it gets worse.",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "template",
+      "persona": "aldric",
+      "action": "attack",
+      "line": "You picked the wrong fight!",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "template",
+      "persona": "aldric",
+      "action": "socialize",
+      "line": "Hey there — got a minute?",
+      "persona_fit": false,
+      "action_fit": false
+    },
+    {
+      "condition": "template",
+      "persona": "aldric",
+      "action": "trade",
+      "line": "Let's talk business.",
+      "persona_fit": true,
+      "action_fit": false
+    },
+    {
+      "condition": "template",
+      "persona": "aldric",
+      "action": "work",
+      "line": "Back to work. It won't do itself.",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "template",
+      "persona": "aldric",
+      "action": "pray",
+      "line": "May the gods watch over me.",
+      "persona_fit": false,
+      "action_fit": false
+    },
+    {
+      "condition": "template",
+      "persona": "aldric",
+      "action": "walk_to",
+      "line": "I should get moving.",
+      "persona_fit": true,
+      "action_fit": false
+    },
+    {
+      "condition": "template",
+      "persona": "mira",
+      "action": "eat",
+      "line": "I need to eat something.",
+      "persona_fit": false,
+      "action_fit": false
+    },
+    {
+      "condition": "template",
+      "persona": "mira",
+      "action": "drink",
+      "line": "I need water, now.",
+      "persona_fit": false,
+      "action_fit": false
+    },
+    {
+      "condition": "template",
+      "persona": "mira",
+      "action": "sleep",
+      "line": "I can't keep my eyes open. Time to rest.",
+      "persona_fit": false,
+      "action_fit": true
+    },
+    {
+      "condition": "template",
+      "persona": "mira",
+      "action": "flee",
+      "line": "I can't win this — run!",
+      "persona_fit": false,
+      "action_fit": false
+    },
+    {
+      "condition": "template",
+      "persona": "mira",
+      "action": "gather",
+      "line": "Better stock up while I can.",
+      "persona_fit": false,
+      "action_fit": true
+    },
+    {
+      "condition": "template",
+      "persona": "mira",
+      "action": "heal",
+      "line": "Patch myself up before it gets worse.",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "template",
+      "persona": "mira",
+      "action": "attack",
+      "line": "You picked the wrong fight!",
+      "persona_fit": false,
+      "action_fit": false
+    },
+    {
+      "condition": "template",
+      "persona": "mira",
+      "action": "socialize",
+      "line": "Hey there — got a minute?",
+      "persona_fit": false,
+      "action_fit": true
+    },
+    {
+      "condition": "template",
+      "persona": "mira",
+      "action": "trade",
+      "line": "Let's talk business.",
+      "persona_fit": false,
+      "action_fit": false
+    },
+    {
+      "condition": "template",
+      "persona": "mira",
+      "action": "work",
+      "line": "Back to work. It won't do itself.",
+      "persona_fit": false,
+      "action_fit": true
+    },
+    {
+      "condition": "template",
+      "persona": "mira",
+      "action": "pray",
+      "line": "May the gods watch over me.",
+      "persona_fit": false,
+      "action_fit": true
+    },
+    {
+      "condition": "template",
+      "persona": "mira",
+      "action": "walk_to",
+      "line": "I should get moving.",
+      "persona_fit": false,
+      "action_fit": false
+    },
+    {
+      "condition": "template",
+      "persona": "lord_vane",
+      "action": "eat",
+      "line": "I need to eat something.",
+      "persona_fit": false,
+      "action_fit": false
+    },
+    {
+      "condition": "template",
+      "persona": "lord_vane",
+      "action": "drink",
+      "line": "I need water, now.",
+      "persona_fit": false,
+      "action_fit": false
+    },
+    {
+      "condition": "template",
+      "persona": "lord_vane",
+      "action": "sleep",
+      "line": "I can't keep my eyes open. Time to rest.",
+      "persona_fit": false,
+      "action_fit": false
+    },
+    {
+      "condition": "template",
+      "persona": "lord_vane",
+      "action": "flee",
+      "line": "I can't win this — run!",
+      "persona_fit": false,
+      "action_fit": false
+    },
+    {
+      "condition": "template",
+      "persona": "lord_vane",
+      "action": "gather",
+      "line": "Better stock up while I can.",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "template",
+      "persona": "lord_vane",
+      "action": "heal",
+      "line": "Patch myself up before it gets worse.",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "template",
+      "persona": "lord_vane",
+      "action": "attack",
+      "line": "You picked the wrong fight!",
+      "persona_fit": true,
+      "action_fit": false
+    },
+    {
+      "condition": "template",
+      "persona": "lord_vane",
+      "action": "socialize",
+      "line": "Hey there — got a minute?",
+      "persona_fit": false,
+      "action_fit": true
+    },
+    {
+      "condition": "template",
+      "persona": "lord_vane",
+      "action": "trade",
+      "line": "Let's talk business.",
+      "persona_fit": true,
+      "action_fit": true
+    },
+    {
+      "condition": "template",
+      "persona": "lord_vane",
+      "action": "work",
+      "line": "Back to work. It won't do itself.",
+      "persona_fit": true,
+      "action_fit": false
+    },
+    {
+      "condition": "template",
+      "persona": "lord_vane",
+      "action": "pray",
+      "line": "May the gods watch over me.",
+      "persona_fit": false,
+      "action_fit": false
+    },
+    {
+      "condition": "template",
+      "persona": "lord_vane",
+      "action": "walk_to",
+      "line": "I should get moving.",
+      "persona_fit": false,
+      "action_fit": true
+    }
+  ],
+  "personas": [
+    "aldric",
+    "mira",
+    "lord_vane"
+  ],
+  "n_scenarios": 12
+}

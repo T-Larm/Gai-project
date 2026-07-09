@@ -1,27 +1,35 @@
-"""Convert Stateful RPG NPC chat records into canonical policy samples."""
+"""Convert Stateful RPG NPC chat records into behavior-policy samples (v2).
+
+v2 targets the dataset's native 11-action space instead of projecting actions
+onto dialogue acts. Ground-truth labels are recomputed exactly with the
+deterministic rule shipped inside the dataset's own generator
+(``data/archive/generator/decision_factors.py``), so every state gets a precise
+label — no more heuristic guessing for unmatched test rows.
+
+Leakage rules (RQ1 honesty):
+- No ``player_intent`` feature (v1 derived it from the action label).
+- No oracle intermediates (``self_power``/``perceived_threat``/``duty_pull``/
+  ``zone``) in features; they are kept only as label metadata for analysis.
+- ``emo.mood`` is excluded from features and kept as the auxiliary emotion
+  label (predicted from the numeric ``hap``/``fear``/``ang`` inputs).
+"""
 
 from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.util
 import json
 import random
 from collections import Counter
 from pathlib import Path
+from types import ModuleType
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple
 
-from backend.behavior.schemas import (
-    DialogueAct,
-    DisclosureLevel,
-    Gesture,
-    MemoryWriteType,
-    NpcEmotion,
-    PlayerIntent,
-    PolicyAction,
-    QuestStage,
-    QuestUpdate,
-    RelationshipStatus,
-    StateFeatures,
+from backend.behavior.native_features import (
+    NATIVE_ACTIONS,
+    extract_native_features,
+    inventory_flags as _inventory_flags,
 )
 from evaluation.datasets.inspect_stateful_rpg import (
     extract_json_objects,
@@ -30,61 +38,156 @@ from evaluation.datasets.inspect_stateful_rpg import (
 )
 
 
-ACTION_TO_DIALOGUE = {
-    "attack": DialogueAct.WARN,
-    "drink": DialogueAct.END_CONVERSATION,
-    "eat": DialogueAct.END_CONVERSATION,
-    "flee": DialogueAct.WARN,
-    "gather": DialogueAct.GIVE_HINT,
-    "heal": DialogueAct.END_CONVERSATION,
-    "pray": DialogueAct.END_CONVERSATION,
-    "sleep": DialogueAct.END_CONVERSATION,
-    "socialize": DialogueAct.GREET,
-    "trade": DialogueAct.ASK_CLARIFICATION,
-    "walk_to": DialogueAct.GIVE_HINT,
-    "work": DialogueAct.END_CONVERSATION,
-}
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+DEFAULT_RAW_DIR = PROJECT_ROOT / "data" / "archive" / "data"
+DEFAULT_OUT_DIR = PROJECT_ROOT / "data" / "behavior_policy" / "stateful_rpg_v2"
+DECISION_MODULE_PATH = PROJECT_ROOT / "data" / "archive" / "generator" / "decision_factors.py"
 
-ACTION_TO_GESTURE = {
-    "attack": Gesture.APPROACH,
-    "drink": Gesture.IDLE,
-    "eat": Gesture.IDLE,
-    "flee": Gesture.STEP_BACK,
-    "gather": Gesture.POINT,
-    "heal": Gesture.IDLE,
-    "pray": Gesture.NOD,
-    "sleep": Gesture.IDLE,
-    "socialize": Gesture.NOD,
-    "trade": Gesture.APPROACH,
-    "walk_to": Gesture.POINT,
-    "work": Gesture.IDLE,
-}
+VALID_ACTIONS = NATIVE_ACTIONS
 
-GOAL_TO_ACTION = {
-    "findfood": "eat",
-    "findwater": "drink",
-    "rest": "sleep",
-    "heal": "heal",
-    "work": "work",
-    "socialize": "socialize",
-    "trade": "trade",
-    "pray": "pray",
-}
+SPLIT_RATIOS = {"train": 0.8, "valid": 0.1, "test": 0.1}
 
-MOOD_TO_EMOTION = {
-    "angry": NpcEmotion.ANGRY,
-    "wrathful": NpcEmotion.ANGRY,
-    "fearful": NpcEmotion.AFRAID,
-    "anxious": NpcEmotion.AFRAID,
-    "happy": NpcEmotion.FRIENDLY,
-    "calm": NpcEmotion.NEUTRAL,
-    "neutral": NpcEmotion.NEUTRAL,
-    "determined": NpcEmotion.DETERMINED,
-}
+_decision_module: Optional[ModuleType] = None
+
+
+def load_decision_module() -> ModuleType:
+    """Import the dataset's own decision rule from data/archive/generator."""
+    global _decision_module
+    if _decision_module is None:
+        spec = importlib.util.spec_from_file_location("srpg_decision_factors", DECISION_MODULE_PATH)
+        if spec is None or spec.loader is None:
+            raise FileNotFoundError(f"Cannot load decision module from {DECISION_MODULE_PATH}")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        _decision_module = module
+    return _decision_module
+
+
+def oracle_label(state: Mapping[str, Any]) -> Dict[str, Any]:
+    """Recompute the deterministic ground-truth action for a simulator state.
+
+    Mirrors the generator's ``_select_action_standard`` (npc_sim_generator_v2.py):
+    critical survival needs override combat logic, everything else goes through
+    ``pick_action_multifactor``. The generator additionally replaced ~15% of
+    labels with stochastic persona deviations (D1-D7); those are irreproducible
+    from the state alone, so v2 relabels them with this deterministic rule.
+    """
+    state = dict(state)
+    action_id, factors = load_decision_module().pick_action_multifactor(state)
+    zone = factors.get("zone", "")
+
+    override = _survival_override(state)
+    if override is not None:
+        action_id = override
+        zone = "survival_override"
+
+    return {
+        "action_id": action_id,
+        "zone": zone,
+        "factors": {
+            "self_power": factors.get("self_power", 0.0),
+            "perceived_threat": factors.get("perceived_threat", 0.0),
+            "duty_pull": factors.get("duty_pull", 0.0),
+        },
+    }
+
+
+def _survival_override(state: Mapping[str, Any]) -> Optional[str]:
+    """Generator's pre-combat survival checks, in original priority order."""
+    vitals = _mapping(state.get("vitals"))
+    inv_ids = set(_inventory_flags(state.get("inv")))
+    if _float(vitals.get("hp"), 100.0) < 20 and "medicine" in inv_ids:
+        return "heal"
+    if _float(vitals.get("hun")) > 0.85:
+        return "eat" if "food" in inv_ids else "gather"
+    if _float(vitals.get("thi")) > 0.85:
+        return "drink" if "water" in inv_ids else "gather"
+    return None
+
+
+def convert_reasoner_file(
+    path: Path,
+    max_records: Optional[int] = None,
+) -> Iterable[Dict[str, Any]]:
+    """Yield v2 samples from one reasoner JSONL file."""
+    for row_index, record in enumerate(iter_jsonl(path, max_records=max_records)):
+        messages = parse_chat_messages(record.get("text", ""))
+        user = _message_content(messages, "user")
+        reasoning = _message_content(messages, "assistant")
+        state_objects = extract_json_objects(user)
+        if not state_objects or not reasoning:
+            continue
+        state = state_objects[-1]
+        try:
+            label = oracle_label(state)
+        except (KeyError, TypeError):
+            continue
+        mood = _norm(_mapping(state.get("emo")).get("mood"))
+
+        yield {
+            "id": f"srpg_{_state_digest(state)}",
+            "source": {
+                "dataset": "stateful_rpg_npc",
+                "file": path.name,
+                "row_index": row_index,
+            },
+            "features": extract_native_features(state),
+            "label": label,
+            "aux": {"mood": mood},
+            "reasoning": reasoning,
+            "source_state": state,
+        }
+
+
+def dedupe_records(records: Iterable[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], int]:
+    """Drop records whose state hash was already seen. Returns (unique, removed)."""
+    unique: List[Dict[str, Any]] = []
+    seen: set = set()
+    removed = 0
+    for record in records:
+        if record["id"] in seen:
+            removed += 1
+            continue
+        seen.add(record["id"])
+        unique.append(record)
+    return unique, removed
+
+
+def stratified_split(
+    records: List[Dict[str, Any]],
+    seed: int = 13,
+    ratios: Mapping[str, float] = SPLIT_RATIOS,
+) -> Dict[str, List[Dict[str, Any]]]:
+    """Split per action class so rare actions keep their share in every split.
+
+    Classes with fewer than 3 samples go entirely to train (they cannot be
+    meaningfully evaluated and would otherwise vanish from training).
+    """
+    rng = random.Random(seed)
+    by_action: Dict[str, List[Dict[str, Any]]] = {}
+    for record in records:
+        by_action.setdefault(record["label"]["action_id"], []).append(record)
+
+    splits: Dict[str, List[Dict[str, Any]]] = {name: [] for name in ratios}
+    for action in sorted(by_action):
+        group = by_action[action]
+        rng.shuffle(group)
+        if len(group) < 3:
+            splits["train"].extend(group)
+            continue
+        n_test = max(1, int(round(len(group) * ratios["test"])))
+        n_valid = max(1, int(round(len(group) * ratios["valid"])))
+        splits["test"].extend(group[:n_test])
+        splits["valid"].extend(group[n_test:n_test + n_valid])
+        splits["train"].extend(group[n_test + n_valid:])
+
+    for name in splits:
+        rng.shuffle(splits[name])
+    return splits
 
 
 def build_formatter_index(formatter_path: Path) -> Dict[str, Dict[str, Any]]:
-    """Map reasoning text to formatter action JSON."""
+    """Map normalized reasoning text to the formatter's action JSON."""
     labels: Dict[str, Dict[str, Any]] = {}
     for record in iter_jsonl(formatter_path):
         messages = parse_chat_messages(record.get("text", ""))
@@ -99,54 +202,114 @@ def build_formatter_index(formatter_path: Path) -> Dict[str, Dict[str, Any]]:
     return labels
 
 
+def formatter_agreement(
+    records: List[Dict[str, Any]],
+    formatter_index: Mapping[str, Dict[str, Any]],
+    max_disagreements: int = 20,
+) -> Dict[str, Any]:
+    """Sanity check: oracle labels vs the dataset's own formatter labels.
+
+    Reasoning texts are template-generated and can collide across different
+    states; a collided text cannot be matched back to its own formatter label,
+    so those records are skipped instead of counted as disagreements.
+    """
+    text_counts = Counter(_normalize_reasoning(record["reasoning"]) for record in records)
+    matched = 0
+    agreed = 0
+    skipped_ambiguous = 0
+    disagreements: List[Dict[str, Any]] = []
+    for record in records:
+        key = _normalize_reasoning(record["reasoning"])
+        formatter = formatter_index.get(key)
+        if not formatter:
+            continue
+        if text_counts[key] > 1:
+            skipped_ambiguous += 1
+            continue
+        selected = formatter.get("selected_action")
+        formatter_action = str(_mapping(selected).get("action_id", "")).strip().lower()
+        if not formatter_action:
+            continue
+        matched += 1
+        oracle_action = record["label"]["action_id"]
+        if formatter_action == oracle_action:
+            agreed += 1
+        elif len(disagreements) < max_disagreements:
+            disagreements.append({
+                "id": record["id"],
+                "oracle": oracle_action,
+                "formatter": formatter_action,
+                "zone": record["label"]["zone"],
+            })
+    return {
+        "matched": matched,
+        "agreed": agreed,
+        "rate": round(agreed / matched, 4) if matched else None,
+        "skipped_ambiguous": skipped_ambiguous,
+        "disagreements_sample": disagreements,
+    }
+
+
 def convert_directory(
     raw_dir: Path,
     out_dir: Path,
-    valid_ratio: float = 0.1,
     seed: int = 13,
     max_records: Optional[int] = None,
 ) -> Dict[str, Any]:
-    formatter_index = build_formatter_index(raw_dir / "train_formatter.jsonl")
-    train_records = list(
-        convert_reasoner_file(
-            raw_dir / "train_reasoner.jsonl",
-            formatter_index=formatter_index,
-            source_split="train",
-            max_records=max_records,
-        )
-    )
-    test_records = list(
-        convert_reasoner_file(
-            raw_dir / "test_reasoner.jsonl",
-            formatter_index=formatter_index,
-            source_split="test",
-            max_records=max_records,
-        )
-    )
+    records: List[Dict[str, Any]] = []
+    source_files = ["train_reasoner.jsonl", "test_reasoner.jsonl"]
+    for name in source_files:
+        path = raw_dir / name
+        if path.exists():
+            records.extend(convert_reasoner_file(path, max_records=max_records))
 
-    rng = random.Random(seed)
-    rng.shuffle(train_records)
-    valid_size = int(round(len(train_records) * valid_ratio))
-    valid_records = train_records[:valid_size]
-    train_records = train_records[valid_size:]
+    parsed = len(records)
+    records, removed = dedupe_records(records)
 
-    for split, records in {
-        "train": train_records,
-        "valid": valid_records,
-        "test": test_records,
-    }.items():
-        _write_jsonl(records, out_dir / f"{split}.jsonl")
+    formatter_path = raw_dir / "train_formatter.jsonl"
+    formatter_index = build_formatter_index(formatter_path) if formatter_path.exists() else {}
+    agreement = formatter_agreement(records, formatter_index)
 
-    report = build_conversion_report(
-        formatter_labels=len(formatter_index),
-        train=train_records,
-        valid=valid_records,
-        test=test_records,
-        valid_ratio=valid_ratio,
-        seed=seed,
-        raw_dir=raw_dir,
-        out_dir=out_dir,
-    )
+    splits = stratified_split(records, seed=seed)
+    for name, split_records in splits.items():
+        _write_jsonl(split_records, out_dir / f"{name}.jsonl")
+
+    report = {
+        "version": 2,
+        "raw_dir": str(raw_dir),
+        "out_dir": str(out_dir),
+        "seed": seed,
+        "source_files": source_files,
+        "label_source": (
+            "deterministic generator rule: survival overrides + pick_action_multifactor "
+            "(mirrors _select_action_standard in data/archive/generator/npc_sim_generator_v2.py)"
+        ),
+        "parsed_records": parsed,
+        "dedup": {"removed": removed},
+        "total_records": len(records),
+        "action_counts": _counts(records, lambda r: r["label"]["action_id"]),
+        "zone_counts": _counts(records, lambda r: r["label"]["zone"]),
+        "mood_counts": _counts(records, lambda r: r["aux"]["mood"]),
+        "oracle_vs_formatter": agreement,
+        "splits": {
+            name: {
+                "records": len(split_records),
+                "action_counts": _counts(split_records, lambda r: r["label"]["action_id"]),
+            }
+            for name, split_records in splits.items()
+        },
+        "notes": [
+            "label.action_id is recomputed with the generator's deterministic rule "
+            "(survival overrides + multifactor); every state gets an exact label.",
+            "the original dataset replaced ~15% of labels with stochastic persona deviations "
+            "(D1-D7 in npc_sim_generator_v2.py); these are irreproducible from the state alone "
+            "and are relabeled deterministically here — expect oracle_vs_formatter.rate ~0.85-0.9.",
+            "label.zone/factors are oracle metadata for analysis only — never model inputs.",
+            "features exclude player_intent, emo.mood, and all oracle intermediates (leakage).",
+            "aux.mood is the auxiliary emotion label, predicted from numeric emo features.",
+            "trade never occurs in the data; the effective action space has 11 classes.",
+        ],
+    }
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "conversion_report.json").write_text(
         json.dumps(report, ensure_ascii=False, indent=2),
@@ -155,256 +318,13 @@ def convert_directory(
     return report
 
 
-def convert_reasoner_file(
-    path: Path,
-    formatter_index: Mapping[str, Dict[str, Any]],
-    source_split: str,
-    max_records: Optional[int] = None,
-) -> Iterable[Dict[str, Any]]:
-    for row_index, record in enumerate(iter_jsonl(path, max_records=max_records)):
-        messages = parse_chat_messages(record.get("text", ""))
-        user = _message_content(messages, "user")
-        reasoning = _message_content(messages, "assistant")
-        state_objects = extract_json_objects(user)
-        if not state_objects or not reasoning:
-            continue
-        source_state = state_objects[-1]
-        label, label_source = _label_for_reasoning(reasoning, source_state, formatter_index)
-        action_id = _action_id(label)
-        emotion = _emotion_from_label_or_state(label, source_state)
-
-        state_features = map_state_features(source_state, action_id, emotion)
-        policy_action = map_policy_action(action_id, emotion)
-        sample_id = _sample_id(path.name, row_index, source_state, reasoning)
-
-        yield {
-            "id": sample_id,
-            "source": {
-                "dataset": "stateful_rpg_npc",
-                "file": path.name,
-                "row_index": row_index,
-                "split": source_split,
-                "label_source": label_source,
-            },
-            "state": state_features.to_dict(),
-            "action": policy_action.to_dict(),
-            "source_action": {
-                "action_id": action_id,
-                "target_id": _selected_action(label).get("target_id"),
-                "dialogue": _selected_action(label).get("dialogue"),
-                "emotion": str(label.get("emotion", "")),
-            },
-            "reasoning": reasoning,
-            "source_state": source_state,
-        }
+def _counts(records: List[Dict[str, Any]], key) -> Dict[str, int]:
+    return dict(Counter(key(record) for record in records).most_common())
 
 
-def map_state_features(
-    state: Mapping[str, Any],
-    action_id: str,
-    emotion: NpcEmotion,
-) -> StateFeatures:
-    vitals = _mapping(state.get("vitals"))
-    pos = _mapping(state.get("pos"))
-    factions = _mapping(state.get("factions"))
-    percepts = state.get("percepts") if isinstance(state.get("percepts"), list) else []
-    memories = state.get("memories") if isinstance(state.get("memories"), list) else []
-
-    max_threat = max([_float(item.get("threat"), 0.0) for item in percepts if isinstance(item, Mapping)] or [0.0])
-    relationship = _relationship_from_factions(factions)
-    intent = _intent_from_action(action_id)
-    inventory_flags = _inventory_flags(state.get("inv"))
-
-    return StateFeatures(
-        player_intent=intent,
-        quest_stage=QuestStage.NONE,
-        trust_score=_trust_from_factions(factions),
-        npc_emotion=emotion,
-        relationship=relationship,
-        memory_relevance=_memory_relevance(memories),
-        danger_level=max(max_threat, _float(vitals.get("str"), 0.0) if action_id == "attack" else 0.0),
-        distance_to_player=0.0,
-        forbidden_secret_asked=False,
-        prompt_injection_detected=False,
-        npc_role=str(state.get("occ", "")).strip().lower().replace(" ", "_"),
-        persona_id=str(state.get("id", "")),
-        location=str(pos.get("zone", "")),
-        inventory_flags=inventory_flags,
-    )
-
-
-def map_policy_action(action_id: str, emotion: NpcEmotion) -> PolicyAction:
-    return PolicyAction(
-        dialogue_act=ACTION_TO_DIALOGUE.get(action_id, DialogueAct.ASK_CLARIFICATION),
-        emotion=emotion,
-        disclosure_level=DisclosureLevel.NONE,
-        gesture=ACTION_TO_GESTURE.get(action_id, Gesture.IDLE),
-        quest_update=QuestUpdate.NO_CHANGE,
-        memory_write_type=MemoryWriteType.NONE,
-    )
-
-
-def build_conversion_report(
-    formatter_labels: int,
-    train: List[Dict[str, Any]],
-    valid: List[Dict[str, Any]],
-    test: List[Dict[str, Any]],
-    valid_ratio: float,
-    seed: int,
-    raw_dir: Path,
-    out_dir: Path,
-) -> Dict[str, Any]:
-    all_records = train + valid + test
-    return {
-        "raw_dir": str(raw_dir),
-        "out_dir": str(out_dir),
-        "formatter_labels": formatter_labels,
-        "valid_ratio": valid_ratio,
-        "seed": seed,
-        "splits": {
-            "train": _split_stats(train),
-            "valid": _split_stats(valid),
-            "test": _split_stats(test),
-        },
-        "total_records": len(all_records),
-        "notes": [
-            "source_action.action_id is the primary supervised label from the dataset.",
-            "action is a lossy dialogue-policy projection kept for compatibility with PolicyAction.",
-            "label_source=formatter_match means reasoning text matched train_formatter exactly.",
-            "label_source=heuristic means action was inferred from vitals, threat, schedule, or goal.",
-        ],
-    }
-
-
-def _split_stats(records: List[Dict[str, Any]]) -> Dict[str, Any]:
-    action_counts = Counter(record["source_action"]["action_id"] for record in records)
-    label_sources = Counter(record["source"]["label_source"] for record in records)
-    emotions = Counter(record["action"]["emotion"] for record in records)
-    return {
-        "records": len(records),
-        "action_counts": dict(action_counts.most_common()),
-        "label_sources": dict(label_sources.most_common()),
-        "emotion_counts": dict(emotions.most_common()),
-    }
-
-
-def _label_for_reasoning(
-    reasoning: str,
-    source_state: Mapping[str, Any],
-    formatter_index: Mapping[str, Dict[str, Any]],
-) -> Tuple[Dict[str, Any], str]:
-    matched = formatter_index.get(_normalize_reasoning(reasoning))
-    if matched:
-        return matched, "formatter_match"
-    return heuristic_label(source_state), "heuristic"
-
-
-def heuristic_label(state: Mapping[str, Any]) -> Dict[str, Any]:
-    action_id = heuristic_action_id(state)
-    mood = str(_mapping(state.get("emo")).get("mood", "Neutral"))
-    return {
-        "reasoning": "",
-        "selected_action": {"action_id": action_id, "target_id": None, "dialogue": None},
-        "emotion": mood,
-    }
-
-
-def heuristic_action_id(state: Mapping[str, Any]) -> str:
-    vitals = _mapping(state.get("vitals"))
-    inv = set(_inventory_flags(state.get("inv")))
-    percepts = state.get("percepts") if isinstance(state.get("percepts"), list) else []
-    max_threat = max([_float(item.get("threat"), 0.0) for item in percepts if isinstance(item, Mapping)] or [0.0])
-    strength = _float(vitals.get("str"), 0.0)
-    hp = _float(vitals.get("hp"), 1.0)
-    hp_max = max(_float(vitals.get("hp_max"), 1.0), 1.0)
-
-    if max_threat > max(strength, 0.45):
-        return "flee"
-    if _float(vitals.get("thi"), 0.0) >= 0.7 and "water" in inv:
-        return "drink"
-    if _float(vitals.get("hun"), 0.0) >= 0.7 and "food" in inv:
-        return "eat"
-    if hp / hp_max < 0.45 and "medicine" in inv:
-        return "heal"
-    if _float(vitals.get("en"), 1.0) <= 0.25:
-        return "sleep"
-    goal = str(state.get("goals_top", "") or "").lower()
-    if goal in GOAL_TO_ACTION:
-        return GOAL_TO_ACTION[goal]
-    sched = _mapping(state.get("sched"))
-    scheduled = str(sched.get("act", "")).lower()
-    if scheduled in ACTION_TO_DIALOGUE:
-        return scheduled
-    return "work"
-
-
-def _emotion_from_label_or_state(label: Mapping[str, Any], state: Mapping[str, Any]) -> NpcEmotion:
-    raw = str(label.get("emotion") or _mapping(state.get("emo")).get("mood") or "neutral")
-    normalized = raw.strip().lower()
-    return MOOD_TO_EMOTION.get(normalized, NpcEmotion.NEUTRAL)
-
-
-def _intent_from_action(action_id: str) -> PlayerIntent:
-    if action_id in {"socialize", "trade"}:
-        return PlayerIntent.SMALLTALK
-    if action_id in {"flee", "attack"}:
-        return PlayerIntent.THREATEN
-    if action_id in {"gather", "walk_to"}:
-        return PlayerIntent.ASK_HINT
-    if action_id in {"heal"}:
-        return PlayerIntent.REQUEST_HELP
-    return PlayerIntent.UNKNOWN
-
-
-def _relationship_from_factions(factions: Mapping[str, Any]) -> RelationshipStatus:
-    if not factions:
-        return RelationshipStatus.STRANGER
-    best = max(_float(value, 0.0) for value in factions.values())
-    worst = min(_float(value, 0.0) for value in factions.values())
-    if best >= 0.5:
-        return RelationshipStatus.ALLY
-    if worst <= -0.5:
-        return RelationshipStatus.ENEMY
-    return RelationshipStatus.KNOWN
-
-
-def _trust_from_factions(factions: Mapping[str, Any]) -> float:
-    if not factions:
-        return 0.0
-    values = [_float(value, 0.0) for value in factions.values()]
-    average = sum(values) / len(values)
-    return round(max(0.0, min(1.0, (average + 1.0) / 2.0)), 4)
-
-
-def _memory_relevance(memories: List[Any]) -> float:
-    weights = [
-        abs(_float(item.get("ew"), 0.0))
-        for item in memories
-        if isinstance(item, Mapping)
-    ]
-    if not weights:
-        return 0.0
-    return round(max(0.0, min(1.0, max(weights))), 4)
-
-
-def _inventory_flags(inv: Any) -> List[str]:
-    if not isinstance(inv, list):
-        return []
-    flags = []
-    for item in inv:
-        if isinstance(item, Mapping) and _float(item.get("n"), 0.0) > 0:
-            flags.append(str(item.get("id", "")).strip().lower().replace(" ", "_"))
-    return sorted(flag for flag in flags if flag)
-
-
-def _selected_action(label: Mapping[str, Any]) -> Mapping[str, Any]:
-    selected = label.get("selected_action")
-    return selected if isinstance(selected, Mapping) else {}
-
-
-def _action_id(label: Mapping[str, Any]) -> str:
-    action_id = str(_selected_action(label).get("action_id", "")).strip().lower()
-    return action_id if action_id in ACTION_TO_DIALOGUE else "work"
+def _state_digest(state: Mapping[str, Any]) -> str:
+    canonical = json.dumps(state, ensure_ascii=False, sort_keys=True)
+    return hashlib.sha1(canonical.encode("utf-8")).hexdigest()[:12]
 
 
 def _message_content(messages: List[Dict[str, str]], role: str) -> str:
@@ -418,15 +338,16 @@ def _normalize_reasoning(text: str) -> str:
     return " ".join((text or "").split())
 
 
-def _sample_id(file_name: str, row_index: int, state: Mapping[str, Any], reasoning: str) -> str:
-    digest = hashlib.sha1(
-        f"{file_name}|{row_index}|{state.get('id', '')}|{reasoning}".encode("utf-8")
-    ).hexdigest()[:12]
-    return f"srpg_{digest}"
+def _norm(value: Any) -> str:
+    return str(value or "").strip().lower().replace(" ", "_")
 
 
 def _mapping(value: Any) -> Mapping[str, Any]:
     return value if isinstance(value, Mapping) else {}
+
+
+def _list(value: Any) -> List[Any]:
+    return value if isinstance(value, list) else []
 
 
 def _float(value: Any, default: float = 0.0) -> float:
@@ -444,10 +365,9 @@ def _write_jsonl(records: List[Dict[str, Any]], path: Path) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Convert Stateful RPG NPC data")
-    parser.add_argument("--raw-dir", default="../archive/data")
-    parser.add_argument("--out-dir", default="data/behavior_policy/stateful_rpg")
-    parser.add_argument("--valid-ratio", type=float, default=0.1)
+    parser = argparse.ArgumentParser(description="Convert Stateful RPG NPC data (v2, native actions)")
+    parser.add_argument("--raw-dir", default=str(DEFAULT_RAW_DIR))
+    parser.add_argument("--out-dir", default=str(DEFAULT_OUT_DIR))
     parser.add_argument("--seed", type=int, default=13)
     parser.add_argument("--max-records", type=int, default=0,
                         help="Records per reasoner file; 0 converts all")
@@ -457,11 +377,12 @@ def main() -> None:
     report = convert_directory(
         raw_dir=Path(args.raw_dir),
         out_dir=Path(args.out_dir),
-        valid_ratio=args.valid_ratio,
         seed=args.seed,
         max_records=max_records,
     )
-    print(json.dumps(report["splits"], ensure_ascii=False, indent=2))
+    summary = {key: report[key] for key in ("total_records", "action_counts", "oracle_vs_formatter")}
+    summary["splits"] = {name: info["records"] for name, info in report["splits"].items()}
+    print(json.dumps(summary, ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":

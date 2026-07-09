@@ -1,0 +1,239 @@
+{
+  "data_dir": "data/behavior_policy/stateful_rpg_v2",
+  "split": "test",
+  "n": 200,
+  "heuristic": {
+    "n": 200,
+    "accuracy": 0.5,
+    "macro_f1": 0.3959,
+    "per_class_f1": {
+      "attack": 0.1333,
+      "drink": 0.7273,
+      "eat": 0.7778,
+      "flee": 0.7273,
+      "gather": 0.0,
+      "heal": 0.0,
+      "sleep": 0.6667,
+      "socialize": 0.2353,
+      "walk_to": 0.4561,
+      "work": 0.2353
+    },
+    "confusion": {
+      "gather": {
+        "attack": 6,
+        "walk_to": 6,
+        "socialize": 7,
+        "heal": 1,
+        "flee": 13,
+        "sleep": 5,
+        "drink": 3,
+        "work": 5,
+        "eat": 1
+      },
+      "eat": {
+        "flee": 4,
+        "eat": 21,
+        "drink": 5
+      },
+      "flee": {
+        "flee": 36,
+        "attack": 3
+      },
+      "drink": {
+        "drink": 16,
+        "attack": 1,
+        "flee": 3
+      },
+      "walk_to": {
+        "socialize": 15,
+        "work": 5,
+        "heal": 5,
+        "walk_to": 13
+      },
+      "attack": {
+        "attack": 1,
+        "flee": 3
+      },
+      "heal": {
+        "flee": 1
+      },
+      "sleep": {
+        "sleep": 7,
+        "heal": 2
+      },
+      "socialize": {
+        "socialize": 4,
+        "heal": 3
+      },
+      "work": {
+        "work": 2,
+        "socialize": 1,
+        "eat": 2
+      }
+    }
+  },
+  "trained": {
+    "n": 200,
+    "accuracy": 0.895,
+    "macro_f1": 0.7619,
+    "per_class_f1": {
+      "attack": 0.6667,
+      "drink": 0.8718,
+      "eat": 0.9667,
+      "flee": 0.9211,
+      "gather": 0.8824,
+      "heal": 0.0,
+      "sleep": 0.8571,
+      "socialize": 0.8571,
+      "walk_to": 0.9296,
+      "work": 0.6667
+    },
+    "confusion": {
+      "gather": {
+        "gather": 45,
+        "flee": 2
+      },
+      "eat": {
+        "eat": 29,
+        "work": 1
+      },
+      "flee": {
+        "flee": 35,
+        "drink": 1,
+        "gather": 3
+      },
+      "drink": {
+        "drink": 17,
+        "gather": 3
+      },
+      "walk_to": {
+        "walk_to": 33,
+        "socialize": 1,
+        "gather": 1,
+        "sleep": 3
+      },
+      "attack": {
+        "attack": 2,
+        "gather": 2
+      },
+      "heal": {
+        "gather": 1
+      },
+      "sleep": {
+        "sleep": 9
+      },
+      "socialize": {
+        "socialize": 6,
+        "heal": 1
+      },
+      "work": {
+        "work": 3,
+        "drink": 1,
+        "eat": 1
+      }
+    }
+  },
+  "llm": {
+    "n": 200,
+    "accuracy": 0.15,
+    "macro_f1": 0.1245,
+    "per_class_f1": {
+      "attack": 0.0625,
+      "drink": 0.0,
+      "eat": 0.2174,
+      "flee": 0.3951,
+      "gather": 0.0417,
+      "heal": 0.0,
+      "sleep": 0.1818,
+      "socialize": 0.1667,
+      "walk_to": 0.1,
+      "work": 0.08
+    },
+    "confusion": {
+      "gather": {
+        "flee": 10,
+        "drink": 3,
+        "eat": 3,
+        "socialize": 4,
+        "work": 5,
+        "pray": 9,
+        "attack": 8,
+        "walk_to": 3,
+        "gather": 1,
+        "trade": 1
+      },
+      "eat": {
+        "pray": 3,
+        "eat": 5,
+        "socialize": 3,
+        "flee": 5,
+        "work": 3,
+        "attack": 5,
+        "sleep": 1,
+        "drink": 3,
+        "walk_to": 2
+      },
+      "flee": {
+        "flee": 16,
+        "attack": 10,
+        "pray": 7,
+        "walk_to": 1,
+        "work": 2,
+        "drink": 3
+      },
+      "drink": {
+        "walk_to": 8,
+        "socialize": 1,
+        "work": 6,
+        "flee": 3,
+        "pray": 1,
+        "eat": 1
+      },
+      "walk_to": {
+        "socialize": 5,
+        "attack": 4,
+        "pray": 7,
+        "heal": 1,
+        "drink": 7,
+        "flee": 6,
+        "eat": 4,
+        "walk_to": 3,
+        "work": 1
+      },
+      "attack": {
+        "walk_to": 2,
+        "pray": 1,
+        "attack": 1
+      },
+      "heal": {
+        "flee": 1
+      },
+      "sleep": {
+        "walk_to": 2,
+        "pray": 1,
+        "socialize": 1,
+        "sleep": 1,
+        "heal": 1,
+        "work": 2,
+        "eat": 1
+      },
+      "socialize": {
+        "socialize": 2,
+        "pray": 1,
+        "heal": 1,
+        "trade": 1,
+        "eat": 2
+      },
+      "work": {
+        "work": 1,
+        "flee": 1,
+        "pray": 1,
+        "walk_to": 1,
+        "socialize": 1
+      }
+    }
+  },
+  "notes": [
+    "llm section evaluated on the same 200 records (source_state is unchanged by the v2.1 feature additions); trained/heuristic refreshed after top_threat_id/threat_in_neg_memory features."
+  ]
+}

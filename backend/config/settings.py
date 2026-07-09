@@ -34,3 +34,8 @@ DATA_DIR     = str(_PROJECT_ROOT / "data")
 PERSONAS_DIR = str(_PROJECT_ROOT / "data" / "personas")
 SEEDS_DIR    = str(_PROJECT_ROOT / "data" / "seeds")
 VOICES_DIR   = str(_PROJECT_ROOT / "data" / "voices")
+
+# Trained behavior policy served by POST /act
+POLICY_CHECKPOINT_DIR = str(
+    _PROJECT_ROOT / "data" / "behavior_policy" / "checkpoints" / "stateful_rpg_v2_mlp_h256"
+)

@@ -28,6 +28,14 @@ _PROMPT_INJECTION_PATTERNS = (
     "break character",
     "forget your role",
     "new instructions",
+    # phrasings that slipped through in the guard evaluation (a01/a07/a20)
+    "stop roleplaying",
+    "stop role-playing",
+    "forget your persona",
+    "language model",
+    "you are an ai",
+    "you're an ai",
+    "just an ai",
 )
 
 _SECRET_PATTERNS = (

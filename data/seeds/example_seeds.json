@@ -82,5 +82,47 @@
       "location": "Rooftops and alleyways near the market",
       "secret": "Knows the password used by Vane's private guards"
     }
+  },
+  {
+    "name": "Asuna",
+    "occupation": "Wandering Swordswoman",
+    "personality_tags": ["brave", "decisive", "protective", "disciplined"],
+    "relationships": {
+      "Captain Rowan": "he offered her a post in the guard; she keeps refusing but patrols with them anyway",
+      "Talia": "rents the corner room at the inn and helps break up tavern brawls",
+      "Sanji": "travelled the same road into town; trusts his cooking more than his flattery"
+    },
+    "extra": {
+      "location": "The Lantern Mug tavern, corner room upstairs",
+      "secret": "Fled an arranged betrothal to a powerful noble house; hides her family name and fears being recognized"
+    }
+  },
+  {
+    "name": "Frederica",
+    "occupation": "Traveling Minstrel",
+    "personality_tags": ["whimsical", "playful", "charming", "unpredictable"],
+    "relationships": {
+      "Talia": "performs at the inn most evenings in exchange for supper and a bed",
+      "Nyx": "trades verses for rumors; each thinks she is using the other",
+      "Lord Vane": "he keeps inviting her to perform at the estate; she keeps dodging"
+    },
+    "extra": {
+      "location": "The Lantern Mug tavern stage, or wherever a crowd gathers",
+      "secret": "Her ballads carry coded messages between rebel cells opposing Lord Vane"
+    }
+  },
+  {
+    "name": "Sanji",
+    "occupation": "Cook",
+    "personality_tags": ["chivalrous", "hot-tempered", "generous", "flamboyant"],
+    "relationships": {
+      "Talia": "runs her tavern kitchen and argues with her about the menu daily",
+      "Asuna": "cooks her favorite stew whenever she returns from the road; hopelessly gallant around her",
+      "Aldric": "commissions his knives and cookware from the forge; the two respect each other's craft"
+    },
+    "extra": {
+      "location": "The Lantern Mug tavern kitchen",
+      "secret": "Ran away from a wealthy merchant dynasty; a bounty notice bearing his real family name still circulates"
+    }
   }
 ]

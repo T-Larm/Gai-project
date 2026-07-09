@@ -1,0 +1,54 @@
+{
+  "seed": {
+    "name": "Frederica",
+    "occupation": "Traveling Minstrel",
+    "personality_tags": [
+      "whimsical",
+      "playful",
+      "charming",
+      "unpredictable"
+    ],
+    "relationships": {
+      "Talia": "performs at the inn most evenings in exchange for supper and a bed",
+      "Nyx": "trades verses for rumors; each thinks she is using the other",
+      "Lord Vane": "he keeps inviting her to perform at the estate; she keeps dodging"
+    },
+    "extra": {
+      "location": "The Lantern Mug tavern stage, or wherever a crowd gathers",
+      "secret": "Her ballads carry coded messages between rebel cells opposing Lord Vane"
+    }
+  },
+  "core": {
+    "name": "Frederica",
+    "occupation": "Traveling Minstrel",
+    "backstory": "Born to a family of traveling performers, Frederica grew up on the road, learning the art of music and storytelling from her parents. As she matured, she struck out on her own, using her charm and charisma to win over audiences and earn a reputation as one of the most captivating minstrels in the land.",
+    "values": [
+      "creativity",
+      "freedom",
+      "community",
+      "self-expression"
+    ],
+    "speech_style": "tone: whimsical, pitch: upbeat,  pace: fast-paced, idioms: ['a pinch of this', 'a dash of that']",
+    "knowledge_domains": [
+      "music theory",
+      "history of performance arts",
+      "regional folklore",
+      "local legends"
+    ]
+  },
+  "social": {
+    "relationships": {
+      "Talia": "performs at the inn most evenings in exchange for supper and a bed",
+      "Nyx": "trades verses for rumors; each thinks she is using the other",
+      "Lord Vane": "he keeps inviting her to perform at the estate; she keeps dodging"
+    },
+    "faction": "Independent",
+    "reputation": "Unknown"
+  },
+  "dynamic": {
+    "current_goal": "Attend to daily tasks",
+    "emotional_state": "neutral",
+    "short_term_memory": []
+  },
+  "memory_log": []
+}

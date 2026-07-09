@@ -88,11 +88,17 @@ class DialogueHandler:
         prompt_style: str = "layered",
         system_prompt_text: Optional[str] = None,
         guard: Optional["DialogueGuard"] = None,
+        policy_mode: str = "llm_only",
+        behavior_policy=None,
+        trained_policy_checkpoint: Optional[str] = None,
     ):
         # use_memory / dynamic_updates / prompt_style / system_prompt_text are
         # evaluation-condition switches (baselines and ablations); defaults
         # reproduce the full system. guard is the optional rule-based dialogue
         # guard (secret/injection protection); None keeps legacy behavior.
+        # policy_mode / behavior_policy / trained_policy_checkpoint drive the
+        # optional dialogue-side policy action injection; "llm_only" (default)
+        # keeps the plain LLM dialogue contract.
         if prompt_style not in _PROMPT_STYLES:
             raise ValueError(
                 f"Unknown prompt_style '{prompt_style}', expected one of {_PROMPT_STYLES}"
@@ -110,6 +116,17 @@ class DialogueHandler:
         self.system_prompt_text = system_prompt_text
         self.guard = guard
         self.last_guard: Optional["GuardResult"] = None
+        self.policy_mode = policy_mode
+        self.behavior_policy = behavior_policy
+        self.trained_policy_checkpoint = (
+            trained_policy_checkpoint
+            or os.path.join(DATA_DIR, "behavior_policy", "checkpoints", "stateful_rpg_a40")
+        )
+        self.state_encoder = StateEncoder()
+        self._rule_policy = RuleBasedPolicy()
+        self._trained_policy = None
+        self.last_policy_action: Optional[PolicyAction] = None
+        self.last_state_features: Optional[StateFeatures] = None
         self.memory = MemoryStream.from_list(npc.memory_log)
         self.history: List[Dict[str, str]] = []   # [{role, content}, ...]
         self._turn_count = 0

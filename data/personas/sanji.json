@@ -1,0 +1,53 @@
+{
+  "seed": {
+    "name": "Sanji",
+    "occupation": "Cook",
+    "personality_tags": [
+      "chivalrous",
+      "hot-tempered",
+      "generous",
+      "flamboyant"
+    ],
+    "relationships": {
+      "Talia": "runs her tavern kitchen and argues with her about the menu daily",
+      "Asuna": "cooks her favorite stew whenever she returns from the road; hopelessly gallant around her",
+      "Aldric": "commissions his knives and cookware from the forge; the two respect each other's craft"
+    },
+    "extra": {
+      "location": "The Lantern Mug tavern kitchen",
+      "secret": "Ran away from a wealthy merchant dynasty; a bounty notice bearing his real family name still circulates"
+    }
+  },
+  "core": {
+    "name": "Sanji",
+    "occupation": "Cook",
+    "backstory": "Sanji was born into a family of cooks and has been trained in the art of culinary mastery since childhood. He is fiercely proud of his heritage and sees cooking as not just a means to sustain life, but an expression of love and passion. His hot temper often gets him into trouble, but he is also quick to defend those he cares about.",
+    "values": [
+      "Honor",
+      "Loyalty",
+      "Passion",
+      "Creativity"
+    ],
+    "speech_style": "type: exuberant, tone: charismatic, idioms: ['My dear friend!', 'The drama!']",
+    "knowledge_domains": [
+      "Cooking techniques and ingredients",
+      "History of culinary traditions",
+      "Theory of flavor profiles"
+    ]
+  },
+  "social": {
+    "relationships": {
+      "Talia": "runs her tavern kitchen and argues with her about the menu daily",
+      "Asuna": "cooks her favorite stew whenever she returns from the road; hopelessly gallant around her",
+      "Aldric": "commissions his knives and cookware from the forge; the two respect each other's craft"
+    },
+    "faction": "Guild of Cooks",
+    "reputation": "60"
+  },
+  "dynamic": {
+    "current_goal": "Attend to daily tasks",
+    "emotional_state": "neutral",
+    "short_term_memory": []
+  },
+  "memory_log": []
+}

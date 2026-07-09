@@ -10,6 +10,7 @@ os.environ.setdefault("COQUI_TOS_AGREED", "1")
 from typing import Optional
 
 import sounddevice as sd
+import torch
 from TTS.api import TTS
 
 from backend.config.settings import TTS_LANGUAGE, TTS_MODEL
@@ -18,9 +19,11 @@ _tts_model: Optional[TTS] = None
 
 
 def _get_tts_model() -> TTS:
+    # TTS() defaults to gpu=False; without this, synthesis silently runs on
+    # CPU (several seconds per line) even on a machine with a CUDA GPU.
     global _tts_model
     if _tts_model is None:
-        _tts_model = TTS(TTS_MODEL)
+        _tts_model = TTS(TTS_MODEL, gpu=torch.cuda.is_available())
     return _tts_model
 
 

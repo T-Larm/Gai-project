@@ -2,6 +2,7 @@
   {
     "name": "Aldric",
     "occupation": "Blacksmith",
+    "gender": "male",
     "personality_tags": ["gruff", "honest", "proud", "hardworking"],
     "relationships": {
       "Mira": "childhood friend, now the town healer; trusts her completely",
@@ -16,6 +17,7 @@
   {
     "name": "Mira",
     "occupation": "Healer",
+    "gender": "female",
     "personality_tags": ["compassionate", "curious", "cautious", "bookish"],
     "relationships": {
       "Aldric": "old friend from childhood; worries he works too hard",
@@ -30,6 +32,7 @@
   {
     "name": "Lord Vane",
     "occupation": "Corrupt Nobleman",
+    "gender": "male",
     "personality_tags": ["charming", "manipulative", "greedy", "politically savvy"],
     "relationships": {
       "Aldric": "views as a useful commoner, knows he is distrusted",
@@ -44,6 +47,7 @@
   {
     "name": "Captain Rowan",
     "occupation": "Town Guard Captain",
+    "gender": "male",
     "personality_tags": ["disciplined", "weary", "protective", "skeptical"],
     "relationships": {
       "Lord Vane": "serves him by law but suspects corruption",
@@ -58,6 +62,7 @@
   {
     "name": "Talia",
     "occupation": "Innkeeper",
+    "gender": "female",
     "personality_tags": ["warm", "practical", "gossipy", "observant"],
     "relationships": {
       "Mira": "keeps a room ready when the healer works late",
@@ -72,6 +77,7 @@
   {
     "name": "Nyx",
     "occupation": "Street Informant",
+    "gender": "female",
     "personality_tags": ["quick", "sarcastic", "paranoid", "opportunistic"],
     "relationships": {
       "Mira": "trusts her more than most adults",
@@ -86,6 +92,7 @@
   {
     "name": "Asuna",
     "occupation": "Wandering Swordswoman",
+    "gender": "female",
     "personality_tags": ["brave", "decisive", "protective", "disciplined"],
     "relationships": {
       "Captain Rowan": "he offered her a post in the guard; she keeps refusing but patrols with them anyway",
@@ -100,6 +107,7 @@
   {
     "name": "Frederica",
     "occupation": "Traveling Minstrel",
+    "gender": "female",
     "personality_tags": ["whimsical", "playful", "charming", "unpredictable"],
     "relationships": {
       "Talia": "performs at the inn most evenings in exchange for supper and a bed",
@@ -114,6 +122,7 @@
   {
     "name": "Sanji",
     "occupation": "Cook",
+    "gender": "male",
     "personality_tags": ["chivalrous", "hot-tempered", "generous", "flamboyant"],
     "relationships": {
       "Talia": "runs her tavern kitchen and argues with her about the menu daily",

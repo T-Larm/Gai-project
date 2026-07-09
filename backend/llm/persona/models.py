@@ -9,6 +9,7 @@ class PersonaSeed:
     personality_tags: List[str]
     relationships: Dict[str, str]   # other_npc_name -> relationship description
     extra: Dict[str, str] = field(default_factory=dict)  # optional free-form extras
+    gender: str = "unspecified"     # "male" / "female"; used to pick a matching placeholder voice
 
 
 @dataclass

@@ -18,6 +18,27 @@ class _FakeTTSModel:
         return [0.0, 0.1, 0.2]
 
 
+class _RecordingTTSClass:
+    """Stands in for TTS.api.TTS; records the constructor args it was called with."""
+
+    last_kwargs = None
+
+    def __new__(cls, model_name, **kwargs):
+        cls.last_kwargs = kwargs
+        return _FakeTTSModel()
+
+
+@pytest.mark.parametrize("cuda_available", [True, False])
+def test_get_tts_model_passes_gpu_flag_from_cuda_availability(monkeypatch, cuda_available):
+    monkeypatch.setattr(xtts_module, "_tts_model", None)
+    monkeypatch.setattr(xtts_module, "TTS", _RecordingTTSClass)
+    monkeypatch.setattr(xtts_module.torch.cuda, "is_available", lambda: cuda_available)
+
+    xtts_module._get_tts_model()
+
+    assert _RecordingTTSClass.last_kwargs == {"gpu": cuda_available}
+
+
 def test_speak_raises_when_speaker_wav_missing(tmp_path):
     client = XTTSClient()
     missing_path = str(tmp_path / "nope.wav")

@@ -121,6 +121,10 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         "--prompt-style", choices=["layered", "flat", "none"], default="layered",
         help="Evaluation condition: persona prompt structure (default: layered)",
     )
+    parser.add_argument(
+        "--policy-mode", choices=["llm_only", "rule", "trained"], default="llm_only",
+        help="Behavior policy mode: llm_only, rule baseline, or trained checkpoint",
+    )
     return parser
 
 
@@ -144,6 +148,7 @@ def main():
         llm, npc, tts=tts,
         use_memory=not args.no_memory,
         prompt_style=args.prompt_style,
+        policy_mode=args.policy_mode,
     )
     try:
         run_cli(handler, text_mode=args.text)

@@ -3,14 +3,20 @@ Dialogue handler: takes player input + NPC state → generates response,
 then updates the NPC's dynamic situation layer (memory, goal, emotion).
 """
 import os
+from pathlib import Path
 from typing import TYPE_CHECKING, Dict, List, Optional
 
 from backend.config.settings import (
+    DATA_DIR,
     DYNAMIC_UPDATE_EVERY,
     HISTORY_MAX_MESSAGES,
     SHORT_TERM_MEMORY_SIZE,
     VOICES_DIR,
 )
+from backend.behavior.policy import RuleBasedPolicy
+from backend.behavior.schemas import PolicyAction, StateFeatures
+from backend.behavior.state_encoder import StateEncoder
+from backend.behavior.supervised_policy import SupervisedPolicy
 from backend.llm.json_utils import coerce_str, parse_llm_json
 from backend.llm.ollama_client import OllamaClient
 from backend.llm.persona.memory import MemoryStream
@@ -61,6 +67,7 @@ Keep values short. If nothing meaningful changed, return the current values.
 
 
 _PROMPT_STYLES = ("layered", "flat", "none")
+_POLICY_MODES = ("llm_only", "rule", "trained")
 
 _RULES_BLOCK = """\
 Rules:
@@ -90,6 +97,10 @@ class DialogueHandler:
             raise ValueError(
                 f"Unknown prompt_style '{prompt_style}', expected one of {_PROMPT_STYLES}"
             )
+        if policy_mode not in _POLICY_MODES:
+            raise ValueError(
+                f"Unknown policy_mode '{policy_mode}', expected one of {_POLICY_MODES}"
+            )
         self.llm = llm
         self.npc = npc
         self.tts = tts
@@ -103,17 +114,23 @@ class DialogueHandler:
         self.history: List[Dict[str, str]] = []   # [{role, content}, ...]
         self._turn_count = 0
 
-    def _build_system_prompt(self, query: str) -> str:
+    def _build_system_prompt(
+        self,
+        query: str,
+        policy_action: Optional[PolicyAction] = None,
+        memories: Optional[List[str]] = None,
+    ) -> str:
         if self.system_prompt_text is not None:
-            return self.system_prompt_text
+            return self.system_prompt_text + self._policy_action_block(policy_action)
         if self.prompt_style == "none":
-            return (
+            prompt = (
                 f"You are {self.npc.core.name}, an NPC in an RPG game "
                 f"({self.npc.core.occupation}). Stay in character.\n\n" + _RULES_BLOCK
             )
+            return prompt + self._policy_action_block(policy_action)
         if self.prompt_style == "flat":
-            return self._build_flat_prompt()
-        return self._build_layered_prompt(query)
+            return self._build_flat_prompt() + self._policy_action_block(policy_action)
+        return self._build_layered_prompt(query, memories=memories) + self._policy_action_block(policy_action)
 
     def _build_flat_prompt(self) -> str:
         """Same persona facts as the layered prompt, as one unstructured paragraph."""
@@ -127,9 +144,9 @@ class DialogueHandler:
         )
         return paragraph + "\n\n" + _RULES_BLOCK
 
-    def _build_layered_prompt(self, query: str) -> str:
+    def _build_layered_prompt(self, query: str, memories: Optional[List[str]] = None) -> str:
         if self.use_memory:
-            memories = self.memory.retrieve(query)
+            memories = self._retrieve_memories(query) if memories is None else memories
             memory_block = (
                 "## What you remember\n"
                 + ("\n".join(f"- {m}" for m in memories)
@@ -153,8 +170,118 @@ class DialogueHandler:
             memory_block=memory_block,
         )
 
-    def respond(self, player_input: str) -> str:
-        system = self._build_system_prompt(player_input)
+    def _policy_action_block(self, policy_action: Optional[PolicyAction]) -> str:
+        if policy_action is None:
+            return ""
+        action = policy_action.to_dict()
+        return f"""
+
+## Policy action
+Dialogue act: {action["dialogue_act"]}
+Emotion: {action["emotion"]}
+Allowed disclosure level: {action["disclosure_level"]}
+Required gesture: {action["gesture"]}
+Quest update: {action["quest_update"]}
+Memory write type: {action["memory_write_type"]}
+
+Policy rules:
+- Do not change the policy action.
+- Do not exceed the allowed disclosure level.
+- Return JSON only: {{"reply": "...", "emotion": "...", "used_facts": ["..."], "memory_to_store": "..."}}
+"""
+
+    def _retrieve_memories(self, query: str) -> List[str]:
+        if not self.use_memory:
+            return []
+        return self.memory.retrieve(query)
+
+    def _resolve_policy_mode(self, policy_mode: Optional[str]) -> str:
+        mode = policy_mode or self.policy_mode
+        if mode not in _POLICY_MODES:
+            raise ValueError(f"Unknown policy_mode '{mode}', expected one of {_POLICY_MODES}")
+        return mode
+
+    def _policy_for_mode(self, mode: str):
+        if mode == "llm_only":
+            return None
+        if self.behavior_policy is not None:
+            return self.behavior_policy
+        if mode == "rule":
+            return self._rule_policy
+        if mode == "trained":
+            if self._trained_policy is None:
+                checkpoint = Path(self.trained_policy_checkpoint)
+                if not checkpoint.exists():
+                    raise FileNotFoundError(
+                        f"Trained policy checkpoint not found: {checkpoint}"
+                    )
+                self._trained_policy = SupervisedPolicy(checkpoint)
+            return self._trained_policy
+        return None
+
+    def _compute_policy_action(
+        self,
+        player_input: str,
+        memories: List[str],
+        game_state: Optional[Dict] = None,
+        policy_mode: Optional[str] = None,
+    ) -> Optional[PolicyAction]:
+        mode = self._resolve_policy_mode(policy_mode)
+        policy = self._policy_for_mode(mode)
+        if policy is None:
+            self.last_state_features = None
+            self.last_policy_action = None
+            return None
+        state = self.state_encoder.encode(
+            player_text=player_input,
+            npc=self.npc,
+            retrieved_memories=memories,
+            game_state=game_state,
+        )
+        action = policy.predict(state)
+        self.last_state_features = state
+        self.last_policy_action = action
+        return action
+
+    def _coerce_policy_reply(
+        self,
+        raw_reply: str,
+        policy_action: Optional[PolicyAction],
+    ) -> tuple[str, str]:
+        if policy_action is None:
+            return raw_reply, ""
+        try:
+            data = parse_llm_json(raw_reply)
+        except ValueError:
+            return raw_reply, ""
+        reply = coerce_str(data.get("reply", raw_reply))
+        memory_to_store = coerce_str(data.get("memory_to_store", ""))
+        return reply, memory_to_store
+
+    def respond(
+        self,
+        player_input: str,
+        game_state: Optional[Dict] = None,
+        policy_mode: Optional[str] = None,
+    ) -> str:
+        return self.respond_with_metadata(
+            player_input, game_state=game_state, policy_mode=policy_mode
+        )["reply"]
+
+    def respond_with_metadata(
+        self,
+        player_input: str,
+        game_state: Optional[Dict] = None,
+        policy_mode: Optional[str] = None,
+    ) -> Dict:
+        memories = self._retrieve_memories(player_input)
+        action = self._compute_policy_action(
+            player_input,
+            memories=memories,
+            game_state=game_state,
+            policy_mode=policy_mode,
+        )
+        system = self._build_system_prompt(player_input, policy_action=action, memories=memories)
 
         # Rule-based guard: the decision to refuse (secret probing, prompt
         # injection) is made here; the LLM only phrases it in character.
@@ -169,7 +296,8 @@ class DialogueHandler:
 
         self.history.append({"role": "user", "content": llm_input})
         self.history = self.history[-HISTORY_MAX_MESSAGES:]
-        reply = self.llm.chat(self.history, system=system)
+        raw_reply = self.llm.chat(self.history, system=system)
+        reply, policy_memory = self._coerce_policy_reply(raw_reply, action)
         self.history.append({"role": "assistant", "content": reply})
         self.history = self.history[-HISTORY_MAX_MESSAGES:]
 
@@ -181,6 +309,8 @@ class DialogueHandler:
         if not injection_blocked:
             self.memory.add(f"Player said: {player_input}", importance=0.4)
         self.memory.add(f"I ({self.npc.core.name}) replied: {reply}", importance=0.5)
+        if policy_memory:
+            self.memory.add(policy_memory, importance=0.6)
         self.npc.dynamic.short_term_memory = self.memory.recent(SHORT_TERM_MEMORY_SIZE)
         self.npc.memory_log = self.memory.to_list()
 
@@ -194,7 +324,15 @@ class DialogueHandler:
             )
             self.tts.speak(reply, voice_path)
 
-        return reply
+        return {
+            "reply": reply,
+            "policy_mode": self._resolve_policy_mode(policy_mode),
+            "action": action.to_dict() if action is not None else None,
+            "state": (
+                self.last_state_features.to_dict()
+                if self.last_state_features is not None else None
+            ),
+        }
 
     def _update_dynamic_state(self) -> None:
         """Ask the LLM to re-evaluate goal/emotion; keep old state on failure."""
@@ -219,3 +357,5 @@ class DialogueHandler:
         self.npc.memory_log = []
         self.npc.dynamic.short_term_memory = []
         self._turn_count = 0
+        self.last_policy_action = None
+        self.last_state_features = None

@@ -1,7 +1,17 @@
 from typing import List, Dict
-import ollama
 
 from backend.config.settings import OLLAMA_MODEL
+
+
+def _ollama():
+    try:
+        import ollama
+    except ModuleNotFoundError as exc:
+        raise RuntimeError(
+            "The 'ollama' Python package is required for local LLM calls. "
+            "Install project requirements before running live dialogue."
+        ) from exc
+    return ollama
 
 
 class OllamaClient:
@@ -14,7 +24,7 @@ class OllamaClient:
             payload.append({"role": "system", "content": system})
         payload.extend(messages)
 
-        response = ollama.chat(model=self.model, messages=payload)
+        response = _ollama().chat(model=self.model, messages=payload)
         return response["message"]["content"].strip()
 
     def generate(self, prompt: str, system: str = "") -> str:

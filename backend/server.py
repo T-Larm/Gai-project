@@ -127,6 +127,8 @@ class ChatRequest(BaseModel):
     npc: str
     text: str
     speak: bool = False
+    game_state: Optional[Dict[str, Any]] = None
+    policy_mode: str = "llm_only"
 
 
 class ActRequest(BaseModel):
@@ -159,7 +161,15 @@ def npc_info(name: str):
 @app.post("/chat")
 def chat(request: ChatRequest):
     handler = _get_handler(request.npc)
-    reply = handler.respond(request.text)
+    try:
+        result = handler.respond_with_metadata(
+            request.text,
+            game_state=request.game_state,
+            policy_mode=request.policy_mode,
+        )
+    except (ValueError, FileNotFoundError, RuntimeError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    reply = result["reply"]
     PersonaGenerator(_get_llm()).save(handler.npc, directory=PERSONAS_DIR)
 
     response = {"npc": handler.npc.core.name, "reply": reply}

@@ -1,0 +1,37 @@
+[NO TEXTURE] Dots Stroke
+[NO TEXTURE] Material
+[NO TEXTURE] mmd_tools_rigid_0
+[NO TEXTURE] mmd_tools_rigid_1
+[NO TEXTURE] mmd_tools_rigid_3
+[NO TEXTURE] mmd_tools_rigid_4
+[NO TEXTURE] mmd_tools_rigid_5
+[NO TEXTURE] mmd_tools_rigid_6
+[NO TEXTURE] mmd_tools_rigid_7
+[OK] 体  ->  体.png
+[OK] 体.001  ->  体.png
+[OK] 体2  ->  髮.png
+[OK] 体2.001  ->  髮.png
+[OK] 前髪  ->  髮.png
+[OK] 前髪.001  ->  髮.png
+[OK] 口舌  ->  颜.png
+[OK] 口舌.001  ->  颜.png
+[OK] 星目  ->  颜.png
+[OK] 星目.001  ->  颜.png
+[OK] 白目  ->  颜.png
+[OK] 白目.001  ->  颜.png
+[OK] 目  ->  髮.png
+[OK] 目.001  ->  髮.png
+[OK] 睫眉  ->  颜.png
+[OK] 睫眉.001  ->  颜.png
+[OK] 颜  ->  颜.png
+[OK] 颜.001  ->  颜.png
+[OK] 颜2  ->  颜.png
+[OK] 颜2.001  ->  颜.png
+[OK] 首  ->  髮.png
+[OK] 首.001  ->  髮.png
+[OK] 髮  ->  髮.png
+[OK] 髮+  ->  hair.bmp
+[OK] 髮+.001  ->  hair.bmp
+[OK] 髮.001  ->  髮.png
+[OK] 齿  ->  颜.png
+[OK] 齿.001  ->  颜.png

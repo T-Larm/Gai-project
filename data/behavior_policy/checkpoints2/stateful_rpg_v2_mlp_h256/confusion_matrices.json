@@ -1,0 +1,102 @@
+{
+  "action_id": {
+    "gather": {
+      "gather": 217,
+      "flee": 12,
+      "eat": 3,
+      "walk_to": 2,
+      "drink": 2,
+      "attack": 5,
+      "heal": 1
+    },
+    "eat": {
+      "eat": 131,
+      "drink": 2,
+      "gather": 2,
+      "flee": 2,
+      "walk_to": 2
+    },
+    "flee": {
+      "flee": 163,
+      "gather": 13,
+      "drink": 3,
+      "eat": 3,
+      "attack": 2
+    },
+    "drink": {
+      "drink": 98,
+      "gather": 2,
+      "flee": 2,
+      "eat": 2,
+      "walk_to": 1
+    },
+    "walk_to": {
+      "walk_to": 196,
+      "socialize": 2,
+      "gather": 3,
+      "sleep": 10,
+      "eat": 2,
+      "heal": 1
+    },
+    "attack": {
+      "attack": 17,
+      "eat": 2,
+      "gather": 2
+    },
+    "heal": {
+      "gather": 1,
+      "work": 1,
+      "flee": 1,
+      "sleep": 1,
+      "heal": 2,
+      "walk_to": 1
+    },
+    "sleep": {
+      "sleep": 45,
+      "walk_to": 4,
+      "work": 1,
+      "pray": 1
+    },
+    "socialize": {
+      "socialize": 31,
+      "walk_to": 1,
+      "work": 1,
+      "sleep": 1,
+      "gather": 1
+    },
+    "work": {
+      "work": 20,
+      "eat": 2,
+      "sleep": 1
+    },
+    "pray": {
+      "walk_to": 1,
+      "gather": 1,
+      "eat": 1
+    }
+  },
+  "mood": {
+    "angry": {
+      "angry": 171,
+      "fearful": 3,
+      "calm": 13,
+      "happy": 2
+    },
+    "calm": {
+      "angry": 13,
+      "calm": 584,
+      "happy": 10,
+      "fearful": 5
+    },
+    "happy": {
+      "happy": 119,
+      "calm": 7,
+      "angry": 1
+    },
+    "fearful": {
+      "fearful": 87,
+      "angry": 3,
+      "calm": 6
+    }
+  }
+}

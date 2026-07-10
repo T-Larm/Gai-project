@@ -123,20 +123,31 @@ namespace GaiNpc
             _waiting = true;
             replyText.text = "...";
             guardText.text = "";
-            _npc.Send(text, (reply, guardReason) =>
-            {
-                _waiting = false;
-                replyText.text = reply ?? "(no reply — is the backend running?)";
-                if (!string.IsNullOrEmpty(guardReason))
+            bool first = true;
+            _npc.SendStreaming(text,
+                (sentence, guardReason) =>
                 {
-                    guardText.text = $"[guard: {guardReason}]";
-                }
-                if (IsOpen)
+                    if (sentence == null) return;   // transport error, handled on complete
+                    replyText.text = first ? sentence : replyText.text + " " + sentence;
+                    first = false;
+                    if (!string.IsNullOrEmpty(guardReason))
+                    {
+                        guardText.text = $"[guard: {guardReason}]";
+                    }
+                },
+                () =>
                 {
-                    input.text = "";
-                    input.ActivateInputField();
-                }
-            });
+                    _waiting = false;
+                    if (first)   // no sentence ever arrived
+                    {
+                        replyText.text = "(no reply — is the backend running?)";
+                    }
+                    if (IsOpen)
+                    {
+                        input.text = "";
+                        input.ActivateInputField();
+                    }
+                });
         }
 
         private void StartRecording()

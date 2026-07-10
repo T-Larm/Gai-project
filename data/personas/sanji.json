@@ -48,11 +48,11 @@
     "current_goal": "Attend to daily tasks",
     "emotional_state": "exuberant",
     "short_term_memory": [
-      "I (Sanji) replied: My dear friend! *smiling* Ah, it was an absolute pleasure chatting with you! Until next time, remember: \"A dish is not just food for the belly, but a feast for the soul!\" Bon appétit, my friend!",
-      "Player said: Hello, hello, sanji.",
       "I (Sanji) replied: My dear friend! *wiping sweat from forehead* Ah, it's an honor to introduce myself! I am Sanji, the one and only chef of the Guild of Cooks. A master of the culinary arts, a virtuoso of flavor profiles, and a maestro of meal preparation.",
       "Player said: Pro tell me some stories.",
-      "I (Sanji) replied: My dear friend! *wiping sweat from forehead* Ah, where do I even begin?! Let me regale you with tales of my most memorable culinary conquests! You see, I once cooked for the finest diners in the land, impressing even the most discerning palates."
+      "I (Sanji) replied: My dear friend! *wiping sweat from forehead* Ah, where do I even begin?! Let me regale you with tales of my most memorable culinary conquests! You see, I once cooked for the finest diners in the land, impressing even the most discerning palates.",
+      "Player said: hello",
+      "I (Sanji) replied: My dear friend! *laughing* Ah, you're back for more, are you? Well, I'm glad to hear it! Let me tell you, I have a tale that'll make your taste buds tingle and your senses sing!"
     ]
   },
   "memory_log": [
@@ -164,6 +164,16 @@
     {
       "content": "I (Sanji) replied: My dear friend! *wiping sweat from forehead* Ah, where do I even begin?! Let me regale you with tales of my most memorable culinary conquests! You see, I once cooked for the finest diners in the land, impressing even the most discerning palates.",
       "timestamp": 1783718098.0326295,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: hello",
+      "timestamp": 1783720127.9350202,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Sanji) replied: My dear friend! *laughing* Ah, you're back for more, are you? Well, I'm glad to hear it! Let me tell you, I have a tale that'll make your taste buds tingle and your senses sing!",
+      "timestamp": 1783720127.9350202,
       "importance": 0.5
     }
   ]

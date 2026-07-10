@@ -65,6 +65,11 @@ namespace GaiNpc
             {
                 if (Input.GetKeyDown(talkKey) && !_recording) StartRecording();
                 if (Input.GetKeyUp(talkKey) && _recording) StopRecordingAndSend();
+
+                // Clicking outside the game view (or anywhere off the field)
+                // deselects the input; nothing re-focuses it, so typing goes
+                // dead while the panel still blocks player control. Reclaim it.
+                if (input != null && !input.isFocused) input.ActivateInputField();
             }
         }
 

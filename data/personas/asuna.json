@@ -46,7 +46,44 @@
   "dynamic": {
     "current_goal": "Prove my skills by defeating the strongest warriors in the land",
     "emotional_state": "Confident",
-    "short_term_memory": []
+    "short_term_memory": [
+      "I (Asuna) replied: I'm well, thank you for asking. My sword and I are always ready to face whatever challenges come our way. What brings you to this place?",
+      "Player said: Help me something about your story.",
+      "I (Asuna) replied: What kind of help do you need? If it's about my skills with a sword or navigation through the land, I'm more than happy to share my expertise. But if it's about something else, I'm afraid I don't know much about it - I'm just a wandering swordswoman, after all. What is it that you need help with?",
+      "Player said: Okay see you then.",
+      "I (Asuna) replied: Until we meet again, may the road rise up to meet you and may your journey be filled with honor and courage! May our paths cross once more, and I'll be ready to share my skills or fight by your side if needed. Farewell for now!"
+    ]
   },
-  "memory_log": []
+  "memory_log": [
+    {
+      "content": "Player said: Hello, how are you?",
+      "timestamp": 1783719350.3201416,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Asuna) replied: I'm well, thank you for asking. My sword and I are always ready to face whatever challenges come our way. What brings you to this place?",
+      "timestamp": 1783719350.3201416,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: Help me something about your story.",
+      "timestamp": 1783719384.3712337,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Asuna) replied: What kind of help do you need? If it's about my skills with a sword or navigation through the land, I'm more than happy to share my expertise. But if it's about something else, I'm afraid I don't know much about it - I'm just a wandering swordswoman, after all. What is it that you need help with?",
+      "timestamp": 1783719384.3712337,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: Okay see you then.",
+      "timestamp": 1783719415.554852,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Asuna) replied: Until we meet again, may the road rise up to meet you and may your journey be filled with honor and courage! May our paths cross once more, and I'll be ready to share my skills or fight by your side if needed. Farewell for now!",
+      "timestamp": 1783719415.554852,
+      "importance": 0.5
+    }
+  ]
 }

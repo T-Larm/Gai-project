@@ -47,7 +47,164 @@
   "dynamic": {
     "current_goal": "Continue daily work as blacksmith while protecting this secret: Once forged a blade for an assassin unknowingly; haunted by it",
     "emotional_state": "neutral",
-    "short_term_memory": []
+    "short_term_memory": [
+      "I (Aldric) replied: \"Ah, you're welcome, I suppose. Don't be a stranger, now. Just watch out for them Vane's men, if you know what's good for ya.\"",
+      "Player said: Good evening! How is the forge?",
+      "I (Aldric) replied: Evening to you. Nah, not much's changed. Just the usual orders and commissions comin' in. You know how it is - farmers need tools, travelers want gear, and the town guard wants...",
+      "Player said: Good evening! How is the forge?",
+      "I (Aldric) replied: Evening to you. Nah, not much's changed. Just the usual orders and commissions comin' in. Folks need tools and gear, after all."
+    ]
   },
-  "memory_log": []
+  "memory_log": [
+    {
+      "content": "Player said: Good morning! How is business today?",
+      "timestamp": 1783699690.0119853,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Aldric) replied: Business is decent. Folks need tools and gear, after all. Can't have 'em going about their days without proper equipment. I've got a few orders to fill, but nothing too out of the ordinary. Just another day at The Iron Hearth, keepin' Oakmere's folk supplied with good work.",
+      "timestamp": 1783699690.0119853,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: What is your favorite thing to forge?",
+      "timestamp": 1783699830.615429,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Aldric) replied: Hammers and tools for the local farmers. They're honest folk, working hard to till the land and bring in a harvest. I take pride in makin' sure they've got the right gear to get the job done. Can't have 'em strugglin' with dull blades or broken handles. That's what keeps Oakmere thrive, you know?",
+      "timestamp": 1783699830.615429,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: Do you sell shields as well?",
+      "timestamp": 1783699841.1314518,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Aldric) replied: Shields. Yeah, I make those too. Good quality, sturdy stuff. Farmers and travelers alike like to keep a shield handy for when trouble comes knockin'. And, of course, the town guard likes 'em too. Oakmere's got its share of scoundrels and ne'er-do-wells, so it pays to be prepared.",
+      "timestamp": 1783699841.1314518,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: Good evening! Anything new in the shop?",
+      "timestamp": 1783700484.0903552,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Aldric) replied: Evening to you. Nah, not much's changed. Just the usual orders and commissions comin' in. You know how it is - farmers need tools, travelers want gear, and the town guard wants...",
+      "timestamp": 1783700484.0903552,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: Could you repair my old axe by tomorrow?",
+      "timestamp": 1783700507.6450322,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Aldric) replied: Axe, eh? Yeah, I can take a look at it. Tomorrow's doable, but depends on what needs fixin'. Bring it by and I'll give it a once-over.",
+      "timestamp": 1783700507.6450322,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: Thanks, see you tomorrow then.",
+      "timestamp": 1783700511.8743982,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Aldric) replied: You're welcome! See you then.",
+      "timestamp": 1783700511.8743982,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: What do you think of the weather?",
+      "timestamp": 1783700544.6109097,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Aldric) replied: Weather's been decent, if a bit gloomy lately. Nothing to complain about, but it's kept me busier than usual.",
+      "timestamp": 1783700544.6109097,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: Quick test, how are you?",
+      "timestamp": 1783701375.8413987,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Aldric) replied: Neutral, like the temper of most steel.",
+      "timestamp": 1783701375.8413987,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: One word answer: is the forge hot?",
+      "timestamp": 1783701462.2655413,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Aldric) replied: Scorching.",
+      "timestamp": 1783701462.2655413,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: Warming up, say hello.",
+      "timestamp": 1783701798.2581031,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Aldric) replied: \"Ah, 'bout time someone showed up around here. You look like you could use a good hammerin' out of shape. What brings you to Oakmere?\"",
+      "timestamp": 1783701798.2581031,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: Could you sharpen my sword today?",
+      "timestamp": 1783701851.651783,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Aldric) replied: \"Sword, eh? Let me take a gander. What's the make and material? And what's got you needin' it sharpened in such a hurry?\"",
+      "timestamp": 1783701851.651783,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: What do you think about the mayor?",
+      "timestamp": 1783701859.289897,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Aldric) replied: \"Mayor Vane? He's got his nose too deep in the town's business if you ask me. Always tryin' to line his own pockets, not thinkin' about what's best for Oakmere and its folk. I've seen him dismiss concerns from good people like myself, just to get what he wants.\"",
+      "timestamp": 1783701859.289897,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: Thanks, goodbye!",
+      "timestamp": 1783701868.317405,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Aldric) replied: \"Ah, you're welcome, I suppose. Don't be a stranger, now. Just watch out for them Vane's men, if you know what's good for ya.\"",
+      "timestamp": 1783701868.317405,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: Good evening! How is the forge?",
+      "timestamp": 1783716144.7274272,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Aldric) replied: Evening to you. Nah, not much's changed. Just the usual orders and commissions comin' in. You know how it is - farmers need tools, travelers want gear, and the town guard wants...",
+      "timestamp": 1783716144.7274272,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: Good evening! How is the forge?",
+      "timestamp": 1783716152.0669074,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Aldric) replied: Evening to you. Nah, not much's changed. Just the usual orders and commissions comin' in. Folks need tools and gear, after all.",
+      "timestamp": 1783716152.0669074,
+      "importance": 0.5
+    }
+  ]
 }

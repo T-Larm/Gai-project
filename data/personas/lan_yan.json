@@ -44,9 +44,56 @@
     "reputation": "known by most locals"
   },
   "dynamic": {
-    "current_goal": "Continue daily work as scribe while protecting this secret: Has been quietly copying Frederica's coded ballad verses into a private ledger, without knowing what the code means or who it's really for",
+    "current_goal": "Continue daily work as scribe while protecting secret",
     "emotional_state": "neutral",
-    "short_term_memory": []
+    "short_term_memory": [
+      "I (Lan Yan) replied: Forgive me, good sir or madam. I am indeed a man, though one who spends most of his days with ink-stained fingers and little time for idle chatter. As a scribe, my focus lies in recording the events of our town, not in seeking to draw attention to myself.",
+      "Player said: Like a warrior stance lifeless, winning.",
+      "I (Lan Yan) replied: I'm afraid I don't follow your meaning, good sir or madam. As a scribe, I deal more with words and records than martial endeavors. My concern is the accuracy of my accounts, not the art of war. If you would like to discuss a matter of importance, I am here to listen and record the details for posterity.",
+      "Player said: i mean your voice sounds like a women",
+      "I (Lan Yan) replied: I'm Lan Yan, the scribe of Oakmere. You can find me at my writing stall near the market square, where I spend most days putting quill to parchment and recording the happenings of our quiet town. I'm a man of few words and many lines of script, focused on keeping accurate accounts and preserving the stories of our community."
+    ]
   },
-  "memory_log": []
+  "memory_log": [
+    {
+      "content": "Player said: Hello, who are you?",
+      "timestamp": 1783718137.903354,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Lan Yan) replied: I'm Lan Yan, the scribe of Oakmere. You can find me at my writing stall near the market square, where I spend most days putting quill to parchment and recording the happenings of our quiet town. I'm a man of few words and many lines of script, focused on keeping accurate accounts and preserving the stories of our community.",
+      "timestamp": 1783718137.903354,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: You are men?",
+      "timestamp": 1783718172.8960946,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Lan Yan) replied: Forgive me, good sir or madam. I am indeed a man, though one who spends most of his days with ink-stained fingers and little time for idle chatter. As a scribe, my focus lies in recording the events of our town, not in seeking to draw attention to myself.",
+      "timestamp": 1783718172.8960946,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: Like a warrior stance lifeless, winning.",
+      "timestamp": 1783718210.7081983,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Lan Yan) replied: I'm afraid I don't follow your meaning, good sir or madam. As a scribe, I deal more with words and records than martial endeavors. My concern is the accuracy of my accounts, not the art of war. If you would like to discuss a matter of importance, I am here to listen and record the details for posterity.",
+      "timestamp": 1783718210.7081983,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: i mean your voice sounds like a women",
+      "timestamp": 1783718260.0408213,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Lan Yan) replied: I'm Lan Yan, the scribe of Oakmere. You can find me at my writing stall near the market square, where I spend most days putting quill to parchment and recording the happenings of our quiet town. I'm a man of few words and many lines of script, focused on keeping accurate accounts and preserving the stories of our community.",
+      "timestamp": 1783718260.0408213,
+      "importance": 0.5
+    }
+  ]
 }

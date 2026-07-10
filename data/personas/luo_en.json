@@ -47,10 +47,11 @@
     "current_goal": "Continue daily work as hired blade while protecting this secret: Deserted Lord Vane's private mercenary company after being ordered to rough up a debtor who couldn't pay; still owed months of back pay he'll never collect",
     "emotional_state": "neutral",
     "short_term_memory": [
-      "Player said: Hello, how are you, Lauren?",
-      "I (Luo En) replied: I'm Luo En, not Lauren. I'm doing all right, just getting by. You know how it is when you're a hired blade like me. Can't get too attached to anyone or anything. Just trying to make ends meet and keep my reputation intact. What brings you to Oakmere?",
-      "Player said: Where is the Okamu?",
-      "I (Luo En) replied: The Okamu's the local tavern, ain't it? You can find it on the corner of Main and River streets. That's where I usually go after a long day of work at the watchhouse. They got decent ale and some decent grub. Worth a visit if you're looking for a good time or just need to pass the time."
+      "I (Luo En) replied: I'm Luo En, not Lauren. I'm doing all right, just getting by. You know how it is when you're a hired blade like me. Can't get too attached to anyone or anything.",
+      "Player said: Tell me something.",
+      "I (Luo En) replied: What's there to tell? Just the usual: people coming and going in Oakmere, Lord Vane's schemes causing trouble, and me trying to keep my head above water as a hired blade. That's about it.",
+      "Player said: See you then.",
+      "I (Luo En) replied: Yeah, see you around. I'll be here, doing my thing. Don't get too excited, though - nothing much ever changes in Oakmere."
     ]
   },
   "memory_log": [
@@ -72,6 +73,36 @@
     {
       "content": "I (Luo En) replied: The Okamu's the local tavern, ain't it? You can find it on the corner of Main and River streets. That's where I usually go after a long day of work at the watchhouse. They got decent ale and some decent grub. Worth a visit if you're looking for a good time or just need to pass the time.",
       "timestamp": 1783683914.9505866,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: Hello, now me who are you?",
+      "timestamp": 1783718489.8719409,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Luo En) replied: I'm Luo En, not Lauren. I'm doing all right, just getting by. You know how it is when you're a hired blade like me. Can't get too attached to anyone or anything.",
+      "timestamp": 1783718489.8719409,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: Tell me something.",
+      "timestamp": 1783718517.076287,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Luo En) replied: What's there to tell? Just the usual: people coming and going in Oakmere, Lord Vane's schemes causing trouble, and me trying to keep my head above water as a hired blade. That's about it.",
+      "timestamp": 1783718517.076287,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: See you then.",
+      "timestamp": 1783718544.318947,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Luo En) replied: Yeah, see you around. I'll be here, doing my thing. Don't get too excited, though - nothing much ever changes in Oakmere.",
+      "timestamp": 1783718544.318947,
       "importance": 0.5
     }
   ]

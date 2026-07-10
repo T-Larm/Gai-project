@@ -46,13 +46,13 @@
   },
   "dynamic": {
     "current_goal": "Attend to daily tasks",
-    "emotional_state": "neutral",
+    "emotional_state": "exuberant",
     "short_term_memory": [
-      "I (Sanji) replied: Oh ho ho, Ahahahaha! *winks* My dear friend, you're looking for a little bit of drama, aren't you? Well, let's just say that I have a certain... flair for the dramatic. But that's all I'm saying on the matter. The rest is just between me and my trusty kitchen knives, got it? *winks*",
-      "Player said: hello",
-      "I (Sanji) replied: My dear friend! *wiping sweat from forehead* Ah, it's a pleasure to see you! The drama! Are you looking for a culinary adventure or perhaps seeking some cooking tips from a master chef like myself? Whatever the case may be, I'm all ears and knives ready to slice through any problem that comes our way!",
-      "Player said: hello,who are you",
-      "I (Sanji) replied: My dear friend! *wiping sweat from forehead* Ah, it's an honor to introduce myself! I am Sanji, the one and only chef of the Guild of Cooks. A master of the culinary arts, a virtuoso of flavor profiles, and a maestro of meal preparation. The drama! When I'm not whipping up a storm in the kitchen, I'm usually getting into all sorts of mischief with my friends. And now, it seems you've stumbled upon my humble abode. What brings you to this neck of the woods?"
+      "I (Sanji) replied: My dear friend! *smiling* Ah, it was an absolute pleasure chatting with you! Until next time, remember: \"A dish is not just food for the belly, but a feast for the soul!\" Bon appétit, my friend!",
+      "Player said: Hello, hello, sanji.",
+      "I (Sanji) replied: My dear friend! *wiping sweat from forehead* Ah, it's an honor to introduce myself! I am Sanji, the one and only chef of the Guild of Cooks. A master of the culinary arts, a virtuoso of flavor profiles, and a maestro of meal preparation.",
+      "Player said: Pro tell me some stories.",
+      "I (Sanji) replied: My dear friend! *wiping sweat from forehead* Ah, where do I even begin?! Let me regale you with tales of my most memorable culinary conquests! You see, I once cooked for the finest diners in the land, impressing even the most discerning palates."
     ]
   },
   "memory_log": [
@@ -94,6 +94,76 @@
     {
       "content": "I (Sanji) replied: My dear friend! *wiping sweat from forehead* Ah, it's an honor to introduce myself! I am Sanji, the one and only chef of the Guild of Cooks. A master of the culinary arts, a virtuoso of flavor profiles, and a maestro of meal preparation. The drama! When I'm not whipping up a storm in the kitchen, I'm usually getting into all sorts of mischief with my friends. And now, it seems you've stumbled upon my humble abode. What brings you to this neck of the woods?",
       "timestamp": 1783679987.394799,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: Hello",
+      "timestamp": 1783701323.5626113,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Sanji) replied: My dear friend! *wiping sweat from forehead* Ah, it's an honor to introduce myself! I am Sanji, the one and only chef of the Guild of Cooks. A master of the culinary arts, a virtuoso of flavor profiles, and a maestro of meal preparation.",
+      "timestamp": 1783701323.5626113,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: Hello, how are you?",
+      "timestamp": 1783701990.3087,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Sanji) replied: My dear friend! *wiping sweat from forehead* Ah, I'm simply marvelous, thank you for asking! The kitchen is always a whirlwind of activity, but when the dishes are flying and the aromas are wafting, I'm in my element. What more could a cook ask for?",
+      "timestamp": 1783701990.3087,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: Tell me something about your recipe.",
+      "timestamp": 1783702039.5330048,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Sanji) replied: My dear friend! *excitedly* Ah, let me tell you about my signature dish, \"Sanji's Sensational Soufflé Supreme\"! It's a culinary masterpiece that will leave your taste buds doing the tango! I've perfected the art of combining delicate flavors and textures to create a dish that's both dramatic and divine.",
+      "timestamp": 1783702039.5330048,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: Wow what is your identity?",
+      "timestamp": 1783702091.9780147,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Sanji) replied: My dear friend! *wiping sweat from forehead* Ah, it's an honor to introduce myself! I am Sanji, the one and only chef of the Guild of Cooks. A master of the culinary arts, a virtuoso of flavor profiles, and a maestro of meal preparation.",
+      "timestamp": 1783702091.9780147,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: Okay see you then.",
+      "timestamp": 1783702168.2504196,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Sanji) replied: My dear friend! *smiling* Ah, it was an absolute pleasure chatting with you! Until next time, remember: \"A dish is not just food for the belly, but a feast for the soul!\" Bon appétit, my friend!",
+      "timestamp": 1783702168.2504196,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: Hello, hello, sanji.",
+      "timestamp": 1783718055.524898,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Sanji) replied: My dear friend! *wiping sweat from forehead* Ah, it's an honor to introduce myself! I am Sanji, the one and only chef of the Guild of Cooks. A master of the culinary arts, a virtuoso of flavor profiles, and a maestro of meal preparation.",
+      "timestamp": 1783718055.524898,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: Pro tell me some stories.",
+      "timestamp": 1783718098.0326295,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Sanji) replied: My dear friend! *wiping sweat from forehead* Ah, where do I even begin?! Let me regale you with tales of my most memorable culinary conquests! You see, I once cooked for the finest diners in the land, impressing even the most discerning palates.",
+      "timestamp": 1783718098.0326295,
       "importance": 0.5
     }
   ]

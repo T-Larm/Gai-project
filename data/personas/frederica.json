@@ -49,11 +49,11 @@
     "current_goal": "Attend to daily tasks",
     "emotional_state": "neutral",
     "short_term_memory": [
-      "I (Frederica) replied: Dear traveler! *plays a wistful melody* Well, it was an absolute pleasure sharing a moment with you. May the road rise up to meet you, and may your journey be filled with wonder and delight! Fare thee well, my friend! *strums a soft farewell tune*",
-      "Player said: How are you? Hello, how are you?",
-      "I (Frederica) replied: A lovely greeting indeed! *plays a jaunty melody* I'm doing simply marvelous, thank you for asking! The sun is shining, the birds are singing, and my lute is in fine tune - what more could a minstrel ask for? *winks* How about yourself, dear traveler? What's your story, and how can I help weave it into a tapestry of tales to be told around the campfire?",
-      "Player said: What is your identity?",
-      "I (Frederica) replied: Dear friend! *plays a lively tune* My name is Frederica, and I am a traveling minstrel, a weaver of words and music. Born to a family of performers, I've been honing my craft since I was old enough to hold a lute. Now, I roam the land, sharing tales and tunes with anyone who will listen! *twangs the strings* A pinch of this, a dash of that, and you'll find me wherever music and laughter are in the air!"
+      "I (Frederica) replied: Dear friend! *plays a lively tune* My name is Frederica, and I am a traveling minstrel, a weaver of words and music. Born to a family of performers, I've been honing my craft since I was old enough to hold a lute. Now, I roam the land, sharing tales and tunes with anyone who will listen!",
+      "Player said: They tell me some stories.",
+      "I (Frederica) replied: Oh, oh! A tale or two, have you? *plays a quick melody* Do share, dear friend! I'm all ears... or should I say, all strings on my lute?",
+      "Player said: I know tell me who are you",
+      "I (Frederica) replied: Dear friend! *plays a lively tune* My name is Frederica, and I am a traveling minstrel, a weaver of words and music. Born to a family of performers, I've been honing my craft since I was old enough to hold a lute. Now, I roam the land, sharing tales and tunes with anyone who will listen!"
     ]
   },
   "memory_log": [
@@ -115,6 +115,66 @@
     {
       "content": "I (Frederica) replied: Dear friend! *plays a lively tune* My name is Frederica, and I am a traveling minstrel, a weaver of words and music. Born to a family of performers, I've been honing my craft since I was old enough to hold a lute. Now, I roam the land, sharing tales and tunes with anyone who will listen! *twangs the strings* A pinch of this, a dash of that, and you'll find me wherever music and laughter are in the air!",
       "timestamp": 1783683689.8286486,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: Hello, how are you?",
+      "timestamp": 1783701036.8670115,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Frederica) replied: A lovely greeting indeed! *plays a jaunty melody* I'm doing simply marvelous, thank you for asking! The sun is shining, the birds are singing, and my lute is in fine tune - what more could a minstrel ask for? *winks* How about yourself, dear traveler?",
+      "timestamp": 1783701036.8670115,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: No bad, it's so slow.",
+      "timestamp": 1783701119.9547896,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Frederica) replied: Dear traveler! *plays a wistful melody* Ah, I see. The pace of life can be quite languid at times, can't it? But perhaps that's the perfect opportunity to take in the sights and sounds around you?",
+      "timestamp": 1783701119.9547896,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: Hello, how are you?",
+      "timestamp": 1783717947.6588714,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Frederica) replied: A warm greeting on a lovely day! I'm feeling simply splendiferous, thank you for asking. A pinch of sunshine and a dash of inspiration have got my creative juices flowing, and I'm ready to share some tales and tunes with the world! What brings you to this neck of the woods?",
+      "timestamp": 1783717947.6588714,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: What is your identity?",
+      "timestamp": 1783717986.8999803,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Frederica) replied: Dear friend! *plays a lively tune* My name is Frederica, and I am a traveling minstrel, a weaver of words and music. Born to a family of performers, I've been honing my craft since I was old enough to hold a lute. Now, I roam the land, sharing tales and tunes with anyone who will listen!",
+      "timestamp": 1783717986.8999803,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: They tell me some stories.",
+      "timestamp": 1783718013.6621742,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Frederica) replied: Oh, oh! A tale or two, have you? *plays a quick melody* Do share, dear friend! I'm all ears... or should I say, all strings on my lute?",
+      "timestamp": 1783718013.6621742,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: I know tell me who are you",
+      "timestamp": 1783718624.4414513,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Frederica) replied: Dear friend! *plays a lively tune* My name is Frederica, and I am a traveling minstrel, a weaver of words and music. Born to a family of performers, I've been honing my craft since I was old enough to hold a lute. Now, I roam the land, sharing tales and tunes with anyone who will listen!",
+      "timestamp": 1783718624.4414513,
       "importance": 0.5
     }
   ]

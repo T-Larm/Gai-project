@@ -48,11 +48,11 @@
     "current_goal": "Continue daily work as alchemist while protecting this secret: Is quietly compiling a manuscript on the same forbidden necromantic theory Mira studies in secret, drawn from a completely different, unsanctioned source",
     "emotional_state": "neutral",
     "short_term_memory": [
-      "I (Citlali) replied: A greeting. I'm Citlali, the alchemist of Oakmere. What brings you to my humble abode above The Silver Vial? Are you seeking a remedy or perhaps consulting on a matter of local import?",
-      "Player said: 你会中文吗",
-      "I (Citlali) replied: A question about languages! As an alchemist, I'm more familiar with the intricacies of chemical reactions than linguistic nuances. While I can recognize basic characters, my proficiency in Chinese is limited to recognizing common symbols and phrases. My primary focus remains on recording and analyzing the properties of Oakmere's flora and fauna for medicinal purposes. If you have a specific query or request assistance with translation, I'll do my best to provide a rudimentary understanding.",
-      "Player said: I don't know what's your name, I don't know how to pronounce your name.",
-      "I (Citlali) replied: A gentle inquiry! My name is Citlali, and I'd be happy to guide you through the pronunciation. It's a bit of an unusual name, even among our Oakmere community. The \"Ci\" sounds like \"see,\" the \"t\" is soft like a \"t\" in \"bet,\" and the \"li\" is pronounced like \"lee.\" So, it would be something like \"see-tlah-lee.\" Don't worry if it takes some practice to get it just right; I'm more concerned with the accuracy of my alchemical notes than the perfect pronunciation of my name!"
+      "I (Citlali) replied: A gentle inquiry! My name is Citlali, and I'd be happy to guide you through the pronunciation. It's a bit of an unusual name, even among our Oakmere community. The \"Ci\" sounds like \"see,\" the \"t\" is soft like a \"t\" in \"bet,\" and the \"li\" is pronounced like \"lee.\" So, it would be something like \"see-tlah-lee.\" Don't worry if it takes some practice to get it just right; I'm more concerned with the accuracy of my alchemical notes than the perfect pronunciation of my name!",
+      "Player said: I'll get around with you for you.",
+      "I (Citlali) replied: A pleasant sentiment! As the alchemist of Oakmere, I'm more accustomed to precision and calculation than casual strolls. However, if you're looking for a companionable presence while I work on my manuscript, I'd be happy to keep you company above The Silver Vial. Just be aware that my attention may wander between our conversation and the intricacies of alchemy.",
+      "Player said: Are you a man or a real man?",
+      "I (Citlali) replied: A curious inquiry! As Citlali, the alchemist of Oakmere, I can assure you that my maleness is quite... conventional, shall we say. However, I do find it intriguing that you would phrase your question in such a manner."
     ]
   },
   "memory_log": [
@@ -84,6 +84,26 @@
     {
       "content": "I (Citlali) replied: A gentle inquiry! My name is Citlali, and I'd be happy to guide you through the pronunciation. It's a bit of an unusual name, even among our Oakmere community. The \"Ci\" sounds like \"see,\" the \"t\" is soft like a \"t\" in \"bet,\" and the \"li\" is pronounced like \"lee.\" So, it would be something like \"see-tlah-lee.\" Don't worry if it takes some practice to get it just right; I'm more concerned with the accuracy of my alchemical notes than the perfect pronunciation of my name!",
       "timestamp": 1783684979.9068973,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: I'll get around with you for you.",
+      "timestamp": 1783718330.1284842,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Citlali) replied: A pleasant sentiment! As the alchemist of Oakmere, I'm more accustomed to precision and calculation than casual strolls. However, if you're looking for a companionable presence while I work on my manuscript, I'd be happy to keep you company above The Silver Vial. Just be aware that my attention may wander between our conversation and the intricacies of alchemy.",
+      "timestamp": 1783718330.1284842,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: Are you a man or a real man?",
+      "timestamp": 1783718420.2199912,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Citlali) replied: A curious inquiry! As Citlali, the alchemist of Oakmere, I can assure you that my maleness is quite... conventional, shall we say. However, I do find it intriguing that you would phrase your question in such a manner.",
+      "timestamp": 1783718420.2199912,
       "importance": 0.5
     }
   ]

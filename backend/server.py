@@ -34,6 +34,7 @@ from backend.config.settings import (
 from backend.llm.dialogue import DialogueHandler
 from backend.llm.ollama_client import OllamaClient
 from backend.llm.persona.generator import PersonaGenerator
+from backend.streaming import StreamSessionManager
 
 app = FastAPI(title="GAI NPC Dialogue Server")
 
@@ -43,6 +44,7 @@ _tts = None
 _stt = None
 _policy = None
 _verbalizer = None
+_stream_sessions = StreamSessionManager()
 
 
 def _get_llm() -> OllamaClient:
@@ -133,6 +135,12 @@ class ChatRequest(BaseModel):
     policy_mode: str = "llm_only"
 
 
+class ChatStreamRequest(BaseModel):
+    npc: str
+    text: str
+    speak: bool = True
+
+
 class ActRequest(BaseModel):
     npc: str
     game_state: Dict[str, Any]
@@ -186,6 +194,48 @@ def chat(request: ChatRequest):
         ).decode("ascii")
         response["sample_rate"] = sample_rate
     return response
+
+
+@app.post("/chat_stream")
+def chat_stream(request: ChatStreamRequest):
+    """Sentence-streamed variant of /chat (llm_only mode).
+
+    Returns a session id immediately; a worker thread streams LLM tokens,
+    splits them into sentences and synthesizes each one. Unity polls
+    GET /chat_stream/{id}. Blocking /chat is unchanged.
+    """
+    handler = _get_handler(request.npc)   # 404 before the worker starts
+    voice_path = os.path.join(VOICES_DIR, f"{_npc_key(request.npc)}.wav")
+    speak = request.speak
+    text = request.text
+
+    def worker(session):
+        started = time.perf_counter()
+        for index, sentence in enumerate(handler.respond_stream(text)):
+            chunk: Dict[str, Any] = {"index": index, "text": sentence}
+            if speak:
+                waveform, sample_rate = _get_tts().synthesize(sentence, voice_path)
+                chunk["audio_base64"] = base64.b64encode(
+                    waveform_to_wav_bytes(waveform, sample_rate)
+                ).decode("ascii")
+                chunk["sample_rate"] = sample_rate
+            chunk["t_ms"] = round((time.perf_counter() - started) * 1000.0, 1)
+            with session.lock:
+                if index == 0 and handler.last_guard is not None:
+                    session.meta["guard"] = {"reason": handler.last_guard.reason}
+                session.chunks.append(chunk)
+        PersonaGenerator(_get_llm()).save(handler.npc, directory=PERSONAS_DIR)
+
+    session_id = _stream_sessions.start(worker)
+    return {"npc": handler.npc.core.name, "session_id": session_id}
+
+
+@app.get("/chat_stream/{session_id}")
+def chat_stream_poll(session_id: str, after: int = -1):
+    state = _stream_sessions.poll(session_id, after)
+    if state is None:
+        raise HTTPException(status_code=404, detail="Unknown or expired stream session")
+    return state
 
 
 @app.post("/act")

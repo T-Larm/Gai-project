@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import Dict, Iterator, List
 
 from backend.config.settings import OLLAMA_MODEL, OLLAMA_NUM_GPU_LAYERS
 
@@ -32,6 +32,29 @@ class OllamaClient:
         options = {"num_gpu": self.num_gpu_layers} if self.num_gpu_layers >= 0 else None
         response = _ollama().chat(model=self.model, messages=payload, options=options)
         return response["message"]["content"].strip()
+
+    def chat_stream(
+        self, messages: List[Dict[str, str]], system: str = ""
+    ) -> Iterator[str]:
+        """Yield reply tokens as they arrive (ollama stream=True).
+
+        Closing the returned generator early (e.g. after a sentence cap)
+        stops consuming the HTTP stream, which makes Ollama abort the
+        generation — early cut-off saves LLM time, not just TTS time.
+        """
+        payload: List[Dict[str, str]] = []
+        if system:
+            payload.append({"role": "system", "content": system})
+        payload.extend(messages)
+
+        options = {"num_gpu": self.num_gpu_layers} if self.num_gpu_layers >= 0 else None
+        stream = _ollama().chat(
+            model=self.model, messages=payload, options=options, stream=True
+        )
+        for chunk in stream:
+            token = chunk["message"]["content"]
+            if token:
+                yield token
 
     def generate(self, prompt: str, system: str = "") -> str:
         return self.chat([{"role": "user", "content": prompt}], system=system)

@@ -77,6 +77,16 @@ dialogue.Send(inputField.text, (reply, guardReason) =>
 
 `guardReason` 非空表示这轮被规则守门约束过（问秘密/注入攻击），可以做表现层反馈。
 
+### 流式语音回复（默认路径）
+
+`DialogueUI` 现在走 `POST /chat_stream`：后端逐句生成+逐句合成，Unity 每 0.25s
+轮询 `GET /chat_stream/{session_id}?after=N` 取新句子，字幕逐句追加，语音按队列
+连续播放。实测（RTX 4060、无 Unity 占显存、预热后）：首句 ~5s，之后每句
+0.6–0.9s 连续到达——旧的整段路径要等全部生成+合成完才出声。旧的阻塞式
+`/chat` 仍在，`NpcDialogueClient.Send()` 未删，评估脚本继续用它。
+每个 chunk 带 `t_ms`（距请求开始的毫秒数），是 RQ4 延迟表的原始数据。
+首次请求多付 ~40s 模型懒加载，属正常。
+
 ## 4. 语音（可选）
 
 `speak=true` 时响应会带 base64 WAV（XTTS 克隆音色，约多 2–5 秒延迟）。给客户端脚本的 `voiceSource` 拖一个 AudioSource 即可自动播放（`WavUtility` 负责解码）。建议 bark 常关、对话按需开。
@@ -92,6 +102,8 @@ Hunyuan3D 生成的网格**没有 viseme blendshapes，OVRLipSync 用不了**。
 | 端点 | 用途 | 关键返回 |
 |------|------|---------|
 | `POST /act` | 行为决策 + bark | `action_id`, `mood`, `bark`, `should_talk`, `latency_ms` |
-| `POST /chat` | 完整对话 | `reply`, `guard.reason?`, `audio_base64?` |
+| `POST /chat` | 完整对话（阻塞） | `reply`, `guard.reason?`, `audio_base64?` |
+| `POST /chat_stream` | 完整对话（逐句流式） | `session_id` |
+| `GET /chat_stream/{id}?after=N` | 轮询流式句子 | `chunks[{index,text,t_ms,audio_base64?}]`, `done`, `guard?`, `error?` |
 | `POST /transcribe` | 语音转文字 | `text` |
 | `GET /npc/{name}` | persona 摘要 | 调试用 |

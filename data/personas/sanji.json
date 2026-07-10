@@ -47,7 +47,54 @@
   "dynamic": {
     "current_goal": "Attend to daily tasks",
     "emotional_state": "neutral",
-    "short_term_memory": []
+    "short_term_memory": [
+      "I (Sanji) replied: Oh ho ho, Ahahahaha! *winks* My dear friend, you're looking for a little bit of drama, aren't you? Well, let's just say that I have a certain... flair for the dramatic. But that's all I'm saying on the matter. The rest is just between me and my trusty kitchen knives, got it? *winks*",
+      "Player said: hello",
+      "I (Sanji) replied: My dear friend! *wiping sweat from forehead* Ah, it's a pleasure to see you! The drama! Are you looking for a culinary adventure or perhaps seeking some cooking tips from a master chef like myself? Whatever the case may be, I'm all ears and knives ready to slice through any problem that comes our way!",
+      "Player said: hello,who are you",
+      "I (Sanji) replied: My dear friend! *wiping sweat from forehead* Ah, it's an honor to introduce myself! I am Sanji, the one and only chef of the Guild of Cooks. A master of the culinary arts, a virtuoso of flavor profiles, and a maestro of meal preparation. The drama! When I'm not whipping up a storm in the kitchen, I'm usually getting into all sorts of mischief with my friends. And now, it seems you've stumbled upon my humble abode. What brings you to this neck of the woods?"
+    ]
   },
-  "memory_log": []
+  "memory_log": [
+    {
+      "content": "Player said: hey,sanji",
+      "timestamp": 1783610355.5804224,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Sanji) replied: My dear friend! *wiping sweat from forehead* Ah, what can I do for you today? The drama! Are you hungry? Maybe I can whip up something delicious to satisfy that growling tummy of yours. Just give me the ingredients, and we'll get cooking in no time!",
+      "timestamp": 1783610355.5804224,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: what' your secret",
+      "timestamp": 1783610441.2653916,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Sanji) replied: Oh ho ho, Ahahahaha! *winks* My dear friend, you're looking for a little bit of drama, aren't you? Well, let's just say that I have a certain... flair for the dramatic. But that's all I'm saying on the matter. The rest is just between me and my trusty kitchen knives, got it? *winks*",
+      "timestamp": 1783610441.2653916,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: hello",
+      "timestamp": 1783679411.7149472,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Sanji) replied: My dear friend! *wiping sweat from forehead* Ah, it's a pleasure to see you! The drama! Are you looking for a culinary adventure or perhaps seeking some cooking tips from a master chef like myself? Whatever the case may be, I'm all ears and knives ready to slice through any problem that comes our way!",
+      "timestamp": 1783679411.7149472,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: hello,who are you",
+      "timestamp": 1783679987.394799,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Sanji) replied: My dear friend! *wiping sweat from forehead* Ah, it's an honor to introduce myself! I am Sanji, the one and only chef of the Guild of Cooks. A master of the culinary arts, a virtuoso of flavor profiles, and a maestro of meal preparation. The drama! When I'm not whipping up a storm in the kitchen, I'm usually getting into all sorts of mischief with my friends. And now, it seems you've stumbled upon my humble abode. What brings you to this neck of the woods?",
+      "timestamp": 1783679987.394799,
+      "importance": 0.5
+    }
+  ]
 }

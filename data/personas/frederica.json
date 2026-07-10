@@ -48,7 +48,74 @@
   "dynamic": {
     "current_goal": "Attend to daily tasks",
     "emotional_state": "neutral",
-    "short_term_memory": []
+    "short_term_memory": [
+      "I (Frederica) replied: Dear traveler! *plays a wistful melody* Well, it was an absolute pleasure sharing a moment with you. May the road rise up to meet you, and may your journey be filled with wonder and delight! Fare thee well, my friend! *strums a soft farewell tune*",
+      "Player said: How are you? Hello, how are you?",
+      "I (Frederica) replied: A lovely greeting indeed! *plays a jaunty melody* I'm doing simply marvelous, thank you for asking! The sun is shining, the birds are singing, and my lute is in fine tune - what more could a minstrel ask for? *winks* How about yourself, dear traveler? What's your story, and how can I help weave it into a tapestry of tales to be told around the campfire?",
+      "Player said: What is your identity?",
+      "I (Frederica) replied: Dear friend! *plays a lively tune* My name is Frederica, and I am a traveling minstrel, a weaver of words and music. Born to a family of performers, I've been honing my craft since I was old enough to hold a lute. Now, I roam the land, sharing tales and tunes with anyone who will listen! *twangs the strings* A pinch of this, a dash of that, and you'll find me wherever music and laughter are in the air!"
+    ]
   },
-  "memory_log": []
+  "memory_log": [
+    {
+      "content": "Player said: hello",
+      "timestamp": 1783609970.6366343,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Frederica) replied: Dear traveler! *strums a lively tune on my lute* It's a pleasure to make your acquaintance! What brings you to these fair lands? Are you seeking adventure, wisdom, or perhaps just a pinch of good old-fashioned fun? A dash of curiosity, if you will?",
+      "timestamp": 1783609970.6371958,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: hello. how are you",
+      "timestamp": 1783610169.8361845,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Frederica) replied: A lovely greeting indeed! *plays a jaunty melody* I'm doing simply marvelous, thank you for asking! The sun is shining, the birds are singing, and my lute is in fine tune - what more could a minstrel ask for? *winks* How about yourself, dear traveler? What's your story, and how can I help weave it into a tapestry of tales to be told around the campfire?",
+      "timestamp": 1783610169.8361845,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: ok,bye",
+      "timestamp": 1783610275.3416092,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Frederica) replied: Dear traveler! *plays a wistful melody* Well, it was an absolute pleasure sharing a moment with you. May the road rise up to meet you, and may your journey be filled with wonder and delight! Fare thee well, my friend! *strums a soft farewell tune*",
+      "timestamp": 1783610275.3416092,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: hello,how are  you",
+      "timestamp": 1783679894.974394,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Frederica) replied: Dear traveler! *plays a wistful melody* Well, it was an absolute pleasure sharing a moment with you. May the road rise up to meet you, and may your journey be filled with wonder and delight! Fare thee well, my friend! *strums a soft farewell tune*",
+      "timestamp": 1783679894.974394,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: How are you? Hello, how are you?",
+      "timestamp": 1783683569.268092,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Frederica) replied: A lovely greeting indeed! *plays a jaunty melody* I'm doing simply marvelous, thank you for asking! The sun is shining, the birds are singing, and my lute is in fine tune - what more could a minstrel ask for? *winks* How about yourself, dear traveler? What's your story, and how can I help weave it into a tapestry of tales to be told around the campfire?",
+      "timestamp": 1783683569.268092,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: What is your identity?",
+      "timestamp": 1783683689.8286486,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Frederica) replied: Dear friend! *plays a lively tune* My name is Frederica, and I am a traveling minstrel, a weaver of words and music. Born to a family of performers, I've been honing my craft since I was old enough to hold a lute. Now, I roam the land, sharing tales and tunes with anyone who will listen! *twangs the strings* A pinch of this, a dash of that, and you'll find me wherever music and laughter are in the air!",
+      "timestamp": 1783683689.8286486,
+      "importance": 0.5
+    }
+  ]
 }

@@ -26,6 +26,16 @@ namespace GaiNpc
             npc.OnShouldTalk.AddListener(() => Debug.Log($"[{npc.npcName}] wants to talk — open dialogue UI here"));
         }
 
+        void LateUpdate()
+        {
+            // Billboard: keep the bubble readable no matter how the NPC
+            // (its parent) is rotated or where the camera moves.
+            if (bubble == null || Camera.main == null) return;
+            var canvasT = bubble.canvas.transform;
+            canvasT.rotation = Quaternion.LookRotation(
+                canvasT.position - Camera.main.transform.position);
+        }
+
         void ShowBark(string line)
         {
             if (bubble == null) return;

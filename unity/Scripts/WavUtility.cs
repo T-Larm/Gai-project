@@ -4,11 +4,47 @@ using UnityEngine;
 namespace GaiNpc
 {
     /// <summary>
-    /// Minimal decoder for the server's audio payloads: base64-encoded
-    /// 16-bit PCM mono WAV (backend/audio_utils.py) -> AudioClip.
+    /// Minimal codec for the server's audio payloads: base64-encoded
+    /// 16-bit PCM mono WAV (backend/audio_utils.py) -> AudioClip, and
+    /// microphone samples -> WAV bytes for POST /transcribe.
     /// </summary>
     public static class WavUtility
     {
+        /// <summary>Float samples [-1,1] -> 16-bit PCM WAV file bytes.</summary>
+        public static byte[] ToWavBytes(float[] samples, int channels, int sampleRate)
+        {
+            int dataSize = samples.Length * 2;
+            var wav = new byte[44 + dataSize];
+
+            void WriteAscii(int offset, string s)
+            {
+                System.Text.Encoding.ASCII.GetBytes(s).CopyTo(wav, offset);
+            }
+            void WriteInt32(int offset, int v) => BitConverter.GetBytes(v).CopyTo(wav, offset);
+            void WriteInt16(int offset, short v) => BitConverter.GetBytes(v).CopyTo(wav, offset);
+
+            WriteAscii(0, "RIFF");
+            WriteInt32(4, 36 + dataSize);
+            WriteAscii(8, "WAVE");
+            WriteAscii(12, "fmt ");
+            WriteInt32(16, 16);                              // PCM chunk size
+            WriteInt16(20, 1);                               // PCM format
+            WriteInt16(22, (short)channels);
+            WriteInt32(24, sampleRate);
+            WriteInt32(28, sampleRate * channels * 2);       // byte rate
+            WriteInt16(32, (short)(channels * 2));           // block align
+            WriteInt16(34, 16);                              // bits per sample
+            WriteAscii(36, "data");
+            WriteInt32(40, dataSize);
+
+            for (int i = 0; i < samples.Length; i++)
+            {
+                short s = (short)(Mathf.Clamp(samples[i], -1f, 1f) * 32767f);
+                BitConverter.GetBytes(s).CopyTo(wav, 44 + i * 2);
+            }
+            return wav;
+        }
+
         public static AudioClip FromBase64Wav(string base64, string clipName)
         {
             try

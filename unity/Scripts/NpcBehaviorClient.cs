@@ -71,8 +71,16 @@ namespace GaiNpc
         private IEnumerator TickLoop()
         {
             var wait = new WaitForSeconds(tickSeconds);
+            var dialoguePoll = new WaitForSeconds(0.5f);
             while (true)
             {
+                // Ollama handles one request at a time; six NPCs barking every
+                // few seconds would queue ahead of the player's /chat turn.
+                // Hold all barks while any dialogue panel is open.
+                while (DialogueUI.Instance != null && DialogueUI.Instance.IsOpen)
+                {
+                    yield return dialoguePoll;
+                }
                 yield return RequestAct();
                 yield return wait;
             }

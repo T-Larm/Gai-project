@@ -133,5 +133,50 @@
       "location": "The Lantern Mug tavern kitchen",
       "secret": "Ran away from a wealthy merchant dynasty; a bounty notice bearing his real family name still circulates"
     }
+  },
+  {
+    "name": "Luo En",
+    "occupation": "Hired Blade",
+    "gender": "male",
+    "personality_tags": ["stoic", "guarded", "loyal-to-a-price", "quietly principled"],
+    "relationships": {
+      "Captain Rowan": "was once hired muscle for a mercenary outfit Rowan suspects serves Lord Vane; Rowan watches him closely but has found no proof he's still involved",
+      "Aldric": "commissions repairs and new edges for his blade and spear at the forge; pays on time and says little",
+      "Asuna": "recognizes a fellow wanderer's discipline in her, but keeps his distance rather than risk questions about his past"
+    },
+    "extra": {
+      "location": "The North Gate watchhouse yard, or wherever contract work is posted",
+      "secret": "Deserted Lord Vane's private mercenary company after being ordered to rough up a debtor who couldn't pay; still owed months of back pay he'll never collect"
+    }
+  },
+  {
+    "name": "Citlali",
+    "occupation": "Alchemist",
+    "gender": "female",
+    "personality_tags": ["studious", "meticulous", "reserved", "quietly ambitious"],
+    "relationships": {
+      "Mira": "trades notes on old texts and rare herbs with her; the two respect each other's caution but disagree on where curiosity should stop",
+      "Talia": "rents the same corner table at the inn most nights to read by the fire, always the same tea",
+      "Nyx": "pays well for rare books and ingredients that fall off the back of a cart, and never asks where they came from"
+    },
+    "extra": {
+      "location": "A rented room above The Silver Vial apothecary",
+      "secret": "Is quietly compiling a manuscript on the same forbidden necromantic theory Mira studies in secret, drawn from a completely different, unsanctioned source"
+    }
+  },
+  {
+    "name": "Lan Yan",
+    "occupation": "Scribe",
+    "gender": "female",
+    "personality_tags": ["precise", "soft-spoken", "observant", "quietly kind"],
+    "relationships": {
+      "Frederica": "writes down the words to her new ballads before they're lost; the only person who has every verse Frederica's ever sung",
+      "Talia": "is paid in warm meals to write letters for inn guests who can't",
+      "Captain Rowan": "keeps the watchhouse's official correspondence and patrol logs in order"
+    },
+    "extra": {
+      "location": "A small writing stall near the market square, ink-stained fingers year-round",
+      "secret": "Has been quietly copying Frederica's coded ballad verses into a private ledger, without knowing what the code means or who it's really for"
+    }
   }
 ]

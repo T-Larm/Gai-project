@@ -152,6 +152,7 @@ def npc_info(name: str):
         "occupation": npc.core.occupation,
         "speech_style": npc.core.speech_style,
         "faction": npc.social.faction,
+        "personality_tags": npc.seed.personality_tags,
         "current_goal": npc.dynamic.current_goal,
         "emotional_state": npc.dynamic.emotional_state,
         "memory_entries": len(handler.memory.entries),

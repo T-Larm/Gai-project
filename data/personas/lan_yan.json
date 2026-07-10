@@ -1,0 +1,52 @@
+{
+  "seed": {
+    "name": "Lan Yan",
+    "occupation": "Scribe",
+    "personality_tags": [
+      "precise",
+      "soft-spoken",
+      "observant",
+      "quietly kind"
+    ],
+    "relationships": {
+      "Frederica": "writes down the words to her new ballads before they're lost; the only person who has every verse Frederica's ever sung",
+      "Talia": "is paid in warm meals to write letters for inn guests who can't",
+      "Captain Rowan": "keeps the watchhouse's official correspondence and patrol logs in order"
+    },
+    "extra": {
+      "location": "A small writing stall near the market square, ink-stained fingers year-round",
+      "secret": "Has been quietly copying Frederica's coded ballad verses into a private ledger, without knowing what the code means or who it's really for"
+    }
+  },
+  "core": {
+    "name": "Lan Yan",
+    "occupation": "Scribe",
+    "backstory": "Lan Yan is the scribe of Oakmere, usually found at A small writing stall near the market square, ink-stained fingers year-round. Known as precise, soft-spoken, observant, Lan Yan has become tangled in the town's quiet conflict around Lord Vane's schemes. Privately, Lan Yan carries a dangerous secret: Has been quietly copying Frederica's coded ballad verses into a private ledger, without knowing what the code means or who it's really for.",
+    "values": [
+      "survival",
+      "reputation",
+      "local stability"
+    ],
+    "speech_style": "grounded, direct, and in character",
+    "knowledge_domains": [
+      "local life",
+      "town politics",
+      "daily work"
+    ]
+  },
+  "social": {
+    "relationships": {
+      "Frederica": "writes down the words to her new ballads before they're lost; the only person who has every verse Frederica's ever sung",
+      "Talia": "is paid in warm meals to write letters for inn guests who can't",
+      "Captain Rowan": "keeps the watchhouse's official correspondence and patrol logs in order"
+    },
+    "faction": "Oakmere Commoners",
+    "reputation": "known by most locals"
+  },
+  "dynamic": {
+    "current_goal": "Continue daily work as scribe while protecting this secret: Has been quietly copying Frederica's coded ballad verses into a private ledger, without knowing what the code means or who it's really for",
+    "emotional_state": "neutral",
+    "short_term_memory": []
+  },
+  "memory_log": []
+}

@@ -21,6 +21,7 @@ from backend.behavior.state_encoder import StateEncoder
 from backend.behavior.supervised_policy import SupervisedPolicy
 from backend.llm.json_utils import coerce_str, parse_llm_json
 from backend.llm.ollama_client import OllamaClient
+from backend.llm.sentence_stream import stream_sentences
 from backend.llm.persona.memory import MemoryStream
 from backend.llm.persona.models import NPC
 
@@ -324,25 +325,7 @@ Policy rules:
         raw_reply = self.llm.chat(self.history, system=system)
         reply, policy_memory = self._coerce_policy_reply(raw_reply, action)
         reply = truncate_to_sentences(reply, REPLY_MAX_SENTENCES)
-        self.history.append({"role": "assistant", "content": reply})
-        self.history = self.history[-HISTORY_MAX_MESSAGES:]
-
-        # Update dynamic layer: memory stream, short-term mirror, persisted log.
-        # Injection attempts are not memorized — they would poison retrieval.
-        injection_blocked = (
-            self.last_guard is not None and self.last_guard.reason == "prompt_injection"
-        )
-        if not injection_blocked:
-            self.memory.add(f"Player said: {player_input}", importance=0.4)
-        self.memory.add(f"I ({self.npc.core.name}) replied: {reply}", importance=0.5)
-        if policy_memory:
-            self.memory.add(policy_memory, importance=0.6)
-        self.npc.dynamic.short_term_memory = self.memory.recent(SHORT_TERM_MEMORY_SIZE)
-        self.npc.memory_log = self.memory.to_list()
-
-        self._turn_count += 1
-        if self.dynamic_updates and self._turn_count % DYNAMIC_UPDATE_EVERY == 0:
-            self._update_dynamic_state()
+        self._finalize_turn(player_input, reply, policy_memory)
 
         if self.tts is not None:
             voice_path = os.path.join(
@@ -359,6 +342,60 @@ Policy rules:
                 if self.last_state_features is not None else None
             ),
         }
+
+    def _finalize_turn(
+        self, player_input: str, reply: str, policy_memory: str = ""
+    ) -> None:
+        """Post-LLM bookkeeping shared by blocking and streaming paths."""
+        self.history.append({"role": "assistant", "content": reply})
+        self.history = self.history[-HISTORY_MAX_MESSAGES:]
+
+        # Injection attempts are not memorized — they would poison retrieval.
+        injection_blocked = (
+            self.last_guard is not None and self.last_guard.reason == "prompt_injection"
+        )
+        if not injection_blocked:
+            self.memory.add(f"Player said: {player_input}", importance=0.4)
+        self.memory.add(f"I ({self.npc.core.name}) replied: {reply}", importance=0.5)
+        if policy_memory:
+            self.memory.add(policy_memory, importance=0.6)
+        self.npc.dynamic.short_term_memory = self.memory.recent(SHORT_TERM_MEMORY_SIZE)
+        self.npc.memory_log = self.memory.to_list()
+
+        self._turn_count += 1
+        if self.dynamic_updates and self._turn_count % DYNAMIC_UPDATE_EVERY == 0:
+            self._update_dynamic_state()
+
+    def respond_stream(self, player_input: str):
+        """Yield the reply sentence-by-sentence (llm_only mode only).
+
+        Streaming cannot inject a policy action: rule/trained modes make the
+        LLM answer in JSON, which has no speakable sentence boundaries. The
+        guard still applies. State bookkeeping (history, memory, dynamic
+        layer) runs once, after the last sentence — callers must exhaust the
+        generator.
+        """
+        memories = self._retrieve_memories(player_input)
+        system = self._build_system_prompt(player_input, policy_action=None,
+                                           memories=memories)
+
+        self.last_guard = self.guard.assess(player_input, self.npc) if self.guard else None
+        llm_input = player_input
+        if self.last_guard is not None:
+            system = system + "\n" + self.last_guard.instruction
+            if self.last_guard.sanitized_input:
+                llm_input = self.last_guard.sanitized_input
+
+        self.history.append({"role": "user", "content": llm_input})
+        self.history = self.history[-HISTORY_MAX_MESSAGES:]
+
+        sentences: List[str] = []
+        tokens = self.llm.chat_stream(self.history, system=system)
+        for sentence in stream_sentences(tokens, REPLY_MAX_SENTENCES):
+            sentences.append(sentence)
+            yield sentence
+
+        self._finalize_turn(player_input, " ".join(sentences))
 
     def _update_dynamic_state(self) -> None:
         """Ask the LLM to re-evaluate goal/emotion; keep old state on failure."""

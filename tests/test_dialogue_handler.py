@@ -38,6 +38,13 @@ class FakeLLM:
         self.generate_calls.append(prompt)
         return self.dynamic_json
 
+    def chat_stream(self, messages, system=""):
+        self.chat_calls.append((list(messages), system))
+        # Emulate token streaming: split the canned reply into small pieces.
+        text = self.reply
+        for i in range(0, len(text), 5):
+            yield text[i:i + 5]
+
 
 def _make_npc() -> NPC:
     return NPC(
@@ -150,6 +157,67 @@ def test_reply_is_truncated_to_max_sentences():
     assert reply == " ".join(sentences[:REPLY_MAX_SENTENCES])
     # The truncated reply (not the raw one) is what lands in history and memory.
     assert handler.history[-1]["content"] == reply
+
+
+def test_respond_stream_yields_sentences_and_finalizes_state():
+    llm = FakeLLM()
+    llm.reply = "Aye, I can forge it. Come back at dusk. Bring twenty gold."
+    npc = _make_npc()
+    handler = DialogueHandler(llm, npc)
+
+    sentences = list(handler.respond_stream("Can you forge me a sword?"))
+
+    assert sentences == [
+        "Aye, I can forge it.",
+        "Come back at dusk.",
+        "Bring twenty gold.",
+    ]
+    joined = " ".join(sentences)
+    # Same bookkeeping as respond(): joined reply in history and memory.
+    assert handler.history[-1] == {"role": "assistant", "content": joined}
+    assert npc.memory_log == handler.memory.to_list()
+    assert any(joined in e["content"] for e in npc.memory_log)
+
+
+def test_respond_stream_caps_sentences_at_reply_max():
+    llm = FakeLLM()
+    llm.reply = " ".join(
+        f"Sentence number {i}." for i in range(1, REPLY_MAX_SENTENCES + 4)
+    )
+    handler = DialogueHandler(llm, _make_npc())
+
+    sentences = list(handler.respond_stream("Tell me everything."))
+
+    assert len(sentences) == REPLY_MAX_SENTENCES
+    assert handler.history[-1]["content"] == " ".join(sentences)
+
+
+def test_respond_stream_state_not_finalized_until_exhausted():
+    llm = FakeLLM()
+    llm.reply = "First sentence here. Second sentence here."
+    handler = DialogueHandler(llm, _make_npc())
+
+    gen = handler.respond_stream("hello")
+    first = next(gen)
+
+    assert first == "First sentence here."
+    # Assistant turn not yet in history: only the user message is there.
+    assert handler.history[-1]["role"] == "user"
+
+    list(gen)  # drain
+    assert handler.history[-1]["role"] == "assistant"
+
+
+def test_respond_stream_counts_toward_dynamic_updates():
+    llm = FakeLLM()
+    npc = _make_npc()
+    handler = DialogueHandler(llm, npc)
+
+    for _ in range(DYNAMIC_UPDATE_EVERY):
+        list(handler.respond_stream("hello"))
+
+    assert npc.dynamic.current_goal == "Repair the gate"
+    assert len(llm.generate_calls) == 1
 
 
 def test_dynamic_update_failure_keeps_previous_state():

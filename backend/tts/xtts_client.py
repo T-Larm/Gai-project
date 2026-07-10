@@ -7,7 +7,7 @@ import os
 # model load doesn't block on an interactive prompt. University course project.
 os.environ.setdefault("COQUI_TOS_AGREED", "1")
 
-from typing import Optional
+from typing import Dict, Optional, Tuple
 
 import sounddevice as sd
 import torch
@@ -17,6 +17,10 @@ from backend.config.settings import TTS_LANGUAGE, TTS_MODEL
 
 _tts_model: Optional[TTS] = None
 
+# Speaker conditioning latents per reference-wav path. Computing them costs
+# 1-2 s per call and the reference voice never changes at runtime.
+_latent_cache: Dict[str, Tuple] = {}
+
 
 def _get_tts_model() -> TTS:
     # TTS() defaults to gpu=False; without this, synthesis silently runs on
@@ -25,6 +29,15 @@ def _get_tts_model() -> TTS:
     if _tts_model is None:
         _tts_model = TTS(TTS_MODEL, gpu=torch.cuda.is_available())
     return _tts_model
+
+
+def _get_speaker_latents(model: TTS, speaker_wav: str) -> Tuple:
+    if speaker_wav not in _latent_cache:
+        xtts = model.synthesizer.tts_model
+        _latent_cache[speaker_wav] = xtts.get_conditioning_latents(
+            audio_path=[speaker_wav]
+        )
+    return _latent_cache[speaker_wav]
 
 
 class XTTSClient:
@@ -40,8 +53,15 @@ class XTTSClient:
             )
 
         model = _get_tts_model()
-        waveform = model.tts(text=text, speaker_wav=speaker_wav, language=self.language)
-        return waveform, model.synthesizer.output_sample_rate
+        gpt_cond_latent, speaker_embedding = _get_speaker_latents(model, speaker_wav)
+        out = model.synthesizer.tts_model.inference(
+            text,
+            self.language,
+            gpt_cond_latent,
+            speaker_embedding,
+            enable_text_splitting=True,
+        )
+        return out["wav"], model.synthesizer.output_sample_rate
 
     def speak(self, text: str, speaker_wav: str) -> None:
         waveform, sample_rate = self.synthesize(text, speaker_wav)

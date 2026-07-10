@@ -3,6 +3,7 @@ Dialogue handler: takes player input + NPC state → generates response,
 then updates the NPC's dynamic situation layer (memory, goal, emotion).
 """
 import os
+import re
 from pathlib import Path
 from typing import TYPE_CHECKING, Dict, List, Optional
 
@@ -10,6 +11,7 @@ from backend.config.settings import (
     DATA_DIR,
     DYNAMIC_UPDATE_EVERY,
     HISTORY_MAX_MESSAGES,
+    REPLY_MAX_SENTENCES,
     SHORT_TERM_MEMORY_SIZE,
     VOICES_DIR,
 )
@@ -64,6 +66,12 @@ Based on the recent conversation, update the NPC's state. Reply ONLY with JSON:
   {{"current_goal": "...", "emotional_state": "..."}}
 Keep values short. If nothing meaningful changed, return the current values.
 """
+
+
+def truncate_to_sentences(text: str, max_sentences: int) -> str:
+    """Keep at most `max_sentences` complete sentences of `text`."""
+    sentences = re.split(r"(?<=[.!?…])\s+", text.strip())
+    return " ".join(sentences[:max_sentences])
 
 
 _PROMPT_STYLES = ("layered", "flat", "none")
@@ -315,6 +323,7 @@ Policy rules:
         self.history = self.history[-HISTORY_MAX_MESSAGES:]
         raw_reply = self.llm.chat(self.history, system=system)
         reply, policy_memory = self._coerce_policy_reply(raw_reply, action)
+        reply = truncate_to_sentences(reply, REPLY_MAX_SENTENCES)
         self.history.append({"role": "assistant", "content": reply})
         self.history = self.history[-HISTORY_MAX_MESSAGES:]
 

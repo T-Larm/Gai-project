@@ -2,6 +2,11 @@ from pathlib import Path
 
 WHISPER_MODEL = "base"       # tiny / base / small / medium / large
 OLLAMA_MODEL  = "llama3:latest"  # available: llama3:latest, gemma3:4b
+OLLAMA_NUM_GPU_LAYERS = 20  # llama3 8B has 33 layers; capping the GPU share frees
+                            # ~2 GB VRAM so XTTS stays GPU-resident while Unity runs
+                            # (full-GPU llama3 + XTTS + Unity oversubscribes the 8 GB
+                            # card and TTS degrades from seconds to minutes).
+                            # -1 = let Ollama fit as many layers as it can.
 
 SAMPLE_RATE      = 16000
 RECORD_DURATION  = 5.0      # seconds per voice input
@@ -11,6 +16,8 @@ MEMORY_TOP_K     = 5        # how many memories to inject into each prompt
 
 HISTORY_MAX_MESSAGES = 16   # sliding window: max messages (8 exchanges) sent to the LLM;
                             # older turns are only reachable via memory retrieval
+REPLY_MAX_SENTENCES = 4     # hard cap on reply length; the LLM often ignores the
+                            # "2-4 sentences" prompt rule and TTS time scales with text
 DYNAMIC_UPDATE_EVERY = 4    # re-evaluate goal/emotional_state every N player turns
 SHORT_TERM_MEMORY_SIZE = 5  # recent statements mirrored into npc.dynamic
 

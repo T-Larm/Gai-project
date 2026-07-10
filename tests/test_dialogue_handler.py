@@ -3,8 +3,12 @@ import pytest
 import torch
 
 import backend.llm.persona.memory as memory_module
-from backend.config.settings import DYNAMIC_UPDATE_EVERY, HISTORY_MAX_MESSAGES
-from backend.llm.dialogue import DialogueHandler
+from backend.config.settings import (
+    DYNAMIC_UPDATE_EVERY,
+    HISTORY_MAX_MESSAGES,
+    REPLY_MAX_SENTENCES,
+)
+from backend.llm.dialogue import DialogueHandler, truncate_to_sentences
 from backend.llm.persona.models import (
     CorePersona, DynamicSituation, NPC, PersonaSeed, SocialPersona,
 )
@@ -122,6 +126,30 @@ def test_dynamic_update_flattens_structured_llm_values_to_plain_strings():
 
     assert npc.dynamic.current_goal == "task: Retrieve iron, priority: 1"
     assert npc.dynamic.emotional_state == "dominant: determined, level: 8"
+
+
+def test_truncate_to_sentences_caps_long_text():
+    text = "One. Two! Three? Four. Five. Six."
+    assert truncate_to_sentences(text, 4) == "One. Two! Three? Four."
+
+
+def test_truncate_to_sentences_keeps_short_text_unchanged():
+    assert truncate_to_sentences("Just one sentence.", 4) == "Just one sentence."
+    assert truncate_to_sentences("no terminal punctuation", 4) == "no terminal punctuation"
+    assert truncate_to_sentences("", 4) == ""
+
+
+def test_reply_is_truncated_to_max_sentences():
+    llm = FakeLLM()
+    sentences = [f"Sentence number {i}." for i in range(1, REPLY_MAX_SENTENCES + 4)]
+    llm.reply = " ".join(sentences)
+    handler = DialogueHandler(llm, _make_npc())
+
+    reply = handler.respond("Tell me everything about the town.")
+
+    assert reply == " ".join(sentences[:REPLY_MAX_SENTENCES])
+    # The truncated reply (not the raw one) is what lands in history and memory.
+    assert handler.history[-1]["content"] == reply
 
 
 def test_dynamic_update_failure_keeps_previous_state():

@@ -64,7 +64,9 @@ def _get_stt():
     global _stt
     if _stt is None:
         import whisper
-        _stt = whisper.load_model(WHISPER_MODEL)
+        # CPU on purpose: the base model transcribes fast enough there, and
+        # VRAM is the scarce resource (llama3 + XTTS + Unity share 8 GB).
+        _stt = whisper.load_model(WHISPER_MODEL, device="cpu")
     return _stt
 
 

@@ -50,7 +50,9 @@ def _build_stt_call():
     from backend.config.settings import VOICES_DIR, WHISPER_MODEL
     import os
 
-    model = whisper.load_model(WHISPER_MODEL)
+    # CPU to match production (backend/server.py pins whisper to CPU so it
+    # never competes with XTTS/llama3 for the 8 GB of VRAM).
+    model = whisper.load_model(WHISPER_MODEL, device="cpu")
     with open(os.path.join(VOICES_DIR, "aldric.wav"), "rb") as f:
         waveform, _ = wav_bytes_to_float32(f.read())
     return lambda: model.transcribe(waveform, fp16=False, language="en")

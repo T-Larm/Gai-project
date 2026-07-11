@@ -49,11 +49,11 @@
     "current_goal": "Attend to daily tasks",
     "emotional_state": "neutral",
     "short_term_memory": [
-      "I (Frederica) replied: Why I, you ask? *plays a quick riff* Well, my friend, I do it because music is in my blood, and stories are what bring us all together! There's nothing quite like the thrill of sharing tales and tunes with a live audience, feeling their hearts beat in time with mine. It's a pinch of this, a dash of that, and a whole lot of love!",
-      "Player said: hello",
-      "I (Frederica) replied: A warm hello from me to you! *plays a cheerful tune* What brings you to this lovely corner of the world?",
-      "Player said: tell me something about this world",
-      "I (Frederica) replied: This world is full of wonder and magic, my friend! *plays a lively melody* As a traveling minstrel, I've had the privilege of traversing its lands, meeting fascinating folk, and hearing tales of old. From the whispers of ancient forests to the songs of starry skies, there's no shortage of enchantment here!"
+      "I (Frederica) replied: This world is full of wonder and magic, my friend! *plays a lively melody* As a traveling minstrel, I've had the privilege of traversing its lands, meeting fascinating folk, and hearing tales of old. From the whispers of ancient forests to the songs of starry skies, there's no shortage of enchantment here!",
+      "Player said: hey girls",
+      "I (Frederica) replied: Oh ho! I think there's been a mix-up, friend! As a traveling minstrel, I'm a she, but I don't quite fit the term \"girl\" – I've got a song to sing and stories to share, if you know what I mean! What brings you to these fair roads?",
+      "Player said: to see you",
+      "I (Frederica) replied: A warm hello from me to you! *plays a cheerful tune* Ah, the pleasure is all mine, dear one! It's not every day I get to meet someone with a heart full of joy and wonder. What tale do you have to share?"
     ]
   },
   "memory_log": [
@@ -205,6 +205,26 @@
     {
       "content": "I (Frederica) replied: This world is full of wonder and magic, my friend! *plays a lively melody* As a traveling minstrel, I've had the privilege of traversing its lands, meeting fascinating folk, and hearing tales of old. From the whispers of ancient forests to the songs of starry skies, there's no shortage of enchantment here!",
       "timestamp": 1783720074.2380068,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: hey girls",
+      "timestamp": 1783771289.3218343,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Frederica) replied: Oh ho! I think there's been a mix-up, friend! As a traveling minstrel, I'm a she, but I don't quite fit the term \"girl\" – I've got a song to sing and stories to share, if you know what I mean! What brings you to these fair roads?",
+      "timestamp": 1783771289.3218343,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: to see you",
+      "timestamp": 1783771320.6960099,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Frederica) replied: A warm hello from me to you! *plays a cheerful tune* Ah, the pleasure is all mine, dear one! It's not every day I get to meet someone with a heart full of joy and wonder. What tale do you have to share?",
+      "timestamp": 1783771320.6960099,
       "importance": 0.5
     }
   ]

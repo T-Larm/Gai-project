@@ -48,10 +48,10 @@
     "current_goal": "Continue daily work as alchemist while protecting this secret: Is quietly compiling a manuscript on the same forbidden necromantic theory Mira studies in secret, drawn from a completely different, unsanctioned source",
     "emotional_state": "neutral",
     "short_term_memory": [
-      "I (Citlali) replied: A pleasant sentiment! As the alchemist of Oakmere, I'm more accustomed to precision and calculation than casual strolls. However, if you're looking for a companionable presence while I work on my manuscript, I'd be happy to keep you company above The Silver Vial. Just be aware that my attention may wander between our conversation and the intricacies of alchemy.",
-      "Player said: Are you a man or a real man?",
-      "I (Citlali) replied: A curious inquiry! As Citlali, the alchemist of Oakmere, I can assure you that my maleness is quite... conventional, shall we say. However, I do find it intriguing that you would phrase your question in such a manner.",
-      "Player said: Why you standing in the water?",
+      "I (Citlali) replied: I'm not standing in water, nor am I accustomed to doing so. As an alchemist, my domain is more likely to be found within the confines of my rented room above The Silver Vial, surrounded by various flasks, vials, and the occasional peculiar contraption. Perhaps you're mistaken or referring to someone else?",
+      "Player said: where is  your frineds",
+      "I (Citlali) replied: Friends. Well, as the alchemist of Oakmere, I don't have a large social circle, to be honest. Most of my interactions are with the patrons of The Silver Vial or fellow townsfolk who require my services. However, there is one individual who shares a particular interest in...",
+      "Player said: see you then, i need to find other people, do you know where are them?",
       "I (Citlali) replied: I'm not standing in water, nor am I accustomed to doing so. As an alchemist, my domain is more likely to be found within the confines of my rented room above The Silver Vial, surrounded by various flasks, vials, and the occasional peculiar contraption. Perhaps you're mistaken or referring to someone else?"
     ]
   },
@@ -114,6 +114,26 @@
     {
       "content": "I (Citlali) replied: I'm not standing in water, nor am I accustomed to doing so. As an alchemist, my domain is more likely to be found within the confines of my rented room above The Silver Vial, surrounded by various flasks, vials, and the occasional peculiar contraption. Perhaps you're mistaken or referring to someone else?",
       "timestamp": 1783719565.9152005,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: where is  your frineds",
+      "timestamp": 1783770911.2988355,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Citlali) replied: Friends. Well, as the alchemist of Oakmere, I don't have a large social circle, to be honest. Most of my interactions are with the patrons of The Silver Vial or fellow townsfolk who require my services. However, there is one individual who shares a particular interest in...",
+      "timestamp": 1783770911.2988355,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: see you then, i need to find other people, do you know where are them?",
+      "timestamp": 1783770967.7232919,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Citlali) replied: I'm not standing in water, nor am I accustomed to doing so. As an alchemist, my domain is more likely to be found within the confines of my rented room above The Silver Vial, surrounded by various flasks, vials, and the occasional peculiar contraption. Perhaps you're mistaken or referring to someone else?",
+      "timestamp": 1783770967.7232919,
       "importance": 0.5
     }
   ]

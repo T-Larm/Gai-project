@@ -47,11 +47,11 @@
     "current_goal": "Continue daily work as scribe while protecting secret",
     "emotional_state": "neutral",
     "short_term_memory": [
-      "I (Lan Yan) replied: I'm Lan Yan, the scribe of Oakmere. You can find me at my writing stall near the market square, where I spend most days putting quill to parchment and recording the happenings of our quiet town. I'm a man of few words and many lines of script, focused on keeping accurate accounts and preserving the stories of our community.",
-      "Player said: hello,how are you",
       "I (Lan Yan) replied: I'm well, thank you for asking. As a scribe, my days are filled with putting quill to parchment, recording the events of Oakmere, and preserving the stories of our town. It's a quiet life, but one I find fulfilling. How may I assist you today?",
       "Player said: nothing",
-      "I (Lan Yan) replied: Then it seems we have nothing more to discuss at present. Mayhap another time, then. I must return to my writing, for there are always records to be kept and stories to be told. Fare thee well, good sir or madam."
+      "I (Lan Yan) replied: Then it seems we have nothing more to discuss at present. Mayhap another time, then. I must return to my writing, for there are always records to be kept and stories to be told. Fare thee well, good sir or madam.",
+      "Player said: how are you",
+      "I (Lan Yan) replied: I'm well, thank you for asking. As a scribe, my days are filled with putting quill to parchment, recording the events of Oakmere, and preserving the stories of our town. It's a quiet life, but one I find fulfilling. How may I assist you today?"
     ]
   },
   "memory_log": [
@@ -113,6 +113,16 @@
     {
       "content": "I (Lan Yan) replied: Then it seems we have nothing more to discuss at present. Mayhap another time, then. I must return to my writing, for there are always records to be kept and stories to be told. Fare thee well, good sir or madam.",
       "timestamp": 1783719696.973183,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: how are you",
+      "timestamp": 1783771024.7064517,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Lan Yan) replied: I'm well, thank you for asking. As a scribe, my days are filled with putting quill to parchment, recording the events of Oakmere, and preserving the stories of our town. It's a quiet life, but one I find fulfilling. How may I assist you today?",
+      "timestamp": 1783771024.7064517,
       "importance": 0.5
     }
   ]

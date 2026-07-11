@@ -48,11 +48,11 @@
     "current_goal": "Attend to daily tasks",
     "emotional_state": "exuberant",
     "short_term_memory": [
-      "I (Sanji) replied: My dear friend! *wiping sweat from forehead* Ah, it's an honor to introduce myself! I am Sanji, the one and only chef of the Guild of Cooks. A master of the culinary arts, a virtuoso of flavor profiles, and a maestro of meal preparation.",
-      "Player said: Pro tell me some stories.",
-      "I (Sanji) replied: My dear friend! *wiping sweat from forehead* Ah, where do I even begin?! Let me regale you with tales of my most memorable culinary conquests! You see, I once cooked for the finest diners in the land, impressing even the most discerning palates.",
+      "I (Sanji) replied: My dear friend! *wiping sweat from forehead* Ah, another hello! The drama! I'm getting a bit tired of these hellos, if you don't mind me saying so myself.",
       "Player said: hello",
-      "I (Sanji) replied: My dear friend! *laughing* Ah, you're back for more, are you? Well, I'm glad to hear it! Let me tell you, I have a tale that'll make your taste buds tingle and your senses sing!"
+      "I (Sanji) replied: The drama! My dear friend! For the love of all things culinary, can't you see I'm in the middle of creating a masterpiece?! Next thing you know, they'll be asking for \"Hello\" on toast and expecting me to cater to their every whim!",
+      "Player said: how aer you",
+      "I (Sanji) replied: My dear friend! *wiping sweat from forehead* Ah, I'm simply marvelous, thank you for asking! The kitchen is always a whirlwind of activity, but when the dishes are flying and the aromas are wafting, I'm in my element. What more could a cook ask for?"
     ]
   },
   "memory_log": [
@@ -174,6 +174,86 @@
     {
       "content": "I (Sanji) replied: My dear friend! *laughing* Ah, you're back for more, are you? Well, I'm glad to hear it! Let me tell you, I have a tale that'll make your taste buds tingle and your senses sing!",
       "timestamp": 1783720127.9350202,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: hello",
+      "timestamp": 1783771097.7629943,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Sanji) replied: My dear friend! *adjusts apron* Ah, a new face to savor the flavors of life with! What brings you to our humble abode today?",
+      "timestamp": 1783771097.7629943,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: where is your friend?",
+      "timestamp": 1783771161.718562,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Sanji) replied: The drama! My good pal Roronoa Zoro, the skilled swordsman and first mate of the going-on-adventures ship, the Thousand Sunny. He's probably out there somewhere, slicing through the chaos with his trusty Three Swords Style. I'm sure he'll pop in when he's done saving the world from certain doom...",
+      "timestamp": 1783771161.718562,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: helo",
+      "timestamp": 1783773969.6188138,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Sanji) replied: Hello! The drama! My dear friend! It's been a while since we've last met. What brings you to these fair shores?",
+      "timestamp": 1783773969.6188138,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: Tell me some stories.",
+      "timestamp": 1783774009.6405141,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Sanji) replied: My dear friend! *wiping sweat from forehead* Ah, it's an honor to introduce myself! I am Sanji, the one and only chef of the Guild of Cooks. A master of the culinary arts, a virtuoso of flavor profiles, and a maestro of meal preparation.",
+      "timestamp": 1783774009.6405141,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: introduce me some recipes",
+      "timestamp": 1783774042.6529129,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Sanji) replied: The drama! My dear friend! Allow me to introduce you to my signature dish, the \"All Blue\" Bouillabaisse! A hearty soup that warms the soul and tantalizes the taste buds.",
+      "timestamp": 1783774042.6529129,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: hello?",
+      "timestamp": 1783774685.0236177,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Sanji) replied: My dear friend! *wiping sweat from forehead* Ah, another hello! The drama! I'm getting a bit tired of these hellos, if you don't mind me saying so myself.",
+      "timestamp": 1783774685.0236177,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: hello",
+      "timestamp": 1783775519.028985,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Sanji) replied: The drama! My dear friend! For the love of all things culinary, can't you see I'm in the middle of creating a masterpiece?! Next thing you know, they'll be asking for \"Hello\" on toast and expecting me to cater to their every whim!",
+      "timestamp": 1783775519.028985,
+      "importance": 0.5
+    },
+    {
+      "content": "Player said: how aer you",
+      "timestamp": 1783776320.474787,
+      "importance": 0.4
+    },
+    {
+      "content": "I (Sanji) replied: My dear friend! *wiping sweat from forehead* Ah, I'm simply marvelous, thank you for asking! The kitchen is always a whirlwind of activity, but when the dishes are flying and the aromas are wafting, I'm in my element. What more could a cook ask for?",
+      "timestamp": 1783776320.474787,
       "importance": 0.5
     }
   ]

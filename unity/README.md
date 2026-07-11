@@ -62,6 +62,10 @@ npc.StateProvider = () =>
 
 字段随便缺——后端对缺失字段按 0 处理。`OnActionChanged` 接 Animator/NavMesh（drink→走向井、flee→跑离威胁源……）。
 
+### 位移（NpcLocomotion，已实现）
+
+`NpcLocomotion` 把动作 id 变成 NavMesh 上的真实移动：walk_to/gather/work→出生点附近随机游荡，flee→远离玩家加速跑，socialize→走向玩家停在聊天距离，其余动作原地不动；任何对话框打开时全村冻结（与 /act 暂停同一规则），附近 NPC 转身面向玩家。前置条件：场景烘焙过 NavMesh、NPC 挂 `NavMeshAgent`（GAINpcDemo 工程里 "GAI NPC → Bake NavMesh" 和 "Setup Character NPCs" 两个菜单各点一次即可）。注意：暂无走路动画，位移时是滑行观感，动画后补。
+
 ## 3. 对话 UI
 
 玩家按 E 或 `OnShouldTalk` 触发时，用 `NpcDialogueClient`：

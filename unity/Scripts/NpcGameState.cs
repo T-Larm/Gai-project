@@ -12,8 +12,8 @@ namespace GaiNpc
     /// </summary>
     public class NpcGameState
     {
-        public string occ = "Blacksmith";
-        public string arch = "Gruff";
+        public string occ = "Village Steward";
+        public string arch = "Diplomatic";
         public string faction = "";
         public List<string> traits = new List<string>();
         public string goalsTop = "";
@@ -138,7 +138,9 @@ namespace GaiNpc
 
         private static string Escape(string s)
         {
-            return s.Replace("\\", "\\\\").Replace("\"", "\\\"");
+            return (s ?? "").Replace("\\", "\\\\").Replace("\"", "\\\"")
+                .Replace("\b", "\\b").Replace("\f", "\\f")
+                .Replace("\n", "\\n").Replace("\r", "\\r").Replace("\t", "\\t");
         }
     }
 }

@@ -24,7 +24,11 @@ def voice_output_path(npc_name: str, voices_dir: str = VOICES_DIR) -> str:
 
 
 def voice_line_for(npc_name: str, occupation: str) -> str:
-    return f"Hello, I am {npc_name}, the {occupation.lower()}."
+    return (
+        f"Hello, I am {npc_name}, the {occupation.lower()} of Suntail Village. "
+        "The morning is quiet, but there is always work to do. "
+        "Travelers bring news from the mountain road, and I listen carefully before I answer."
+    )
 
 
 def pick_voice_id(voices, gender: str, preferred_lang: str = "en") -> str:
@@ -82,6 +86,68 @@ def _synthesize_in_subprocess(line: str, voice_id: str, out_path: str) -> None:
         os.remove(text_path)
 
 
+_SYSTEM_SPEECH_SCRIPT = r"""
+param(
+    [string]$Voice,
+    [string]$OutPath,
+    [string]$Line
+)
+Add-Type -AssemblyName System.Speech
+$engine = New-Object System.Speech.Synthesis.SpeechSynthesizer
+try {
+    $engine.SelectVoice($Voice)
+    $engine.SetOutputToWaveFile($OutPath)
+    $engine.Speak($Line)
+}
+finally {
+    $engine.Dispose()
+}
+"""
+
+
+def _generate_with_windows_system_speech(seeds, voices_dir: str) -> list:
+    """Fallback for Windows machines where pyttsx3's SAPI COM driver is absent."""
+    if os.name != "nt":
+        raise RuntimeError("Windows System.Speech fallback is only available on Windows")
+
+    female_voices = ["Microsoft Zira Desktop", "Microsoft Hazel Desktop", "Microsoft Huihui Desktop"]
+    male_voices = ["Microsoft David Desktop"]
+    Path(voices_dir).mkdir(parents=True, exist_ok=True)
+
+    fd, script_path = tempfile.mkstemp(suffix=".ps1")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8-sig") as script_file:
+            script_file.write(_SYSTEM_SPEECH_SCRIPT)
+
+        written = []
+        female_index = 0
+        male_index = 0
+        for seed in seeds:
+            if str(seed.get("gender", "male")).lower() == "female":
+                voice = female_voices[female_index % len(female_voices)]
+                female_index += 1
+            else:
+                voice = male_voices[male_index % len(male_voices)]
+                male_index += 1
+
+            path = voice_output_path(seed["name"], voices_dir)
+            subprocess.run(
+                [
+                    "powershell.exe", "-NoProfile", "-ExecutionPolicy", "Bypass",
+                    "-File", script_path,
+                    "-Voice", voice,
+                    "-OutPath", os.path.abspath(path),
+                    "-Line", voice_line_for(seed["name"], seed["occupation"]),
+                ],
+                check=True,
+                timeout=30,
+            )
+            written.append(path)
+        return written
+    finally:
+        os.remove(script_path)
+
+
 def generate_all(seeds_path: str, voices_dir: str = VOICES_DIR) -> list:
     import pyttsx3
 
@@ -90,7 +156,11 @@ def generate_all(seeds_path: str, voices_dir: str = VOICES_DIR) -> list:
 
     Path(voices_dir).mkdir(parents=True, exist_ok=True)
 
-    probe_engine = pyttsx3.init()
+    try:
+        probe_engine = pyttsx3.init()
+    except Exception as exc:
+        print(f"[Voices] pyttsx3 unavailable ({exc}); using Windows System.Speech.")
+        return _generate_with_windows_system_speech(seeds, voices_dir)
     voices = probe_engine.getProperty("voices")
     probe_engine.stop()
 

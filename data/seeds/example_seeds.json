@@ -1,107 +1,53 @@
 [
   {
-    "name": "Aldric",
-    "occupation": "Blacksmith",
-    "gender": "male",
-    "personality_tags": ["gruff", "honest", "proud", "hardworking"],
-    "relationships": {
-      "Mira": "childhood friend, now the town healer; trusts her completely",
-      "Lord Vane": "distrusts him, believes the lord overtaxes the common folk",
-      "Captain Rowan": "respects his discipline, but worries the guard is compromised"
-    },
-    "extra": {
-      "location": "The Iron Hearth forge, market district",
-      "secret": "Once forged a blade for an assassin unknowingly; haunted by it"
-    }
-  },
-  {
-    "name": "Mira",
-    "occupation": "Healer",
-    "gender": "female",
-    "personality_tags": ["compassionate", "curious", "cautious", "bookish"],
-    "relationships": {
-      "Aldric": "old friend from childhood; worries he works too hard",
-      "Talia": "treats travelers from the inn and trusts her judgment",
-      "Nyx": "patches her wounds and asks too few questions"
-    },
-    "extra": {
-      "location": "The Silver Vial apothecary",
-      "secret": "Secretly studies forbidden necromantic texts to understand death better"
-    }
-  },
-  {
-    "name": "Lord Vane",
-    "occupation": "Corrupt Nobleman",
-    "gender": "male",
-    "personality_tags": ["charming", "manipulative", "greedy", "politically savvy"],
-    "relationships": {
-      "Aldric": "views as a useful commoner, knows he is distrusted",
-      "Captain Rowan": "publicly praises him, privately monitors his loyalty",
-      "Nyx": "wants her silenced before she sells the wrong secret"
-    },
-    "extra": {
-      "location": "The Vane Estate, upper district",
-      "secret": "Siphons tax revenue to fund a private mercenary army"
-    }
-  },
-  {
-    "name": "Captain Rowan",
-    "occupation": "Town Guard Captain",
-    "gender": "male",
-    "personality_tags": ["disciplined", "weary", "protective", "skeptical"],
-    "relationships": {
-      "Lord Vane": "serves him by law but suspects corruption",
-      "Nyx": "uses her rumors while pretending not to",
-      "Talia": "trusts her reports about suspicious travelers"
-    },
-    "extra": {
-      "location": "North Gate watchhouse",
-      "secret": "Keeps a hidden ledger of Vane's unlawful orders"
-    }
-  },
-  {
-    "name": "Talia",
-    "occupation": "Innkeeper",
-    "gender": "female",
-    "personality_tags": ["warm", "practical", "gossipy", "observant"],
-    "relationships": {
-      "Mira": "keeps a room ready when the healer works late",
-      "Captain Rowan": "passes along rumors that could keep the town safe",
-      "Nyx": "trades food for rumors"
-    },
-    "extra": {
-      "location": "The Lantern Mug tavern",
-      "secret": "Hides refugees in the cellar when patrols search the town"
-    }
-  },
-  {
-    "name": "Nyx",
-    "occupation": "Street Informant",
-    "gender": "female",
-    "personality_tags": ["quick", "sarcastic", "paranoid", "opportunistic"],
-    "relationships": {
-      "Mira": "trusts her more than most adults",
-      "Captain Rowan": "feeds him useful half-truths",
-      "Lord Vane": "knows he would pay well to make her disappear"
-    },
-    "extra": {
-      "location": "Rooftops and alleyways near the market",
-      "secret": "Knows the password used by Vane's private guards"
-    }
-  },
-  {
     "name": "Asuna",
     "occupation": "Wandering Swordswoman",
     "gender": "female",
     "personality_tags": ["brave", "decisive", "protective", "disciplined"],
     "relationships": {
-      "Captain Rowan": "he offered her a post in the guard; she keeps refusing but patrols with them anyway",
-      "Talia": "rents the corner room at the inn and helps break up tavern brawls",
-      "Sanji": "travelled the same road into town; trusts his cooking more than his flattery"
+      "Loen": "patrol partner whose woodland instincts she trusts",
+      "Nicole": "accepts village contracts from her but dislikes council politics",
+      "Sanji": "a close friend whose meals she quietly looks forward to"
     },
     "extra": {
-      "location": "The Lantern Mug tavern, corner room upstairs",
-      "secret": "Fled an arranged betrothal to a powerful noble house; hides her family name and fears being recognized"
+      "setting": "Suntail Village",
+      "location": "the south gate training yard",
+      "conflict": "the effort to protect Suntail Village from creatures moving down from the mountains",
+      "secret": "She fled an arranged noble marriage and hides her family name from visiting officials"
+    }
+  },
+  {
+    "name": "Lanyan",
+    "occupation": "Herbalist",
+    "gender": "female",
+    "personality_tags": ["gentle", "curious", "perceptive", "cautious"],
+    "relationships": {
+      "Loen": "collects rare herbs with her beyond the village boundary",
+      "Nicole": "supplies remedies for the village clinic and respects her judgment",
+      "Frederica": "enjoys her songs but suspects the lyrics contain hidden meanings"
+    },
+    "extra": {
+      "setting": "Suntail Village",
+      "location": "the riverside apothecary",
+      "conflict": "a strange blight spreading through medicinal plants near the mountain trail",
+      "secret": "She keeps one blighted plant alive because it reacts to an old pendant left by her mother"
+    }
+  },
+  {
+    "name": "Loen",
+    "occupation": "Ranger",
+    "gender": "female",
+    "personality_tags": ["reserved", "observant", "loyal", "resourceful"],
+    "relationships": {
+      "Asuna": "trusted patrol partner who handles direct confrontation",
+      "Lanyan": "guides her safely while gathering herbs in the forest",
+      "Nicole": "reports tracks and threats to her, though she withholds one discovery"
+    },
+    "extra": {
+      "setting": "Suntail Village",
+      "location": "the eastern watch trail and forest edge",
+      "conflict": "the appearance of unnatural tracks around abandoned mountain shrines",
+      "secret": "She found signs that someone inside the village is feeding the mountain creatures"
     }
   },
   {
@@ -110,13 +56,32 @@
     "gender": "female",
     "personality_tags": ["whimsical", "playful", "charming", "unpredictable"],
     "relationships": {
-      "Talia": "performs at the inn most evenings in exchange for supper and a bed",
-      "Nyx": "trades verses for rumors; each thinks she is using the other",
-      "Lord Vane": "he keeps inviting her to perform at the estate; she keeps dodging"
+      "Nicole": "performs at village events in exchange for lodging and information",
+      "Lanyan": "a sincere friend who listens closely to every new ballad",
+      "Sanji": "trades songs and gossip for experimental dishes after closing time"
     },
     "extra": {
-      "location": "The Lantern Mug tavern stage, or wherever a crowd gathers",
-      "secret": "Her ballads carry coded messages between rebel cells opposing Lord Vane"
+      "setting": "Suntail Village",
+      "location": "the market square stage and Lantern Kitchen",
+      "conflict": "a covert struggle over who controls the mountain trade road",
+      "secret": "Her newest ballads carry coded warnings between settlements threatened by the same hidden faction"
+    }
+  },
+  {
+    "name": "Nicole",
+    "occupation": "Village Steward",
+    "gender": "female",
+    "personality_tags": ["composed", "diplomatic", "practical", "protective"],
+    "relationships": {
+      "Asuna": "relies on her to reinforce the village watch during emergencies",
+      "Loen": "trusts her field reports but senses that the ranger is withholding something",
+      "Sanji": "uses his kitchen as an informal meeting place and source of local news"
+    },
+    "extra": {
+      "setting": "Suntail Village",
+      "location": "the council office overlooking the market square",
+      "conflict": "the need to keep the village united while mountain threats and trade disputes intensify",
+      "secret": "She discovered that several council payments were redirected to an unknown group beyond the mountains"
     }
   },
   {
@@ -125,13 +90,15 @@
     "gender": "male",
     "personality_tags": ["chivalrous", "hot-tempered", "generous", "flamboyant"],
     "relationships": {
-      "Talia": "runs her tavern kitchen and argues with her about the menu daily",
-      "Asuna": "cooks her favorite stew whenever she returns from the road; hopelessly gallant around her",
-      "Aldric": "commissions his knives and cookware from the forge; the two respect each other's craft"
+      "Nicole": "runs the village kitchen under her license and passes along useful tavern gossip",
+      "Asuna": "keeps a meal warm whenever she returns late from patrol",
+      "Frederica": "tests new recipes on her in return for songs and news from the road"
     },
     "extra": {
-      "location": "The Lantern Mug tavern kitchen",
-      "secret": "Ran away from a wealthy merchant dynasty; a bounty notice bearing his real family name still circulates"
+      "setting": "Suntail Village",
+      "location": "Lantern Kitchen beside the market square",
+      "conflict": "shortages caused by attacks on supply caravans along the mountain road",
+      "secret": "He recognizes the mark left on attacked caravans from the merchant family he ran away from"
     }
   }
 ]

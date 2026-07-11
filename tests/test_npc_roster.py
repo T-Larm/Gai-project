@@ -8,14 +8,9 @@ def test_seed_roster_has_demo_scale_and_unique_names():
     seeds = json.loads(Path("data/seeds/example_seeds.json").read_text(encoding="utf-8"))
     names = [seed["name"] for seed in seeds]
 
-    assert len(seeds) == 9
+    assert len(seeds) == 6
     assert len(names) == len(set(names))
-    assert "Aldric" in names
-    assert "Lord Vane" in names
-    # Unity character models (assets/) each map to a persona by name
-    assert "Asuna" in names
-    assert "Frederica" in names
-    assert "Sanji" in names
+    assert set(names) == {"Asuna", "Lanyan", "Loen", "Frederica", "Nicole", "Sanji"}
 
 
 def test_deterministic_persona_matches_loader_schema():
@@ -38,7 +33,7 @@ def test_deterministic_persona_matches_loader_schema():
 def test_roster_persona_files_match_persona_schema():
     persona_files = sorted(Path("data/personas").glob("*.json"))
 
-    assert len(persona_files) == 9
+    assert len(persona_files) == 6
     for path in persona_files:
         data = json.loads(path.read_text(encoding="utf-8"))
         assert data["seed"]["name"]

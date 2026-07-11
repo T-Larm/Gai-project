@@ -22,6 +22,8 @@ def build_persona(seed: Dict[str, Any]) -> Dict[str, Any]:
     relationships = dict(seed.get("relationships", {}))
     extra = dict(seed.get("extra", {}))
     location = extra.get("location", "the town")
+    setting = extra.get("setting", "Suntail Village")
+    conflict = extra.get("conflict", "the village's unresolved troubles")
     secret = extra.get("secret", "keeps a private worry hidden from strangers")
 
     values = _values_from_tags(tags)
@@ -42,9 +44,9 @@ def build_persona(seed: Dict[str, Any]) -> Dict[str, Any]:
             "name": name,
             "occupation": occupation,
             "backstory": (
-                f"{name} is the {occupation.lower()} of Oakmere, usually found at {location}. "
+                f"{name} is the {occupation.lower()} of {setting}, usually found at {location}. "
                 f"Known as {', '.join(tags[:3]) if tags else 'practical'}, {name} has become "
-                "tangled in the town's quiet conflict around Lord Vane's schemes. "
+                f"tangled in {conflict}. "
                 f"Privately, {name} carries a dangerous secret: {secret}."
             ),
             "values": values,
@@ -138,6 +140,12 @@ def _knowledge_from_occupation(occupation: str) -> List[str]:
         "street informant": ["rumors", "passwords", "alleys"],
         "priest": ["faith", "confession", "temple records"],
         "forge apprentice": ["forge work", "ingots", "market errands"],
+        "wandering swordswoman": ["swordsmanship", "patrol routes", "local threats"],
+        "herbalist": ["medicinal herbs", "remedies", "forest plants"],
+        "ranger": ["tracking", "woodland survival", "monster signs"],
+        "traveling minstrel": ["music", "regional folklore", "coded messages"],
+        "village steward": ["village affairs", "trade agreements", "local disputes"],
+        "cook": ["cooking", "ingredients", "tavern supplies"],
     }
     return base.get(occupation.lower(), ["local life", "town politics", "daily work"])
 
@@ -150,6 +158,11 @@ def _faction_from_occupation(occupation: str) -> str:
         "merchant": "Market Consortium",
         "priest": "Temple of the First Bell",
         "archivist": "Civic Archive",
+        "wandering swordswoman": "Suntail Watch",
+        "herbalist": "Suntail Apothecary",
+        "ranger": "Suntail Wardens",
+        "village steward": "Suntail Council",
+        "cook": "Lantern Kitchen",
     }
     return mapping.get(occupation.lower(), "Oakmere Commoners")
 

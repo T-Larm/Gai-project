@@ -9,7 +9,6 @@ os.environ.setdefault("COQUI_TOS_AGREED", "1")
 
 from typing import Optional
 
-import sounddevice as sd
 import torch
 from TTS.api import TTS
 
@@ -44,6 +43,8 @@ class XTTSClient:
         return waveform, model.synthesizer.output_sample_rate
 
     def speak(self, text: str, speaker_wav: str) -> None:
+        import sounddevice as sd
+
         waveform, sample_rate = self.synthesize(text, speaker_wav)
         sd.play(waveform, samplerate=sample_rate)
         sd.wait()

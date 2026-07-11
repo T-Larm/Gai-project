@@ -2,6 +2,7 @@
 import base64
 import json
 import os
+import time
 
 import numpy as np
 import pytest
@@ -127,6 +128,31 @@ def test_chat_with_speak_returns_playable_wav(client):
     body = response.json()
     assert body["sample_rate"] == 24000
     waveform, sample_rate = wav_bytes_to_float32(base64.b64decode(body["audio_base64"]))
+    assert sample_rate == 24000
+    assert len(waveform) == 3
+
+
+def test_chat_pipeline_returns_sentence_audio_and_done_events(client):
+    response = client.post(
+        "/chat/pipeline", json={"npc": "Aldric", "text": "Hello!", "speak": True}
+    )
+    assert response.status_code == 200
+    job_id = response.json()["job_id"]
+
+    body = None
+    for _ in range(100):
+        body = client.get(f"/chat/pipeline/{job_id}?after=0").json()
+        if body["done"]:
+            break
+        time.sleep(0.01)
+
+    assert body is not None and body["done"] is True
+    event_types = [event["type"] for event in body["events"]]
+    assert event_types == ["sentence", "audio", "done"]
+    assert body["events"][0]["text"] == "Hail, traveller."
+    waveform, sample_rate = wav_bytes_to_float32(
+        base64.b64decode(body["events"][1]["audio_base64"])
+    )
     assert sample_rate == 24000
     assert len(waveform) == 3
 

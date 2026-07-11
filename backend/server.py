@@ -17,7 +17,11 @@ persisted back to data/personas/ after every turn.
 """
 import base64
 import os
+import queue
+import re
+import threading
 import time
+import uuid
 from typing import Any, Dict, Optional
 
 import numpy as np
@@ -43,6 +47,37 @@ _tts = None
 _stt = None
 _policy = None
 _verbalizer = None
+_pipeline_jobs: Dict[str, "_PipelineJob"] = {}
+_pipeline_jobs_lock = threading.Lock()
+_tts_lock = threading.Lock()
+
+_SENTENCE_RE = re.compile(r"^(.+?[.!?\u3002\uff01\uff1f]+(?:[\"'\u201d\u2019)]*)?)(?:\s+|$)", re.DOTALL)
+
+
+class _PipelineJob:
+    def __init__(self, npc: str):
+        self.npc = npc
+        self.events = []
+        self.done = False
+        self.error = ""
+        self.created_at = time.time()
+        self.lock = threading.Lock()
+
+    def append(self, event_type: str, **payload) -> None:
+        with self.lock:
+            event = {"seq": len(self.events), "type": event_type}
+            event.update(payload)
+            self.events.append(event)
+
+    def snapshot(self, after: int) -> Dict[str, Any]:
+        with self.lock:
+            cursor = max(0, min(after, len(self.events)))
+            return {
+                "events": list(self.events[cursor:]),
+                "next": len(self.events),
+                "done": self.done,
+                "error": self.error,
+            }
 
 
 def _get_llm() -> OllamaClient:
@@ -138,9 +173,147 @@ class ActRequest(BaseModel):
     speak: bool = False
 
 
+def _extract_sentences(buffer: str, force: bool = False):
+    sentences = []
+    remainder = buffer
+    while remainder:
+        match = _SENTENCE_RE.match(remainder)
+        if match is None:
+            break
+        sentence = match.group(1).strip()
+        if sentence:
+            sentences.append(sentence)
+        remainder = remainder[match.end():].lstrip()
+    if force and remainder.strip():
+        sentences.append(remainder.strip())
+        remainder = ""
+    return sentences, remainder
+
+
+def _append_pipeline_sentence(job: _PipelineJob, work_queue, index: int, text: str) -> None:
+    job.append("sentence", sentence_index=index, text=text)
+    work_queue.put((index, text))
+
+
+def _run_pipeline_tts(job: _PipelineJob, request: ChatRequest, work_queue) -> None:
+    voice_path = os.path.join(VOICES_DIR, f"{_npc_key(request.npc)}.wav")
+    while True:
+        item = work_queue.get()
+        if item is None:
+            return
+        sentence_index, sentence = item
+        if not request.speak:
+            continue
+        try:
+            with _tts_lock:
+                waveform, sample_rate = _get_tts().synthesize(sentence, voice_path)
+            job.append(
+                "audio",
+                sentence_index=sentence_index,
+                audio_base64=base64.b64encode(
+                    waveform_to_wav_bytes(waveform, sample_rate)
+                ).decode("ascii"),
+                sample_rate=sample_rate,
+            )
+        except Exception as exc:
+            job.append(
+                "audio_error",
+                sentence_index=sentence_index,
+                message=str(exc),
+            )
+
+
+def _run_chat_pipeline(job: _PipelineJob, request: ChatRequest) -> None:
+    handler = _get_handler(request.npc)
+    work_queue = queue.Queue()
+    tts_thread = threading.Thread(
+        target=_run_pipeline_tts,
+        args=(job, request, work_queue),
+        daemon=True,
+        name=f"xtts-{_npc_key(request.npc)}",
+    )
+    tts_thread.start()
+
+    buffer = ""
+    sentence_index = 0
+
+    def on_token(chunk: str) -> None:
+        nonlocal buffer, sentence_index
+        buffer += chunk
+        sentences, buffer = _extract_sentences(buffer)
+        for sentence in sentences:
+            _append_pipeline_sentence(job, work_queue, sentence_index, sentence)
+            sentence_index += 1
+
+    try:
+        result = handler.respond_stream_with_metadata(
+            request.text,
+            on_token=on_token,
+            game_state=request.game_state,
+            policy_mode=request.policy_mode,
+        )
+        sentences, buffer = _extract_sentences(buffer, force=True)
+        for sentence in sentences:
+            _append_pipeline_sentence(job, work_queue, sentence_index, sentence)
+            sentence_index += 1
+
+        PersonaGenerator(_get_llm()).save(handler.npc, directory=PERSONAS_DIR)
+        work_queue.put(None)
+        tts_thread.join()
+
+        guard_reason = ""
+        if handler.last_guard is not None:
+            guard_reason = handler.last_guard.reason
+        job.append(
+            "done",
+            reply=result["reply"],
+            guard_reason=guard_reason,
+        )
+    except Exception as exc:
+        work_queue.put(None)
+        tts_thread.join()
+        job.error = str(exc)
+        job.append("error", message=str(exc))
+    finally:
+        with job.lock:
+            job.done = True
+
+
+def _remove_old_pipeline_jobs(max_age_seconds: float = 1800.0) -> None:
+    cutoff = time.time() - max_age_seconds
+    with _pipeline_jobs_lock:
+        expired = [
+            job_id
+            for job_id, job in _pipeline_jobs.items()
+            if job.done and job.created_at < cutoff
+        ]
+        for job_id in expired:
+            del _pipeline_jobs[job_id]
+
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+@app.post("/tts/warmup")
+def warmup_tts(npc: str = "sanji"):
+    """Load XTTS in this server process and verify the selected accelerator."""
+    import torch
+
+    voice_path = os.path.join(VOICES_DIR, f"{_npc_key(npc)}.wav")
+    start = time.perf_counter()
+    _waveform, sample_rate = _get_tts().synthesize("Ready.", voice_path)
+    elapsed = time.perf_counter() - start
+    return {
+        "status": "ready",
+        "cuda": torch.cuda.is_available(),
+        "device": (
+            torch.cuda.get_device_name(0) if torch.cuda.is_available() else "cpu"
+        ),
+        "sample_rate": sample_rate,
+        "warmup_seconds": round(elapsed, 2),
+    }
 
 
 @app.get("/npc/{name}")
@@ -183,6 +356,34 @@ def chat(request: ChatRequest):
         ).decode("ascii")
         response["sample_rate"] = sample_rate
     return response
+
+
+@app.post("/chat/pipeline")
+def start_chat_pipeline(request: ChatRequest):
+    """Start Ollama sentence streaming and per-sentence XTTS synthesis."""
+    _get_handler(request.npc)
+    _remove_old_pipeline_jobs()
+    job_id = uuid.uuid4().hex
+    job = _PipelineJob(request.npc)
+    with _pipeline_jobs_lock:
+        _pipeline_jobs[job_id] = job
+
+    threading.Thread(
+        target=_run_chat_pipeline,
+        args=(job, request),
+        daemon=True,
+        name=f"chat-{_npc_key(request.npc)}-{job_id[:8]}",
+    ).start()
+    return {"job_id": job_id, "npc": request.npc}
+
+
+@app.get("/chat/pipeline/{job_id}")
+def poll_chat_pipeline(job_id: str, after: int = 0):
+    with _pipeline_jobs_lock:
+        job = _pipeline_jobs.get(job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="Unknown or expired pipeline job.")
+    return job.snapshot(after)
 
 
 @app.post("/act")

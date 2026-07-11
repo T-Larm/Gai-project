@@ -157,7 +157,7 @@ policy 接管行为后，玩家对话怎么处理有三个选项：
 }
 ```
 
-当前 6 个 NPC（Aldric、Mira、Lord Vane、Captain Rowan、Nyx、Talia），关系互相交叉。
+当前 Unity 正式 roster 为 6 个 NPC（Asuna、Lanyan、Loen、Frederica、Nicole、Sanji），名称与场景模型一一对应，关系互相交叉。
 
 ## B2. 离线生成：三层 Persona
 
@@ -173,7 +173,7 @@ policy 接管行为后，玩家对话怎么处理有三个选项：
 
 生成命令：
 ```bash
-python -m backend.main --seed data/seeds/example_seeds.json --name Aldric
+python -m backend.main --seed data/seeds/example_seeds.json --name Nicole
 ```
 
 ## B3. 运行时：每轮对话的 prompt 组装

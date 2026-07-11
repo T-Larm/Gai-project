@@ -4,7 +4,7 @@ then updates the NPC's dynamic situation layer (memory, goal, emotion).
 """
 import os
 from pathlib import Path
-from typing import TYPE_CHECKING, Dict, List, Optional
+from typing import TYPE_CHECKING, Callable, Dict, List, Optional
 
 from backend.config.settings import (
     DATA_DIR,
@@ -344,6 +344,84 @@ Policy rules:
         return {
             "reply": reply,
             "policy_mode": self._resolve_policy_mode(policy_mode),
+            "action": action.to_dict() if action is not None else None,
+            "state": (
+                self.last_state_features.to_dict()
+                if self.last_state_features is not None else None
+            ),
+        }
+
+    def respond_stream_with_metadata(
+        self,
+        player_input: str,
+        on_token: Callable[[str], None],
+        game_state: Optional[Dict] = None,
+        policy_mode: Optional[str] = None,
+    ) -> Dict:
+        """Stream an llm_only reply while preserving normal turn state."""
+        mode = self._resolve_policy_mode(policy_mode)
+        if mode != "llm_only" or not hasattr(self.llm, "chat_stream"):
+            result = self.respond_with_metadata(
+                player_input, game_state=game_state, policy_mode=policy_mode
+            )
+            on_token(result["reply"])
+            return result
+
+        memories = self._retrieve_memories(player_input)
+        action = self._compute_policy_action(
+            player_input,
+            memories=memories,
+            game_state=game_state,
+            policy_mode=policy_mode,
+        )
+        system = self._build_system_prompt(
+            player_input, policy_action=action, memories=memories
+        )
+        system += "\n- For spoken delivery, answer in no more than 3 short sentences."
+
+        self.last_guard = self.guard.assess(player_input, self.npc) if self.guard else None
+        llm_input = player_input
+        if self.last_guard is not None:
+            system = system + "\n" + self.last_guard.instruction
+            if self.last_guard.sanitized_input:
+                llm_input = self.last_guard.sanitized_input
+
+        previous_history = list(self.history)
+        self.history.append({"role": "user", "content": llm_input})
+        self.history = self.history[-HISTORY_MAX_MESSAGES:]
+        chunks: List[str] = []
+        try:
+            for chunk in self.llm.chat_stream(self.history, system=system):
+                if chunk:
+                    chunks.append(chunk)
+                    on_token(chunk)
+        except Exception:
+            self.history = previous_history
+            raise
+
+        raw_reply = "".join(chunks).strip()
+        reply, policy_memory = self._coerce_policy_reply(raw_reply, action)
+        self.history.append({"role": "assistant", "content": reply})
+        self.history = self.history[-HISTORY_MAX_MESSAGES:]
+
+        injection_blocked = (
+            self.last_guard is not None and self.last_guard.reason == "prompt_injection"
+        )
+        if not injection_blocked:
+            self.memory.add(f"Player said: {player_input}", importance=0.4)
+        self.memory.add(f"I ({self.npc.core.name}) replied: {reply}", importance=0.5)
+        if policy_memory:
+            self.memory.add(policy_memory, importance=0.6)
+        self.npc.dynamic.short_term_memory = self.memory.recent(SHORT_TERM_MEMORY_SIZE)
+        self.npc.memory_log = self.memory.to_list()
+
+        self._turn_count += 1
+        if self.dynamic_updates and self._turn_count % DYNAMIC_UPDATE_EVERY == 0:
+            self._update_dynamic_state()
+
+        return {
+            "reply": reply,
+            "policy_mode": mode,
             "action": action.to_dict() if action is not None else None,
             "state": (
                 self.last_state_features.to_dict()

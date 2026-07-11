@@ -191,7 +191,7 @@ def _real_generate_line(llm):
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Evaluate bark persona consistency (LLM-as-judge)")
-    parser.add_argument("--personas", nargs="*", default=["aldric", "mira", "lord_vane"])
+    parser.add_argument("--personas", nargs="*", default=["nicole", "asuna", "lanyan"])
     parser.add_argument("--judge-model", default=None, help="Defaults to settings.OLLAMA_MODEL")
     parser.add_argument("--out", default="data/behavior_policy/eval/bark_eval.json")
     args = parser.parse_args()

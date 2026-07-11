@@ -22,7 +22,7 @@ namespace GaiNpc
     {
         [Header("Server")]
         public string serverUrl = "http://127.0.0.1:8000";
-        public string npcName = "Aldric";
+        public string npcName = "Nicole";
 
         [Header("Polling")]
         [Tooltip("Seconds between /act decision ticks")]
@@ -32,10 +32,10 @@ namespace GaiNpc
         public bool speak = false;
 
         [Header("Events")]
-        public UnityEvent<string> OnActionChanged;
-        public UnityEvent<string> OnMoodChanged;
-        public UnityEvent<string> OnBark;
-        public UnityEvent OnShouldTalk;
+        public UnityEvent<string> OnActionChanged = new UnityEvent<string>();
+        public UnityEvent<string> OnMoodChanged = new UnityEvent<string>();
+        public UnityEvent<string> OnBark = new UnityEvent<string>();
+        public UnityEvent OnShouldTalk = new UnityEvent();
 
         [Header("Optional")]
         [Tooltip("AudioSource for bark voice when speak=true")]
@@ -47,41 +47,50 @@ namespace GaiNpc
         public string CurrentAction { get; private set; } = "";
         public string CurrentMood { get; private set; } = "";
 
+        private Coroutine tickLoop;
+
         [Serializable]
         private class ActResponse
         {
-            public string npc;
-            public string action_id;
-            public string mood;
+            public string action_id = "";
+            public string mood = "";
             public bool should_talk;
-            public string bark;
-            public string audio_base64;
-            public int sample_rate;
+            public string bark = "";
+            public string audio_base64 = "";
         }
 
-        private void Start()
+        private void OnEnable()
         {
-            if (StateProvider == null)
-            {
-                StateProvider = DefaultDemoState;
-            }
-            StartCoroutine(TickLoop());
+            if (StateProvider == null) StateProvider = DefaultDemoState;
+            if (tickLoop == null) tickLoop = StartCoroutine(TickLoop());
+        }
+
+        private void OnDisable()
+        {
+            if (tickLoop != null) StopCoroutine(tickLoop);
+            tickLoop = null;
         }
 
         private IEnumerator TickLoop()
         {
-            var wait = new WaitForSeconds(tickSeconds);
             while (true)
             {
                 yield return RequestAct();
-                yield return wait;
+                yield return new WaitForSeconds(Mathf.Max(0.25f, tickSeconds));
             }
         }
 
         private IEnumerator RequestAct()
         {
-            string body = "{\"npc\":\"" + npcName + "\"," +
-                          "\"game_state\":" + StateProvider().ToJson() + "," +
+            NpcGameState state = StateProvider != null ? StateProvider() : null;
+            if (state == null)
+            {
+                Debug.LogWarning("[NpcBehaviorClient] StateProvider returned null.", this);
+                yield break;
+            }
+
+            string body = "{\"npc\":\"" + EscapeJson(npcName) + "\"," +
+                          "\"game_state\":" + state.ToJson() + "," +
                           "\"bark\":" + (requestBark ? "true" : "false") + "," +
                           "\"speak\":" + (speak ? "true" : "false") + "}";
 
@@ -94,7 +103,10 @@ namespace GaiNpc
 
                 if (request.result != UnityWebRequest.Result.Success)
                 {
-                    Debug.LogWarning($"[NpcBehaviorClient] /act failed: {request.error}");
+                    string details = request.downloadHandler != null ? request.downloadHandler.text : "";
+                    Debug.LogWarning(
+                        $"[NpcBehaviorClient] /act failed ({request.responseCode}): " +
+                        $"{request.error} {details}", this);
                     yield break;
                 }
 
@@ -136,20 +148,26 @@ namespace GaiNpc
             }
         }
 
-        /// <summary>Thirsty-at-the-forge demo state so the wiring can be tested
-        /// before any real scene sensing exists. Expected action: drink.</summary>
+        private static string EscapeJson(string value)
+        {
+            return (value ?? "").Replace("\\", "\\\\").Replace("\"", "\\\"")
+                .Replace("\n", "\\n").Replace("\r", "\\r").Replace("\t", "\\t");
+        }
+
+        /// <summary>Thirsty demo state so the wiring can be tested before any
+        /// real scene sensing exists. Expected action: drink.</summary>
         private NpcGameState DefaultDemoState()
         {
             var state = new NpcGameState
             {
-                occ = "Blacksmith",
-                arch = "Gruff",
+                occ = "Village Steward",
+                arch = "Diplomatic",
                 thi = 0.92f,
                 schedAct = "work",
                 hour = Mathf.Repeat(Time.time / 60f + 12f, 24f),
             };
-            state.traits.Add("Gruff");
-            state.traits.Add("Honest");
+            state.traits.Add("Composed");
+            state.traits.Add("Protective");
             state.inventory.Add(new NpcGameState.Item { id = "water", n = 2 });
             return state;
         }

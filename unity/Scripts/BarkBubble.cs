@@ -4,9 +4,7 @@ using UnityEngine.UI;
 namespace GaiNpc
 {
     /// <summary>
-    /// Minimal glue between NpcBehaviorClient events and a world-space
-    /// speech-bubble Text. Drop on the NPC, assign the client and a Text,
-    /// press Play — no other wiring needed (events are hooked in code).
+    /// Connects NpcBehaviorClient events to a world-space speech bubble.
     /// </summary>
     public class BarkBubble : MonoBehaviour
     {
@@ -16,17 +14,34 @@ namespace GaiNpc
         [Tooltip("Seconds the bark stays visible; 0 keeps it forever")]
         public float hideAfterSeconds = 6f;
 
-        void Start()
+        private void Awake()
         {
             if (npc == null) npc = GetComponent<NpcBehaviorClient>();
-
-            npc.OnActionChanged.AddListener(a => Debug.Log($"[{npc.npcName}] action: {a}"));
-            npc.OnMoodChanged.AddListener(m => Debug.Log($"[{npc.npcName}] mood: {m}"));
-            npc.OnBark.AddListener(ShowBark);
-            npc.OnShouldTalk.AddListener(() => Debug.Log($"[{npc.npcName}] wants to talk — open dialogue UI here"));
         }
 
-        void ShowBark(string line)
+        private void OnEnable()
+        {
+            if (npc == null) return;
+            npc.OnActionChanged.AddListener(LogAction);
+            npc.OnMoodChanged.AddListener(LogMood);
+            npc.OnBark.AddListener(ShowBark);
+            npc.OnShouldTalk.AddListener(LogShouldTalk);
+        }
+
+        private void OnDisable()
+        {
+            if (npc == null) return;
+            npc.OnActionChanged.RemoveListener(LogAction);
+            npc.OnMoodChanged.RemoveListener(LogMood);
+            npc.OnBark.RemoveListener(ShowBark);
+            npc.OnShouldTalk.RemoveListener(LogShouldTalk);
+        }
+
+        private void LogAction(string action) => Debug.Log($"[{npc.npcName}] action: {action}");
+        private void LogMood(string mood) => Debug.Log($"[{npc.npcName}] mood: {mood}");
+        private void LogShouldTalk() => Debug.Log($"[{npc.npcName}] wants to talk; open dialogue UI here");
+
+        private void ShowBark(string line)
         {
             if (bubble == null) return;
             bubble.text = line;
@@ -37,9 +52,9 @@ namespace GaiNpc
             }
         }
 
-        void ClearBubble()
+        private void ClearBubble()
         {
-            bubble.text = "";
+            if (bubble != null) bubble.text = "";
         }
     }
 }

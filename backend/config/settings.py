@@ -37,5 +37,5 @@ VOICES_DIR   = str(_PROJECT_ROOT / "data" / "voices")
 
 # Trained behavior policy served by POST /act
 POLICY_CHECKPOINT_DIR = str(
-    _PROJECT_ROOT / "data" / "behavior_policy" / "checkpoints" / "stateful_rpg_v2_mlp_h256"
+    _PROJECT_ROOT / "data" / "behavior_policy" / "checkpoints2" / "stateful_rpg_v2_mlp_h512"
 )

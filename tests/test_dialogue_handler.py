@@ -35,6 +35,13 @@ class FakeLLM:
         return self.dynamic_json
 
 
+class StreamingFakeLLM(FakeLLM):
+    def chat_stream(self, messages, system=""):
+        self.chat_calls.append((list(messages), system))
+        yield "A fine day "
+        yield "to you, traveller."
+
+
 def _make_npc() -> NPC:
     return NPC(
         seed=PersonaSeed(
@@ -78,6 +85,23 @@ def test_npc_memory_log_and_short_term_memory_stay_in_sync():
 
     assert npc.memory_log == handler.memory.to_list()
     assert npc.dynamic.short_term_memory == handler.memory.recent(5)
+
+
+def test_streamed_reply_updates_history_and_memory_once():
+    llm = StreamingFakeLLM()
+    npc = _make_npc()
+    handler = DialogueHandler(llm, npc)
+    chunks = []
+
+    result = handler.respond_stream_with_metadata("Good morning", chunks.append)
+
+    assert chunks == ["A fine day ", "to you, traveller."]
+    assert result["reply"] == "A fine day to you, traveller."
+    assert handler.history[-1] == {
+        "role": "assistant",
+        "content": "A fine day to you, traveller.",
+    }
+    assert len(npc.memory_log) == 2
 
 
 def test_memory_is_restored_from_npc_memory_log():

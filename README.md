@@ -1,128 +1,216 @@
 # Generative NPC Interaction System
 
-A multimodal generative AI framework for RPG/VR NPCs with a two-channel architecture: a **trained behavior policy decides what the NPC does** (eat, flee, work, socialize — in 0.6 ms), while the **LLM only decides how it sounds** — one-line in-character barks, and full dialogue when the player speaks. Personas are **automatically constructed from minimal seeds** — no hand-written character prompts — and NPCs **answer in their own cloned voice**, remember past conversations, and evolve their goals and emotions as you talk.
+A local-first multimodal generative AI system for RPG and VR NPCs. A trained behavior policy decides **what an NPC does**, while an LLM decides **how the NPC expresses it**. NPCs can act autonomously, talk in character, remember conversations across sessions, update their goals and emotions, and answer with a cloned voice.
 
-Course project for *Generative Artificial Intelligence for Graphics and Multimedia* (Politecnico di Torino).
+Course project for *Generative Artificial Intelligence for Graphics and Multimedia* at Politecnico di Torino.
+
 **Authors:** DENG Lan · ZHAN Xinwei
 
-## Pipeline
+## Highlights
 
+- Two-channel architecture: low-latency autonomous behavior plus full player dialogue.
+- Supervised multi-head MLP for action and mood selection, with heuristic and LLM-policy baselines.
+- Three-layer personas generated automatically from small JSON seeds.
+- Persistent semantic memory using relevance, recency, and importance.
+- Local inference with Ollama, Whisper STT, and Coqui XTTS v2 voice cloning.
+- FastAPI bridge and Unity client scripts for behavior, dialogue, streaming speech, movement, and UI.
+- Six ready-to-use NPCs: Asuna, Lanyan, Loen, Frederica, Nicole, and Sanji.
+
+## Architecture
+
+```text
+Behavior channel
+game state (JSON) -> trained MLP policy -> action + mood -> Unity acts immediately
+                                      \-> async LLM bark -> optional XTTS speech
+
+Dialogue channel
+player text/speech -> Whisper (optional) -> persona + memory + dialogue guard
+                                      -> Ollama LLM -> reply -> optional XTTS speech
+                                                       \-> persisted memory/state
 ```
- ── Behavior channel (autonomous NPC life) ─────────────────────────────
- game state ─► trained policy (MLP, 0.6 ms) ─► action + mood
- (JSON)              │                            │ NPC acts immediately
-                     ▼                            ▼
-              LLM bark verbalizer (~1.2 s, async) ─► one in-character line ─► XTTS v2
-              (falls back to templates if the LLM stalls — gameplay never blocks)
 
- ── Dialogue channel (player interaction; action=socialize routes here) ─
- seed (a few lines of JSON) ──offline, 3 LLM calls──► three-layer persona
-                                                          │
- player speech ─► Whisper STT ─► llama3 (Ollama) ─► reply ─► XTTS v2 cloned voice
-                                     ▲    │
-                    memory retrieval ┘    │ memory write / dynamic update every 4 turns
-                                          ▼
-                              persisted to disk (NPC remembers across sessions)
-```
+The behavior channel does not wait for the LLM before returning an action. Bark generation is asynchronous and has template fallbacks. The dialogue channel supports both a standard response and a sentence-level pipeline so Unity can begin presenting and synthesizing a reply before the complete response is ready.
 
-Two research threads: **(1) behavior**: a supervised policy beats both a hand-written heuristic and LLM-as-policy at state-aware action selection (91.0% vs 51.6% vs 16.0% accuracy); **(2) persona scalability**: can automatically generated structured personas match hand-authored ones in consistency and perceived quality? (See `docs/npc-design.md` for the full architecture and `docs/progress-log.md` for the research-question framing.)
+The behavior evaluation compares the trained policy with a hand-written heuristic and an LLM-as-policy baseline. See [NPC design](docs/npc-design.md), [report facts](docs/report_facts.md), and the [evaluation guide](evaluation/README.md) for details and recorded results.
 
-## What is ours vs. off-the-shelf
+## Technology stack
 
-| Component | Off-the-shelf | Built by us |
-|---|---|---|
-| Behavior policy | PyTorch (framework), Kaggle Stateful-RPG dataset | **leak-free dataset conversion with oracle relabeling, native feature extraction, multi-head MLP + training, heuristic & LLM-as-policy baselines, 3-way evaluation** |
-| Bark verbalizer | llama3 via Ollama | **situation summarization, persona-conditioned prompting, robust fallback templates** |
-| STT | Whisper (base) | recording + resampling integration |
-| LLM inference | llama3 via Ollama (fully local) | **three-layer persona schema, seed→persona auto-generation, prompt assembly, dynamic state updates** |
-| Memory | sentence-transformers (embeddings only) | **3-factor retrieval (semantic·recency·importance), embedding cache, cross-session persistence** |
-| TTS | Coqui XTTS v2 (zero-shot cloning) | voice-identity convention, synthesis/streaming wrapper |
-| Server | FastAPI (framework) | all endpoints (Unity bridge) |
+| Area | Technology |
+| --- | --- |
+| Behavior policy | PyTorch multi-head MLP |
+| Dialogue and persona generation | Ollama (`llama3:latest`) |
+| Memory embeddings | Sentence Transformers (`all-MiniLM-L6-v2`) |
+| Speech-to-text | OpenAI Whisper (`base`) |
+| Text-to-speech | Coqui XTTS v2 |
+| API | FastAPI + Uvicorn |
+| Client | Unity C# scripts using `UnityWebRequest` |
 
-## Setup
+## Requirements
 
-Requirements: Python 3.10, [Ollama](https://ollama.com) with `llama3:latest` pulled, a microphone (optional), Windows-tested.
+- Python 3.10 (the dependency set is tested on Windows)
+- [Ollama](https://ollama.com/) with `llama3:latest`
+- A microphone for voice input (optional)
+- An NVIDIA GPU is recommended for XTTS and policy training; text-only dialogue can run without one
+
+## Installation
 
 ```bash
-pip install -r requirements.txt          # torch pinned to 2.8.0 — see comments inside
+python -m venv .venv
+
+# Windows PowerShell
+.venv\Scripts\Activate.ps1
+
+python -m pip install --upgrade pip
+pip install -r requirements.txt
 ollama pull llama3
-python -m scripts.generate_placeholder_voices   # placeholder reference voices
 ```
 
-## Usage
+Generate placeholder reference voices if `data/voices/` is empty:
 
 ```bash
-# Generate a persona from a seed (once per NPC)
-python -m backend.main --seed data/seeds/example_seeds.json --name Aldric
+python -m scripts.generate_placeholder_voices
+```
 
-# Talk — text mode
-python -m backend.main --npc aldric --text
+> XTTS v2 downloads roughly 2 GB on first use. Ollama, XTTS, Whisper, and the behavior checkpoint are loaded lazily where possible.
 
-# Talk — with spoken replies (XTTS v2; first run downloads ~2 GB)
-python -m backend.main --npc aldric --text --speak
+## Quick start
 
-# Talk — microphone input
-python -m backend.main --npc aldric
+Start Ollama, then launch the backend from the repository root:
 
-# HTTP server for Unity (endpoints: /health, /npc/{name}, /act, /chat, /transcribe)
+```bash
 uvicorn backend.server:app --host 127.0.0.1 --port 8000
 ```
 
-Behavior policy (train / evaluate):
+Verify the service:
+
+```text
+http://127.0.0.1:8000/health
+http://127.0.0.1:8000/docs
+```
+
+### Command-line dialogue
+
+The repository includes six generated personas. Names are case-insensitive when used with `--npc`:
 
 ```bash
-# Convert the raw dataset (labels recomputed with the generator's deterministic rule)
+# Text dialogue
+python -m backend.main --npc nicole --text
+
+# Text input with cloned-voice replies
+python -m backend.main --npc nicole --text --speak
+
+# Microphone input
+python -m backend.main --npc nicole
+```
+
+Generate or overwrite personas from the roster seed file:
+
+```bash
+python -m scripts.generate_roster_personas --overwrite
+
+# Generate one persona through the interactive backend entry point
+python -m backend.main --seed data/seeds/example_seeds.json --name Nicole --text
+```
+
+## Active NPC roster
+
+| Persona | Persona file | Unity model |
+| --- | --- | --- |
+| Asuna | `data/personas/asuna.json` | `assets/asuna/source/q.fbx` |
+| Lanyan | `data/personas/lanyan.json` | `assets/Lanyan_Unity/Lanyan.fbx` |
+| Loen | `data/personas/loen.json` | `assets/Loen/Loen.fbx` |
+| Frederica | `data/personas/frederica.json` | `assets/miyamoto-frederica/source/Breathing Idle.fbx` |
+| Nicole | `data/personas/nicole.json` | `assets/Nicole_Unity/Nicole.fbx` |
+| Sanji | `data/personas/sanji.json` | `assets/sanji-anime-character/source/crowds_30039.fbx` |
+
+Use the persona name in both `NpcBehaviorClient.npcName` and `NpcDialogueClient.npcName`. See [the roster notes](data/personas/README.md) for Unity object naming details.
+
+## API
+
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| `GET` | `/health` | Liveness and runtime status |
+| `POST` | `/tts/warmup` | Load and warm up XTTS |
+| `GET` | `/npc/{name}` | Persona summary and dynamic state |
+| `POST` | `/act` | Select an action/mood and optionally generate a bark or audio |
+| `POST` | `/chat` | Complete dialogue response with optional audio |
+| `POST` | `/chat/pipeline` | Start sentence-level dialogue/audio generation |
+| `GET` | `/chat/pipeline/{job_id}` | Poll sentence and audio events |
+| `POST` | `/transcribe` | Transcribe an uploaded WAV file |
+
+Interactive request schemas are available at `/docs` after the server starts.
+
+## Unity integration
+
+Copy `unity/Scripts/` into a Unity project's `Assets/Scripts/` directory. The included components cover:
+
+- periodic game-state submission and autonomous NPC actions;
+- action routing and procedural movement;
+- proximity-triggered dialogue UI;
+- sentence-pipeline polling and WAV playback;
+- bark bubbles and scene-state collection.
+
+Editor helpers under `unity/Editor/` automate scene setup and run readiness checks. For a local backend, keep the backend URL at `http://127.0.0.1:8000`. More detail is available in [the Unity integration guide](unity/README.md).
+
+## Behavior policy training and evaluation
+
+```bash
+# Convert the Stateful RPG dataset and recompute labels with the oracle rule
 python -m evaluation.datasets.convert_stateful_rpg
 
-# Train the MLP (CUDA by default; --allow-cpu for local runs)
+# Train locally on CPU (CUDA is the default)
 python -m evaluation.train_policy --device cpu --allow-cpu --epochs 80 --hidden-dim 256
 
-# Compare trained vs heuristic vs LLM-as-policy on the test split
-python -m evaluation.eval_policies --checkpoint data/behavior_policy/checkpoints/stateful_rpg_v2_mlp_h256 --llm-model llama3:latest
+# Compare trained, heuristic, and LLM policies
+python -m evaluation.eval_policies \
+  --checkpoint data/behavior_policy/checkpoints2/stateful_rpg_v2_mlp_h512 \
+  --llm-model llama3:latest
 ```
 
-## Tests & evaluation
+Dialogue-side evaluation examples:
 
 ```bash
-python -m pytest        # 143 tests, no Ollama/XTTS/GPU needed (heavy models stubbed)
-```
-
-The evaluation harness (baselines, ablations, LLM-as-judge, latency) lives in `evaluation/` — see [`evaluation/README.md`](evaluation/README.md). Example:
-
-```bash
-python -m evaluation.run_dialogues --npc aldric --condition full --suite all
-python -m evaluation.judge_consistency evaluation/results/aldric_*.jsonl
+python -m evaluation.run_dialogues --npc nicole --condition full --suite all
+python -m evaluation.judge_consistency evaluation/results/nicole_*.jsonl
 python -m evaluation.measure_latency --n 30 --components llm
+python -m evaluation.eval_guard
+python -m evaluation.eval_barks
+```
+
+## Tests
+
+Heavy models are stubbed in the automated tests, so Ollama, XTTS, and a GPU are not required:
+
+```bash
+pip install pytest
+python -m pytest
 ```
 
 ## Repository layout
 
+```text
+backend/       FastAPI, behavior policy, dialogue, persona, memory, STT, and TTS
+data/          seeds, personas, voices, datasets, checkpoints, and evaluation output
+evaluation/    data conversion, training, baselines, dialogue evaluation, and latency tools
+scripts/       persona and placeholder-voice generation
+tests/         unit and integration tests
+unity/         Unity runtime scripts, editor setup helpers, and integration notes
+docs/          architecture, research notes, results, and progress documentation
+assets/        Unity-ready character and player assets
 ```
-backend/          behavior policy · verbalizer · STT · LLM dialogue · persona · memory · TTS · FastAPI
-data/             seeds, personas, voices, converted policy dataset + checkpoints + eval results
-evaluation/       dataset conversion, policy training/eval, dialogue runner / judge / latency scripts
-scripts/          placeholder voice generation
-tests/            pytest suite (143)
-unity/            Unity client (in progress)
-docs/             design & progress documentation (Chinese)
-```
 
-Design deep-dive: [`docs/npc-design.md`](docs/npc-design.md) · Progress log: [`docs/progress-log.md`](docs/progress-log.md)
+## Project status
 
-## Status
-
-| Phase | Scope | Status |
-|---|---|---|
-| 1 | STT + LLM dialogue + auto persona generation | ✅ |
-| 2 | Semantic memory retrieval (3-factor) | ✅ |
-| 3 | TTS voice cloning (XTTS v2) | ✅ |
-| 4a | FastAPI bridge for Unity | ✅ |
-| B | Behavior policy: dataset v2 + training + 3-way eval + bark verbalizer + `/act` | ✅ |
-| 4b | Unity scene + client + lip-sync | 🔧 in progress |
-| Eval | Dialogue-side runs + user study | 🔧 harness ready |
+| Area | Status |
+| --- | --- |
+| Persona generation, dialogue, memory, and dialogue guard | Complete |
+| Whisper STT and XTTS voice cloning | Complete |
+| Trained behavior policy, bark verbalizer, and evaluation harness | Complete |
+| FastAPI and Unity bridge | Complete |
+| Six-NPC Unity scene integration | In active development/testing |
 
 ## References
 
 1. Park et al., *Generative Agents: Interactive Simulacra of Human Behavior*, UIST 2023.
 2. Abdulhai et al., *Consistently Simulating Human Personas with Multi-Turn Reinforcement Learning*, arXiv:2511.00222, 2025.
-3. Albayrak, *RPG Dataset (Llama-3)* — Stateful RPG NPC simulation data + generator, [Kaggle](https://www.kaggle.com/datasets/abdusselamalbayrak/rpg-dataset-llama-3/data), Apache-2.0.
+3. Albayrak, *RPG Dataset (Llama-3)* — Stateful RPG NPC simulation data and generator, [Kaggle](https://www.kaggle.com/datasets/abdusselamalbayrak/rpg-dataset-llama-3/data), Apache-2.0.

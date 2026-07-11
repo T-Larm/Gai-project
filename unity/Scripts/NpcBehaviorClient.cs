@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Events;
@@ -9,9 +10,9 @@ namespace GaiNpc
 {
     /// <summary>
     /// Behavior channel: polls POST /act every tick with the NPC's current
-    /// game state. The trained policy returns an action instantly; the bark
-    /// line arrives in the same response (~1 s) — play the action animation
-    /// immediately and show the bark whenever it lands.
+    /// game state. POST /act returns the trained action immediately and starts
+    /// bark/voice generation in the background. The client applies the action,
+    /// then polls the bark job without blocking later policy ticks.
     ///
     /// Wire in the inspector:
     ///   OnActionChanged -> your animator/pathfinding ("drink", "flee", ...)
@@ -28,6 +29,7 @@ namespace GaiNpc
         [Tooltip("Seconds between /act decision ticks")]
         public float tickSeconds = 5f;
         public bool requestBark = true;
+        [Min(0.05f)] public float barkPollSeconds = 0.12f;
         [Tooltip("Also synthesize bark audio (XTTS, adds latency)")]
         public bool speak = false;
 
@@ -55,9 +57,21 @@ namespace GaiNpc
             public string action_id = "";
             public string mood = "";
             public bool should_talk;
+            public string bark_job_id = "";
             public string bark = "";
             public string audio_base64 = "";
         }
+
+        [Serializable]
+        private class BarkJobResponse
+        {
+            public bool done;
+            public string error = "";
+            public string bark = "";
+            public string audio_base64 = "";
+        }
+
+        private readonly HashSet<string> pendingBarkJobs = new HashSet<string>();
 
         private void OnEnable()
         {
@@ -67,8 +81,9 @@ namespace GaiNpc
 
         private void OnDisable()
         {
-            if (tickLoop != null) StopCoroutine(tickLoop);
+            StopAllCoroutines();
             tickLoop = null;
+            pendingBarkJobs.Clear();
         }
 
         private IEnumerator TickLoop()
@@ -133,19 +148,72 @@ namespace GaiNpc
             {
                 OnBark?.Invoke(response.bark);
             }
+            if (!string.IsNullOrEmpty(response.bark_job_id) &&
+                pendingBarkJobs.Add(response.bark_job_id))
+            {
+                StartCoroutine(PollBark(response.bark_job_id));
+            }
             if (response.should_talk)
             {
                 OnShouldTalk?.Invoke();
             }
-            if (speak && voiceSource != null && !string.IsNullOrEmpty(response.audio_base64))
+            PlayBarkAudio(response.audio_base64);
+        }
+
+        private IEnumerator PollBark(string jobId)
+        {
+            while (true)
             {
-                var clip = WavUtility.FromBase64Wav(response.audio_base64, "bark");
-                if (clip != null)
+                using (var request = UnityWebRequest.Get(
+                    serverUrl + "/act/bark/" + UnityWebRequest.EscapeURL(jobId)))
                 {
-                    voiceSource.clip = clip;
-                    voiceSource.Play();
+                    yield return request.SendWebRequest();
+                    if (request.result != UnityWebRequest.Result.Success)
+                    {
+                        string details = request.downloadHandler != null
+                            ? request.downloadHandler.text
+                            : "";
+                        Debug.LogWarning(
+                            $"[NpcBehaviorClient] bark poll failed ({request.responseCode}): " +
+                            $"{request.error} {details}", this);
+                        break;
+                    }
+
+                    BarkJobResponse response =
+                        JsonUtility.FromJson<BarkJobResponse>(request.downloadHandler.text);
+                    if (response == null)
+                    {
+                        Debug.LogWarning("[NpcBehaviorClient] Invalid bark job response.", this);
+                        break;
+                    }
+                    if (!response.done)
+                    {
+                        yield return new WaitForSecondsRealtime(
+                            Mathf.Max(0.05f, barkPollSeconds));
+                        continue;
+                    }
+                    if (!string.IsNullOrEmpty(response.error))
+                    {
+                        Debug.LogWarning(
+                            $"[NpcBehaviorClient] bark generation failed: {response.error}", this);
+                        break;
+                    }
+                    if (!string.IsNullOrEmpty(response.bark))
+                        OnBark?.Invoke(response.bark);
+                    PlayBarkAudio(response.audio_base64);
+                    break;
                 }
             }
+            pendingBarkJobs.Remove(jobId);
+        }
+
+        private void PlayBarkAudio(string audioBase64)
+        {
+            if (!speak || voiceSource == null || string.IsNullOrEmpty(audioBase64)) return;
+            var clip = WavUtility.FromBase64Wav(audioBase64, "bark");
+            if (clip == null) return;
+            voiceSource.clip = clip;
+            voiceSource.Play();
         }
 
         private static string EscapeJson(string value)

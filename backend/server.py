@@ -4,8 +4,9 @@ FastAPI bridge for Unity (Phase 4).
 Endpoints:
     GET  /health          — liveness check
     GET  /npc/{name}      — persona summary + current dynamic state
-    POST /chat            — {npc, text, speak?} -> {npc, reply[, audio_base64, sample_rate]}
-    POST /act             — {npc, game_state, bark?, speak?} -> policy action + in-character bark
+    POST /chat            — {npc, text, speak?, game_state?, policy_mode?} -> reply
+    POST /act             — immediate policy action + optional background bark job
+    GET  /act/bark/{id}   — poll background bark/XTTS result
     POST /transcribe      — WAV upload (16 kHz mono preferred) -> {text}
 
 Run from the project root:
@@ -49,6 +50,8 @@ _policy = None
 _verbalizer = None
 _pipeline_jobs: Dict[str, "_PipelineJob"] = {}
 _pipeline_jobs_lock = threading.Lock()
+_bark_jobs: Dict[str, "_BarkJob"] = {}
+_bark_jobs_lock = threading.Lock()
 _tts_lock = threading.Lock()
 
 _SENTENCE_RE = re.compile(r"^(.+?[.!?\u3002\uff01\uff1f]+(?:[\"'\u201d\u2019)]*)?)(?:\s+|$)", re.DOTALL)
@@ -77,6 +80,35 @@ class _PipelineJob:
                 "next": len(self.events),
                 "done": self.done,
                 "error": self.error,
+            }
+
+
+class _BarkJob:
+    def __init__(self, npc: str):
+        self.npc = npc
+        self.done = False
+        self.error = ""
+        self.result: Dict[str, Any] = {}
+        self.created_at = time.time()
+        self.lock = threading.Lock()
+
+    def finish(self, **result) -> None:
+        with self.lock:
+            self.result.update(result)
+            self.done = True
+
+    def fail(self, error: str) -> None:
+        with self.lock:
+            self.error = error
+            self.done = True
+
+    def snapshot(self) -> Dict[str, Any]:
+        with self.lock:
+            return {
+                "npc": self.npc,
+                "done": self.done,
+                "error": self.error,
+                **self.result,
             }
 
 
@@ -171,6 +203,17 @@ class ActRequest(BaseModel):
     game_state: Dict[str, Any]
     bark: bool = True
     speak: bool = False
+
+
+def _prepare_dialogue_policy(handler: DialogueHandler, request: ChatRequest) -> None:
+    """Share the served native policy with dialogue turns that request it."""
+    if request.policy_mode == "trained":
+        if request.game_state is None:
+            raise HTTPException(
+                status_code=400,
+                detail="policy_mode='trained' requires game_state",
+            )
+        handler.behavior_policy = _get_policy()
 
 
 def _extract_sentences(buffer: str, force: bool = False):
@@ -268,6 +311,9 @@ def _run_chat_pipeline(job: _PipelineJob, request: ChatRequest) -> None:
             "done",
             reply=result["reply"],
             guard_reason=guard_reason,
+            policy_mode=result["policy_mode"],
+            action_id=(result.get("action") or {}).get("action_id", ""),
+            mood=(result.get("action") or {}).get("mood", ""),
         )
     except Exception as exc:
         work_queue.put(None)
@@ -289,6 +335,49 @@ def _remove_old_pipeline_jobs(max_age_seconds: float = 1800.0) -> None:
         ]
         for job_id in expired:
             del _pipeline_jobs[job_id]
+
+
+def _run_bark_job(
+    job: _BarkJob,
+    persona: Dict[str, Any],
+    game_state: Dict[str, Any],
+    action_id: str,
+    speak: bool,
+) -> None:
+    try:
+        start = time.perf_counter()
+        line = _get_verbalizer().bark(persona, game_state, action_id)
+        result: Dict[str, Any] = {
+            "bark": line,
+            "latency_ms": {"bark": round((time.perf_counter() - start) * 1000.0, 2)},
+        }
+        if speak:
+            voice_path = os.path.join(VOICES_DIR, f"{_npc_key(job.npc)}.wav")
+            start = time.perf_counter()
+            with _tts_lock:
+                waveform, sample_rate = _get_tts().synthesize(line, voice_path)
+            result["audio_base64"] = base64.b64encode(
+                waveform_to_wav_bytes(waveform, sample_rate)
+            ).decode("ascii")
+            result["sample_rate"] = sample_rate
+            result["latency_ms"]["tts"] = round(
+                (time.perf_counter() - start) * 1000.0, 2
+            )
+        job.finish(**result)
+    except Exception as exc:
+        job.fail(str(exc))
+
+
+def _remove_old_bark_jobs(max_age_seconds: float = 1800.0) -> None:
+    cutoff = time.time() - max_age_seconds
+    with _bark_jobs_lock:
+        expired = [
+            job_id
+            for job_id, job in _bark_jobs.items()
+            if job.done and job.created_at < cutoff
+        ]
+        for job_id in expired:
+            del _bark_jobs[job_id]
 
 
 @app.get("/health")
@@ -334,6 +423,7 @@ def npc_info(name: str):
 @app.post("/chat")
 def chat(request: ChatRequest):
     handler = _get_handler(request.npc)
+    _prepare_dialogue_policy(handler, request)
     try:
         result = handler.respond_with_metadata(
             request.text,
@@ -345,7 +435,12 @@ def chat(request: ChatRequest):
     reply = result["reply"]
     PersonaGenerator(_get_llm()).save(handler.npc, directory=PERSONAS_DIR)
 
-    response = {"npc": handler.npc.core.name, "reply": reply}
+    response = {
+        "npc": handler.npc.core.name,
+        "reply": reply,
+        "policy_mode": result["policy_mode"],
+        "action": result["action"],
+    }
     if handler.last_guard is not None:
         response["guard"] = {"reason": handler.last_guard.reason}
     if request.speak:
@@ -361,7 +456,8 @@ def chat(request: ChatRequest):
 @app.post("/chat/pipeline")
 def start_chat_pipeline(request: ChatRequest):
     """Start Ollama sentence streaming and per-sentence XTTS synthesis."""
-    _get_handler(request.npc)
+    handler = _get_handler(request.npc)
+    _prepare_dialogue_policy(handler, request)
     _remove_old_pipeline_jobs()
     job_id = uuid.uuid4().hex
     job = _PipelineJob(request.npc)
@@ -408,26 +504,36 @@ def act(request: ActRequest):
     }
 
     if request.bark:
+        _remove_old_bark_jobs()
         persona = {
             "name": npc.core.name,
             "occupation": npc.core.occupation,
             "speech_style": npc.core.speech_style,
             "traits": npc.seed.personality_tags,
         }
-        start = time.perf_counter()
-        line = _get_verbalizer().bark(persona, request.game_state, action_id)
-        response["bark"] = line
-        response["latency_ms"]["bark"] = round((time.perf_counter() - start) * 1000.0, 2)
-
-        if request.speak:
-            voice_path = os.path.join(VOICES_DIR, f"{_npc_key(request.npc)}.wav")
-            waveform, sample_rate = _get_tts().synthesize(line, voice_path)
-            response["audio_base64"] = base64.b64encode(
-                waveform_to_wav_bytes(waveform, sample_rate)
-            ).decode("ascii")
-            response["sample_rate"] = sample_rate
+        job_id = uuid.uuid4().hex
+        job = _BarkJob(npc.core.name)
+        with _bark_jobs_lock:
+            _bark_jobs[job_id] = job
+        threading.Thread(
+            target=_run_bark_job,
+            args=(job, persona, dict(request.game_state), action_id, request.speak),
+            daemon=True,
+            name=f"bark-{_npc_key(request.npc)}-{job_id[:8]}",
+        ).start()
+        response["bark_job_id"] = job_id
 
     return response
+
+
+@app.get("/act/bark/{job_id}")
+def poll_bark(job_id: str):
+    """Poll an asynchronous bark/XTTS task created by POST /act."""
+    with _bark_jobs_lock:
+        job = _bark_jobs.get(job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="Unknown or expired bark job.")
+    return job.snapshot()
 
 
 @app.post("/transcribe")

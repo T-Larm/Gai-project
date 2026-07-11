@@ -4,12 +4,12 @@ then updates the NPC's dynamic situation layer (memory, goal, emotion).
 """
 import os
 from pathlib import Path
-from typing import TYPE_CHECKING, Callable, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Mapping, Optional, Union
 
 from backend.config.settings import (
-    DATA_DIR,
     DYNAMIC_UPDATE_EVERY,
     HISTORY_MAX_MESSAGES,
+    POLICY_CHECKPOINT_DIR,
     SHORT_TERM_MEMORY_SIZE,
     VOICES_DIR,
 )
@@ -68,6 +68,7 @@ Keep values short. If nothing meaningful changed, return the current values.
 
 _PROMPT_STYLES = ("layered", "flat", "none")
 _POLICY_MODES = ("llm_only", "rule", "trained")
+PolicyDecision = Union[PolicyAction, Dict[str, str]]
 
 _RULES_BLOCK = """\
 Rules:
@@ -119,13 +120,12 @@ class DialogueHandler:
         self.policy_mode = policy_mode
         self.behavior_policy = behavior_policy
         self.trained_policy_checkpoint = (
-            trained_policy_checkpoint
-            or os.path.join(DATA_DIR, "behavior_policy", "checkpoints", "stateful_rpg_a40")
+            trained_policy_checkpoint or POLICY_CHECKPOINT_DIR
         )
         self.state_encoder = StateEncoder()
         self._rule_policy = RuleBasedPolicy()
         self._trained_policy = None
-        self.last_policy_action: Optional[PolicyAction] = None
+        self.last_policy_action: Optional[PolicyDecision] = None
         self.last_state_features: Optional[StateFeatures] = None
         self.memory = MemoryStream.from_list(npc.memory_log)
         self.history: List[Dict[str, str]] = []   # [{role, content}, ...]
@@ -134,7 +134,7 @@ class DialogueHandler:
     def _build_system_prompt(
         self,
         query: str,
-        policy_action: Optional[PolicyAction] = None,
+        policy_action: Optional[PolicyDecision] = None,
         memories: Optional[List[str]] = None,
     ) -> str:
         if self.system_prompt_text is not None:
@@ -187,9 +187,24 @@ class DialogueHandler:
             memory_block=memory_block,
         )
 
-    def _policy_action_block(self, policy_action: Optional[PolicyAction]) -> str:
+    def _policy_action_block(self, policy_action: Optional[PolicyDecision]) -> str:
         if policy_action is None:
             return ""
+        if isinstance(policy_action, Mapping):
+            action_id = str(policy_action.get("action_id", "")).strip() or "unknown"
+            mood = str(policy_action.get("mood", "")).strip() or "neutral"
+            return f"""
+
+## Trained behavior policy
+Selected action: {action_id}
+Selected mood: {mood}
+
+Policy rules:
+- Treat the selected action and mood as the NPC's current behavioral intent.
+- Make the spoken reply consistent with both the action and the mood.
+- If the action is not primarily conversational, acknowledge it naturally while answering.
+- Output only the NPC's spoken reply, with no JSON, labels, or stage directions.
+"""
         action = policy_action.to_dict()
         return f"""
 
@@ -221,11 +236,11 @@ Policy rules:
     def _policy_for_mode(self, mode: str):
         if mode == "llm_only":
             return None
-        if self.behavior_policy is not None:
-            return self.behavior_policy
         if mode == "rule":
             return self._rule_policy
         if mode == "trained":
+            if self.behavior_policy is not None:
+                return self.behavior_policy
             if self._trained_policy is None:
                 checkpoint = Path(self.trained_policy_checkpoint)
                 if not checkpoint.exists():
@@ -242,13 +257,22 @@ Policy rules:
         memories: List[str],
         game_state: Optional[Dict] = None,
         policy_mode: Optional[str] = None,
-    ) -> Optional[PolicyAction]:
+    ) -> Optional[PolicyDecision]:
         mode = self._resolve_policy_mode(policy_mode)
         policy = self._policy_for_mode(mode)
         if policy is None:
             self.last_state_features = None
             self.last_policy_action = None
             return None
+        if mode == "trained":
+            # The supervised MLP consumes the raw Stateful-RPG game state.
+            # Encoding it as the legacy dialogue StateFeatures would discard
+            # the native inputs used to construct the model's 90-D vector.
+            action = policy.predict(dict(game_state or {}))
+            self.last_state_features = None
+            self.last_policy_action = action
+            return action
+
         state = self.state_encoder.encode(
             player_text=player_input,
             npc=self.npc,
@@ -263,9 +287,9 @@ Policy rules:
     def _coerce_policy_reply(
         self,
         raw_reply: str,
-        policy_action: Optional[PolicyAction],
+        policy_action: Optional[PolicyDecision],
     ) -> tuple[str, str]:
-        if policy_action is None:
+        if policy_action is None or isinstance(policy_action, Mapping):
             return raw_reply, ""
         try:
             data = parse_llm_json(raw_reply)
@@ -344,7 +368,7 @@ Policy rules:
         return {
             "reply": reply,
             "policy_mode": self._resolve_policy_mode(policy_mode),
-            "action": action.to_dict() if action is not None else None,
+            "action": self._serialize_policy_action(action),
             "state": (
                 self.last_state_features.to_dict()
                 if self.last_state_features is not None else None
@@ -360,7 +384,7 @@ Policy rules:
     ) -> Dict:
         """Stream an llm_only reply while preserving normal turn state."""
         mode = self._resolve_policy_mode(policy_mode)
-        if mode != "llm_only" or not hasattr(self.llm, "chat_stream"):
+        if mode == "rule" or not hasattr(self.llm, "chat_stream"):
             result = self.respond_with_metadata(
                 player_input, game_state=game_state, policy_mode=policy_mode
             )
@@ -422,12 +446,22 @@ Policy rules:
         return {
             "reply": reply,
             "policy_mode": mode,
-            "action": action.to_dict() if action is not None else None,
+            "action": self._serialize_policy_action(action),
             "state": (
                 self.last_state_features.to_dict()
                 if self.last_state_features is not None else None
             ),
         }
+
+    @staticmethod
+    def _serialize_policy_action(
+        action: Optional[PolicyDecision],
+    ) -> Optional[Dict[str, Any]]:
+        if action is None:
+            return None
+        if isinstance(action, Mapping):
+            return {str(key): value for key, value in action.items()}
+        return action.to_dict()
 
     def _update_dynamic_state(self) -> None:
         """Ask the LLM to re-evaluate goal/emotion; keep old state on failure."""

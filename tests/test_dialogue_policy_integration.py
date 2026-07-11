@@ -23,6 +23,15 @@ class _FakeLLM:
         return '{"current_goal": "x", "emotional_state": "neutral"}'
 
 
+class _FakeNativePolicy:
+    def __init__(self):
+        self.states = []
+
+    def predict(self, state):
+        self.states.append(state)
+        return {"action_id": "socialize", "mood": "friendly"}
+
+
 def _make_npc() -> NPC:
     return NPC(
         seed=PersonaSeed(
@@ -96,3 +105,30 @@ def test_trained_mode_requires_checkpoint():
 
     with pytest.raises(FileNotFoundError):
         handler.respond("Hello")
+
+
+def test_trained_mode_uses_native_game_state_and_injects_action_and_mood():
+    llm = _FakeLLM("Good to see you. What brings you here?")
+    policy = _FakeNativePolicy()
+    handler = DialogueHandler(
+        llm,
+        _make_npc(),
+        use_memory=False,
+        policy_mode="trained",
+        behavior_policy=policy,
+    )
+    game_state = {
+        "vitals": {"hp": 100, "hun": 0.1, "thi": 0.2},
+        "emo": {"hap": 0.8, "fear": 0.0, "ang": 0.0},
+        "percepts": [{"id": "player", "tag": "Social", "sal": 0.9}],
+    }
+
+    result = handler.respond_with_metadata("Hello", game_state=game_state)
+
+    assert policy.states == [game_state]
+    assert result["reply"] == "Good to see you. What brings you here?"
+    assert result["action"] == {"action_id": "socialize", "mood": "friendly"}
+    assert result["state"] is None
+    assert "## Trained behavior policy" in llm.systems[0]
+    assert "Selected action: socialize" in llm.systems[0]
+    assert "Selected mood: friendly" in llm.systems[0]

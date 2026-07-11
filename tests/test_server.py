@@ -2,6 +2,7 @@
 import base64
 import json
 import os
+import threading
 import time
 
 import numpy as np
@@ -80,6 +81,7 @@ def client(tmp_path, monkeypatch):
     monkeypatch.setattr(server_module, "_get_policy", lambda: _FakePolicy())
     monkeypatch.setattr(server_module, "_get_verbalizer", lambda: _FakeVerbalizer())
     server_module._handlers.clear()
+    server_module._bark_jobs.clear()
     _write_persona(str(tmp_path))
     (tmp_path / "aldric.wav").write_bytes(b"fake reference wav")
     return TestClient(server_module.app)
@@ -130,6 +132,33 @@ def test_chat_with_speak_returns_playable_wav(client):
     waveform, sample_rate = wav_bytes_to_float32(base64.b64decode(body["audio_base64"]))
     assert sample_rate == 24000
     assert len(waveform) == 3
+
+
+def test_chat_trained_mode_runs_native_policy(client):
+    response = client.post(
+        "/chat",
+        json={
+            "npc": "Aldric",
+            "text": "Hello!",
+            "game_state": _GAME_STATE,
+            "policy_mode": "trained",
+        },
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["policy_mode"] == "trained"
+    assert body["action"] == {"action_id": "drink", "mood": "calm"}
+
+
+def test_chat_trained_mode_requires_game_state(client):
+    response = client.post(
+        "/chat",
+        json={"npc": "Aldric", "text": "Hello!", "policy_mode": "trained"},
+    )
+
+    assert response.status_code == 400
+    assert "requires game_state" in response.json()["detail"]
 
 
 def test_chat_pipeline_returns_sentence_audio_and_done_events(client):
@@ -185,7 +214,21 @@ _GAME_STATE = {
 }
 
 
-def test_act_returns_action_mood_and_bark(client):
+def _wait_for_bark(client, job_id):
+    body = None
+    for _ in range(100):
+        response = client.get(f"/act/bark/{job_id}")
+        assert response.status_code == 200
+        body = response.json()
+        if body["done"]:
+            break
+        time.sleep(0.01)
+    assert body is not None and body["done"] is True
+    assert body["error"] == ""
+    return body
+
+
+def test_act_returns_action_immediately_and_bark_asynchronously(client):
     response = client.post("/act", json={"npc": "Aldric", "game_state": _GAME_STATE})
 
     assert response.status_code == 200
@@ -193,10 +236,13 @@ def test_act_returns_action_mood_and_bark(client):
     assert body["npc"] == "Aldric"
     assert body["action_id"] == "drink"
     assert body["mood"] == "calm"
-    assert body["bark"] == "Time for a good drink."
     assert body["should_talk"] is False
     assert body["latency_ms"]["policy"] >= 0
+    assert "bark" not in body
     assert "audio_base64" not in body
+    bark = _wait_for_bark(client, body["bark_job_id"])
+    assert bark["bark"] == "Time for a good drink."
+    assert bark["latency_ms"]["bark"] >= 0
 
 
 def test_act_flags_socialize_for_full_dialogue(client, monkeypatch):
@@ -213,7 +259,7 @@ def test_act_can_skip_bark(client):
     )
 
     assert response.status_code == 200
-    assert "bark" not in response.json()
+    assert "bark_job_id" not in response.json()
 
 
 def test_act_with_speak_returns_playable_wav(client):
@@ -222,10 +268,39 @@ def test_act_with_speak_returns_playable_wav(client):
     )
 
     assert response.status_code == 200
-    body = response.json()
+    action = response.json()
+    assert "audio_base64" not in action
+    body = _wait_for_bark(client, action["bark_job_id"])
     waveform, sample_rate = wav_bytes_to_float32(base64.b64decode(body["audio_base64"]))
     assert sample_rate == 24000
     assert len(waveform) == 3
+
+
+def test_act_does_not_wait_for_blocked_bark(client, monkeypatch):
+    started = threading.Event()
+    release = threading.Event()
+
+    class _BlockingVerbalizer:
+        def bark(self, persona, state, action):
+            started.set()
+            release.wait(timeout=5)
+            return "Finished later."
+
+    monkeypatch.setattr(server_module, "_get_verbalizer", lambda: _BlockingVerbalizer())
+    response = client.post("/act", json={"npc": "Aldric", "game_state": _GAME_STATE})
+
+    assert response.status_code == 200
+    assert response.json()["action_id"] == "drink"
+    assert started.wait(timeout=1)
+    job_id = response.json()["bark_job_id"]
+    assert client.get(f"/act/bark/{job_id}").json()["done"] is False
+
+    release.set()
+    assert _wait_for_bark(client, job_id)["bark"] == "Finished later."
+
+
+def test_bark_poll_404_for_unknown_job(client):
+    assert client.get("/act/bark/nobody").status_code == 404
 
 
 def test_act_404_for_unknown_npc(client):

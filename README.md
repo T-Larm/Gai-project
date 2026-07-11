@@ -24,12 +24,13 @@ game state (JSON) -> trained MLP policy -> action + mood -> Unity acts immediate
                                       \-> async LLM bark -> optional XTTS speech
 
 Dialogue channel
-player text/speech -> Whisper (optional) -> persona + memory + dialogue guard
-                                      -> Ollama LLM -> reply -> optional XTTS speech
-                                                       \-> persisted memory/state
+player text/speech + game state -> trained MLP -> action + mood
+                                      \-> persona + memory + dialogue guard
+                                           -> Ollama LLM -> reply -> optional XTTS speech
+                                                            \-> persisted memory/state
 ```
 
-The behavior channel does not wait for the LLM before returning an action. Bark generation is asynchronous and has template fallbacks. The dialogue channel supports both a standard response and a sentence-level pipeline so Unity can begin presenting and synthesizing a reply before the complete response is ready.
+The behavior channel does not wait for the LLM before returning an action. Bark generation is asynchronous and has template fallbacks. During player-initiated dialogue, Unity sends the same native game state with `policy_mode=trained`; the resulting `action_id` and `mood` constrain the LLM reply. The dialogue channel supports both a standard response and a sentence-level pipeline so Unity can begin presenting and synthesizing a reply before the complete response is ready.
 
 The behavior evaluation compares the trained policy with a hand-written heuristic and an LLM-as-policy baseline. See [NPC design](docs/npc-design.md), [report facts](docs/report_facts.md), and the [evaluation guide](evaluation/README.md) for details and recorded results.
 
@@ -132,7 +133,8 @@ Use the persona name in both `NpcBehaviorClient.npcName` and `NpcDialogueClient.
 | `GET` | `/health` | Liveness and runtime status |
 | `POST` | `/tts/warmup` | Load and warm up XTTS |
 | `GET` | `/npc/{name}` | Persona summary and dynamic state |
-| `POST` | `/act` | Select an action/mood and optionally generate a bark or audio |
+| `POST` | `/act` | Immediately select an action/mood and optionally start a background bark job |
+| `GET` | `/act/bark/{job_id}` | Poll the asynchronous bark and optional audio result |
 | `POST` | `/chat` | Complete dialogue response with optional audio |
 | `POST` | `/chat/pipeline` | Start sentence-level dialogue/audio generation |
 | `GET` | `/chat/pipeline/{job_id}` | Poll sentence and audio events |
@@ -149,6 +151,8 @@ Copy `unity/Scripts/` into a Unity project's `Assets/Scripts/` directory. The in
 - proximity-triggered dialogue UI;
 - sentence-pipeline polling and WAV playback;
 - bark bubbles and scene-state collection.
+
+`NpcDialogueClient` uses `NpcSceneStateProvider` by default and requests the trained policy for every player-initiated turn. Disable `useTrainedPolicy` in the Inspector only when an LLM-only comparison is required.
 
 Editor helpers under `unity/Editor/` automate scene setup and run readiness checks. For a local backend, keep the backend URL at `http://127.0.0.1:8000`. More detail is available in [the Unity integration guide](unity/README.md).
 

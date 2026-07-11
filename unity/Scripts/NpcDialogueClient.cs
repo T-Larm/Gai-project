@@ -24,19 +24,17 @@ namespace GaiNpc
         [Tooltip("AudioSource for the reply voice when speak=true")]
         public AudioSource voiceSource;
 
+        [Header("Behavior Policy")]
+        [Tooltip("Run the trained behavior policy before generating every player reply")]
+        public bool useTrainedPolicy = true;
+        [Tooltip("Provides the same native game state used by POST /act")]
+        public NpcSceneStateProvider stateProvider;
+
         [Header("Sentence Pipeline")]
         public bool useSentencePipeline = true;
         [Min(0.05f)] public float pipelinePollSeconds = 0.12f;
 
         public bool IsBusy { get; private set; }
-
-        [Serializable]
-        private class ChatRequest
-        {
-            public string npc;
-            public string text;
-            public bool speak;
-        }
 
         [Serializable]
         private class ChatResponse
@@ -83,6 +81,11 @@ namespace GaiNpc
         private readonly Queue<AudioClip> pendingVoice = new Queue<AudioClip>();
         private Coroutine voicePlayback;
 
+        private void Awake()
+        {
+            if (stateProvider == null) stateProvider = GetComponent<NpcSceneStateProvider>();
+        }
+
         /// <summary>
         /// Send one player line. onReply(replyText, guardReason) — guardReason
         /// is null for normal turns, "secret_low_trust" / "prompt_injection"
@@ -109,12 +112,13 @@ namespace GaiNpc
             IsBusy = true;
             EnsureVoiceSource();
 
-            string body = JsonUtility.ToJson(new ChatRequest
+            string body = BuildRequestBody(playerText);
+            if (body == null)
             {
-                npc = npcName,
-                text = playerText,
-                speak = speak
-            });
+                IsBusy = false;
+                onReply?.Invoke(null, null);
+                yield break;
+            }
 
             string jobId;
             using (var request = new UnityWebRequest(serverUrl + "/chat/pipeline", "POST"))
@@ -222,12 +226,13 @@ namespace GaiNpc
             IsBusy = true;
             EnsureVoiceSource();
 
-            string body = JsonUtility.ToJson(new ChatRequest
+            string body = BuildRequestBody(playerText);
+            if (body == null)
             {
-                npc = npcName,
-                text = playerText,
-                speak = speak
-            });
+                IsBusy = false;
+                onReply?.Invoke(null, null);
+                yield break;
+            }
 
             using (var request = new UnityWebRequest(serverUrl + "/chat", "POST"))
             {
@@ -290,6 +295,33 @@ namespace GaiNpc
                 voiceSource.minDistance = 2f;
                 voiceSource.maxDistance = 15f;
             }
+        }
+
+        private string BuildRequestBody(string playerText)
+        {
+            NpcGameState state = stateProvider != null ? stateProvider.BuildState() : null;
+            if (useTrainedPolicy && state == null)
+            {
+                Debug.LogError(
+                    "[NpcDialogueClient] Trained dialogue requires NpcSceneStateProvider.",
+                    this);
+                return null;
+            }
+
+            string body = "{\"npc\":\"" + EscapeJson(npcName) + "\"," +
+                          "\"text\":\"" + EscapeJson(playerText) + "\"," +
+                          "\"speak\":" + (speak ? "true" : "false") + "," +
+                          "\"policy_mode\":\"" +
+                          (useTrainedPolicy ? "trained" : "llm_only") + "\"";
+            if (state != null) body += ",\"game_state\":" + state.ToJson();
+            return body + "}";
+        }
+
+        private static string EscapeJson(string value)
+        {
+            return (value ?? "").Replace("\\", "\\\\").Replace("\"", "\\\"")
+                .Replace("\b", "\\b").Replace("\f", "\\f")
+                .Replace("\n", "\\n").Replace("\r", "\\r").Replace("\t", "\\t");
         }
 
         private void QueueVoice(string audioBase64, int sentenceIndex)

@@ -25,10 +25,10 @@ Unity NPC 游戏循环（每个决策 tick）
         │ game_state JSON
         ▼
 POST /act ─► ① SupervisedPolicy（0.6 ms）→ action_id + mood
-             ② BarkVerbalizer（~1.2 s，可异步）→ 一句角色台词
+             ② BarkVerbalizer（可选，~1.2 s）→ 一句角色台词（与动作同一响应返回）
              ③ XTTS v2（可选）→ bark 语音
         │
-        ├─ NPC 立刻执行动作（动画/寻路），台词滞后≈1秒播出
+        ├─ Unity 协程发请求不阻塞帧；关 bark 即得纯即时动作通道，开 bark 则整个响应多花 ~1.2 s
         └─ action=socialize → should_talk=true ──┐
                                                   ▼
 ──────── 对话通道（玩家介入 / NPC 主动搭话）────────
@@ -157,7 +157,7 @@ policy 接管行为后，玩家对话怎么处理有三个选项：
 }
 ```
 
-当前 6 个 NPC（Aldric、Mira、Lord Vane、Captain Rowan、Nyx、Talia），关系互相交叉。
+当前 12 个 NPC（Aldric、Mira、Lord Vane、Captain Rowan、Nyx、Talia、Asuna、Frederica、Sanji、Lan Yan、Luo En、Citlali），共享 Oakmere 小镇设定，关系互相交叉。
 
 ## B2. 离线生成：三层 Persona
 
@@ -234,7 +234,7 @@ uvicorn backend.server:app --host 127.0.0.1 --port 8000
 | 环节 | 延迟 | 含义 |
 |------|------|------|
 | policy 推理 | **0.6 ms** | NPC 行为即时响应 |
-| bark 生成 | ~1.2 s | 台词异步播出，滞后 1 秒自然 |
+| bark 生成 | ~1.2 s | 可选；与动作同一响应返回，Unity 协程不阻塞帧 |
 | 完整对话回复 | 秒级 | 仅玩家主动交谈时发生 |
 
 行为与台词的延迟解耦是方案 B 对老师"Unity 实时性"问题的直接回答。
@@ -281,8 +281,8 @@ data/
 ├── behavior_policy/eval/              RQ1 结果 JSON
 ├── archive/                           原始 Kaggle 数据 + 生成器源码
 ├── personas/ seeds/ voices/           对话层数据
-tests/                                 143 个 pytest（不依赖 Ollama/XTTS/GPU，stub 隔离）
-unity/                                 （Phase 4b 待做）
+tests/                                 208 个 pytest（Ollama/XTTS/GPU 用 stub 隔离，policy 测试需 torch 才能 import）
+unity/                                 Unity 客户端脚本（行为/对话/流式/定位/口型）
 ```
 
 ## 已知设计局限（报告 limitations 素材）

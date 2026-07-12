@@ -135,17 +135,28 @@ Unity slides 结论（08/09/11 已读）：角色生成（SDXL→Hunyuan3D→Ble
 
 评估版图至此补齐，四张结果表：RQ1 行为（91.0/51.6/16.0）、RQ4 延迟（0.6ms/1.2s）、守门安全（0% vs 10% 泄密）、bark 质量（91.7% vs 47.2%）。
 
+## 2026-07-10~12：延迟优化 + 按句流式对话 + 全量评估 + 论文（分支 `latency-optimization`，已合并回 `master`）
+
+用户反映 Unity 语音回复过慢，本阶段把它降到可用，并补齐剩余评估。测试 167→**208** 全绿。
+
+1. **延迟根因与优化**（commit 398c061）：本机 torch 原是 CPU 版 → 建 `D:\venvs\gai` CUDA venv；8GB 显存被 llama3+XTTS+Unity 三方挤爆导致 XTTS 被换出（126s）→ llama3 限 20 层上 GPU + Whisper 固定 CPU + XTTS speaker latent 缓存 + 回复句数上限。Unity 开着时语音回复 14s→**6–11s**。
+2. **按句流式**（commits 9524b63…016aab0，6 个 commit，TDD）：`OllamaClient.chat_stream`（stream=True）→ 增量切句 → `DialogueHandler.respond_stream` → `StreamSessionManager`（线程 worker + TTL）→ `POST /chat_stream` + `GET /chat_stream/{id}?after=N`（chunk 带 `t_ms`，即 RQ4 端到端素材）。Unity `NpcDialogueClient` 0.25s 轮询 + AudioClip 队列连播。玩家听到**首句 ~6s**，整段回复边说边生成，不再一次等 20s。
+3. **Unity 具身**（commit a3e2476）：`NpcLocomotion`（action_id → NavMeshAgent 移动模式：work 类漫游 / flee 逃离 / socialize 接近 / 其余静止；speed 驱动 idle-walk-run 混合动画）+ `PlayerAnimationDriver`（玩家走动转身）+ talk trigger 只开最近 NPC + 输入框自动重聚焦。
+4. **全量评估补齐**（结果在 `data/behavior_policy/eval/` 与 `evaluation/results/`）：
+   - **RQ4 组件微基准**（RTX 4060 8GB，warm）：policy <1ms、STT Whisper CPU 0.48±0.02s（GPU 对比 0.11 但会挤崩 XTTS）、LLM 整回复 5.45±2.27s、XTTS 单句 1.20±0.23s。
+   - **RQ4 端到端体感**（Unity Play + 后端同开）：warm 首句 6.3±3.2s、句间 4.2±2.1s、整段 19.8±5.7s、冷启动 58.2s（懒加载）。
+   - **对话侧 5 条件 × LLM-as-judge**（full / no_memory / flat / none / handwritten）：quest/smalltalk 全 100%（天花板），仅 adversarial 有区分度；已如实记录"无守门时人设 prompt 挡不住显式角色劫持"。
+5. **论文**（`paper/npc_report_cvpr_template.tex`，CVPR 模板，7 页，不进 git）：写入 RQ1–RQ4 全部结果表；代码-论文逐项核对，措辞与代码对齐（bark 同响应返回、encoder coerce 而非 reject、policy 首用加载）。
+
 ## 下一步
 
-1. Phase 4b：Unity 编辑器实操（脚手架和 `unity/README.md` 指南已备好；lip-sync 方案 A 振幅保底）
-2. **与组员对齐**：`dataset-v2-behavior-policy` 分支合并方式（建议 PR review）；对话侧 5 条件实验取舍
-3. 用户研究（RQ5）：10–15 被试，Google Form 待建，尽早招人
-4. 报告撰写：Method 映射 `docs/npc-design.md` 双通道结构；Experiments 四张表齐备；评估数字建议跑 3 次取均值后定稿
-5. 可选：VCTK 语音替换、3D 形象（需课程算力）、NLI 矛盾脚本
+1. 用户研究（RQ5）：10–15 被试盲测，Google Form 待建，尽早招人——目前唯一未做的评估
+2. 论文收尾：合并 co-author 修订、可选补 consistency_pairs（`evaluation/run_dialogues.py` 已跑但论文未报告）、评估数字建议 3 seed 取均值定稿
+3. 可选：VCTK 真人语音替换占位音、非移动动作动画补全、口型在编辑器验证
 
 ## 备忘
 
 - 运行：`python -m backend.main --npc aldric --text`（文字）/ 加 `--speak`（语音输出）/ 去掉 `--text`（麦克风输入）
 - 每次 CLI 退出会覆盖保存 persona（含记忆）——评估实验前备份 `data/personas/*.json` 或用 `reset`
-- 测试：`python -m pytest`（143 个，不依赖 Ollama/XTTS/GPU，用 stub 隔离）
-- 本机 torch 是 CPU 版（coqui-tts 依赖锁），policy MLP 很小无所谓；Ollama 自动用本机 RTX 4060
+- 测试：`python -m pytest`（208 个；Ollama/XTTS/GPU 用 stub 隔离，但 policy 测试需 torch 才能 import）
+- 服务端启动用 `start_server.bat`（走 `D:\venvs\gai` 的 CUDA venv）；Ollama 自动用本机 RTX 4060

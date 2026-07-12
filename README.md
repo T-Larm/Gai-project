@@ -12,7 +12,7 @@ Course project for *Generative Artificial Intelligence for Graphics and Multimed
  game state ─► trained policy (MLP, 0.6 ms) ─► action + mood
  (JSON)              │                            │ NPC acts immediately
                      ▼                            ▼
-              LLM bark verbalizer (~1.2 s, async) ─► one in-character line ─► XTTS v2
+              LLM bark verbalizer (optional, ~1.2 s) ─► one in-character line ─► XTTS v2
               (falls back to templates if the LLM stalls — gameplay never blocks)
 
  ── Dialogue channel (player interaction; action=socialize routes here) ─
@@ -84,7 +84,7 @@ python -m evaluation.eval_policies --checkpoint data/behavior_policy/checkpoints
 ## Tests & evaluation
 
 ```bash
-python -m pytest        # 143 tests, no Ollama/XTTS/GPU needed (heavy models stubbed)
+python -m pytest        # 208 tests; Ollama/XTTS/GPU stubbed, but torch is required to import the policy tests
 ```
 
 The evaluation harness (baselines, ablations, LLM-as-judge, latency) lives in `evaluation/` — see [`evaluation/README.md`](evaluation/README.md). Example:
@@ -102,27 +102,18 @@ backend/          behavior policy · verbalizer · STT · LLM dialogue · person
 data/             seeds, personas, voices, converted policy dataset + checkpoints + eval results
 evaluation/       dataset conversion, policy training/eval, dialogue runner / judge / latency scripts
 scripts/          placeholder voice generation
-tests/            pytest suite (143)
+tests/            pytest suite (208)
 unity/            Unity client (in progress)
 docs/             design & progress documentation (Chinese)
 ```
 
 Design deep-dive: [`docs/npc-design.md`](docs/npc-design.md) · Progress log: [`docs/progress-log.md`](docs/progress-log.md)
 
-## Status
-
-| Phase | Scope | Status |
-|---|---|---|
-| 1 | STT + LLM dialogue + auto persona generation | ✅ |
-| 2 | Semantic memory retrieval (3-factor) | ✅ |
-| 3 | TTS voice cloning (XTTS v2) | ✅ |
-| 4a | FastAPI bridge for Unity | ✅ |
-| B | Behavior policy: dataset v2 + training + 3-way eval + bark verbalizer + `/act` | ✅ |
-| 4b | Unity scene + client + lip-sync | 🔧 in progress |
-| Eval | Dialogue-side runs + user study | 🔧 harness ready |
-
 ## References
 
 1. Park et al., *Generative Agents: Interactive Simulacra of Human Behavior*, UIST 2023.
-2. Abdulhai et al., *Consistently Simulating Human Personas with Multi-Turn Reinforcement Learning*, arXiv:2511.00222, 2025.
-3. Albayrak, *RPG Dataset (Llama-3)* — Stateful RPG NPC simulation data + generator, [Kaggle](https://www.kaggle.com/datasets/abdusselamalbayrak/rpg-dataset-llama-3/data), Apache-2.0.
+2. Braas & Esterle, *Fixed-Persona SLMs with Modular Memory: Scalable NPC Dialogue on Consumer Hardware*, arXiv:2511.10277, 2025.
+3. Kim et al., *State-Inference-Based Prompting for Natural Language Trading with Game NPCs*, arXiv:2507.07203, 2025.
+4. Shao et al., *Character-LLM: A Trainable Agent for Role-Playing*, EMNLP 2023.
+
+Dataset: Albayrak, *RPG Dataset (Llama-3)* — Stateful RPG NPC simulation data + generator, [Kaggle](https://www.kaggle.com/datasets/abdusselamalbayrak/rpg-dataset-llama-3/data), Apache-2.0.
